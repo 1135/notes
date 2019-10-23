@@ -1,8 +1,9 @@
 ### 处置流程
 
 * 信息发现
-* 信息删除(尽量删除)
-* 消除影响(尽量更改)
+* 信息删除
+  * 某个git仓库包含了敏感信息 - 可以删除敏感信息后commit 再删除相关的commit记录 这样可以保持代码不变的情况下删除敏感信息. 也可以删除git仓库的所有commit历史记录[git - how to delete all commit history in github? - Stack Overflow](https://stackoverflow.com/questions/13716658/how-to-delete-all-commit-history-in-github)
+* 信息变更 尽量消除已泄露数据的影响
   * 泄露的配置 - 域名/ip...
   * 泄露的凭证 - username/password/token...
 
@@ -17,14 +18,15 @@
   * 内部IM系统
   * ...
 
-### 自动化-github信息泄露发现系统
+#### 自动化-github信息泄露发现系统
 
 |名称|属性|运行环境|描述|
 |:-------------:|--|--|-----|
 |[MiSecurity/x-patrol](https://github.com/MiSecurity/x-patrol/)|Golang|all|MiSecurity|
 |[michenriksen/gitrob](https://github.com/michenriksen/gitrob)|Golang|allReconnaissance tool for GitHub organizations|
 
-**x-patrol 搭建过程**
+
+x-patrol 搭建过程：
 
 进入 https://github.com/MiSecurity/x-patrol/releases
 
@@ -90,9 +92,3 @@ x@xsec.io
 ```
 
 ![效果图.png (2862×1234)](https://camo.githubusercontent.com/6f66528be6b1a80300ba103995f71a69fb629335/68747470733a2f2f696d61676573322e696d67626f782e636f6d2f39372f65342f5676776f364450555f6f2e706e67)
-
-
-* web安全测试结果
-  * 有CSRF漏洞 实际意义不大
-  * 无sql注入漏洞 所有sql查询均使用了orm框架 [go-xorm/xorm](https://github.com/go-xorm/xorm) 支持 mysql,postgres,tidb,sqlite3,mssql,oracle
-  * 无XSS漏洞
