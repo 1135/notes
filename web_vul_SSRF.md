@@ -71,6 +71,7 @@ SSRFserver -> attacker      【4】程序逻辑如果将req2的真实响应内�
   * 探测内网(Probe intranet)
     * IP - 探测内网网络架构 存活主机
     * service/port - 端口开放情况 如数据库类的服务 （常用判断依据：HTTP响应码、HTTP响应时长）
+    * web指纹识别 - 比如tomcat有[tomcat.png](https://github.com/apache/tomcat/tree/master/webapps/ROOT)等指纹
     * Cloud Instances - 如果含有SSRF漏洞的Web应用运行在云实例 可以尝试获取"云服务商提供的让内部主机查询自身的元数据"
       * AWS(Aws keys, ssh keys and [more](https://medium.com/@madrobot/ssrf-server-side-request-forgery-types-and-ways-to-exploit-it-part-1-29d034c27978))
       * Google Cloud
