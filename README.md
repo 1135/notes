@@ -55,9 +55,7 @@
  * [笔记 - Android应用安全](note_sec_android.md)
  * [笔记 - blockchain - ETH 智能合约 基本概念](blockchain_SmartContracts.md)
  * [笔记 - blockchain - 虚拟币挖矿的各种方式](blockchain_mining.md)
- * [笔记 - MacOS 好用软件 快捷键 命令 技巧](z_command_Mac.md)
  * [笔记 - 实现各系统的模拟操作](z_auto_operation.md)
- * [笔记 - Machine Learning 机器学习](note_machine_learning.md)
 
 #### 公开案例
 
