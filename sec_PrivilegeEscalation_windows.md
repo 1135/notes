@@ -57,31 +57,41 @@ wmic logicaldisk get caption || fsutil fsinfo drives
 User Enumeration
 # ---------------
 # Get current username
-# 获取当前的用户名
+# 获取当前用户的用户名
 
 echo %USERNAME% || whoami
 $env:username
 
 # ---------------
+# 获取在线状态的用户的用户名
+query user
+
+# ---------------
 # List user privilege
-# 获取用户权限
+# 列出用户的权限
 
 whoami /priv
 
 # ---------------
 # List all users
-# 列出所有用户
+# 列出所有用户的用户名
 
 net user
 whoami /all
 Get-LocalUser | ft Name,Enabled,LastLogon
 Get-ChildItem C:\Users -Force | select Name
 
+
+
+# 查看当前AD域中的所有用户的用户名 (大概判断域的规模)
+net user /domain
+
 # ---------------
 # List logon requirements; useable for bruteforcing
 # 列出登录要求; 可用于暴力枚举
 
 net accounts
+
 如结果
 强制用户在时间到期之后多久必须注销?:     从不
 密码最短使用期限(天):                    0
@@ -93,6 +103,11 @@ net accounts
 锁定观测窗口(分):                        30
 计算机角色:                              WORKSTATION
 
+
+# 查看当前AD域中的域内账户密码策略
+net accounts /domain
+
+
 # ---------------
 # Get details about a user (i.e. administrator, admin, current user)
 # 获取某个用户的详细信息（如administrator admin 当前用户）
@@ -101,8 +116,13 @@ net user administrator
 net user admin
 net user %USERNAME%
 
+
+# 查看当前AD域中的指定用户 详细信息
+net user epoadmin /domain
+
 # ---------------
 # List all local groups
+# 查当前主机的所有的用户组的名称 - 了解不同组的职能 如IT HR ADMIN FILE...
 
 net localgroup
 
@@ -111,13 +131,14 @@ Get-LocalGroup | ft Name
 
 # ---------------
 # Get details about a group (i.e. administrators)
-# 获取一个用户组的的详细信息
+# 获取一个用户组的详细信息(查指定组中的成员列表)
 
 net localgroup administrators
 
 # 第三方脚本
 Get-LocalGroupMember Administrators | ft Name, PrincipalSource
 Get-LocalGroupMember Administrateurs | ft Name, PrincipalSource
+
 ```
 
 #### 网络枚举
@@ -126,9 +147,10 @@ Get-LocalGroupMember Administrateurs | ft Name, PrincipalSource
 Network Enumeration
 # ---------------
 # List all network interfaces, IP, and DNS.
-# 列出所有网卡 IP DNS
+# 列出所有网卡 IP DNS （得到信息 本机是否在域内 内网网段 网关Gateway)
 
 ipconfig /all
+
 如结果
 Windows IP Configuration
    Host Name . . . . . . . . . . . . : b33f
@@ -168,6 +190,10 @@ Get-NetIPConfiguration | ft InterfaceAlias,InterfaceDescription,IPv4Address
 Get-DnsClientServerAddress -AddressFamily IPv4 | ft
 
 
+# ---------------
+# 查看本机的DNS缓存
+
+ipconfig /displaydns
 
 # ---------------
 # List current routing table
@@ -195,7 +221,11 @@ Get-NetNeighbor -AddressFamily IPv4 | ft ifIndex,IPAddress,LinkLayerAddress,Stat
 # List all current connections
 # 列出所有当前连接
 
+# 查看本机所有的tcp udp端口连接 对应的pid
 netstat -ano
+
+# 查看本机所有的tcp udp端口连接 对应的发起程序
+netstat -anob
 
 # ---------------
 # List firewall state and current configuration
@@ -206,6 +236,13 @@ netsh advfirewall firewall dump
 netsh firewall show state
 
 netsh firewall show config
+
+# 查看当前正处于"已连接"状态的 ip port
+netstat -ano | findstr "ESTABLISHED"
+
+# 查看当前正处于"监听"状态的 ip port
+netstat -ano | findstr "LISTENING"
+
 
 # ---------------
 # List firewall's blocked ports
