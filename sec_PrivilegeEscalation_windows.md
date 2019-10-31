@@ -16,6 +16,14 @@ Windows Version and Configuration
 # 查看综合信息
 systeminfo
 
+根据特征分析 存在以下特征 可判断为虚拟机:
+特征1
+系统制造商:       QEMU
+
+特征2
+网卡:             安装了 2 个 NIC。[01]: Red Hat VirtIO Ethernet Adapter
+
+# ---------------
 # 查看系统名称（windows系统 中文版）
 systeminfo | findstr /B /C:"OS 名称" /C:"OS Version"
 
@@ -24,7 +32,7 @@ systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
 
 # ---------------
 # Architecture
-# 查询架构 不同语言的系统都通用
+# 查询架构(不同语言的操作系统通用)
 
 wmic os get osarchitecture || echo %PROCESSOR_ARCHITECTURE%
 如结果
