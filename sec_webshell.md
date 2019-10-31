@@ -42,7 +42,7 @@
   * dump数据库到本地（前提是MySQL需要权限 可导出文件到某目录）
     * 查看MySQL权限 `show global variables like '%secure_file_priv%';` 如果查询结果为NULL 则没有权限直接使用SQL语句导入导出文件 需要变通:
       * 把查询结果保存 ```SELECT * FROM `table1`;```  如果查询的数据量过大导致查询超时?
-        * 先确定数据条数 ```SELECT COUNT(*) FROM `table1`;``` 再分多次查询 ```SELECT * FROM `table1` ORDER BY `id` ASC LIMIT 0,20;``` 从第1条数据开始(起点) 查询20条数据(数据量) 以此类推 最后拼接查询结果 得到整个表的数据
+        * 先确定数据条数 ```SELECT COUNT(*) FROM `table1`;``` 再分多次查询 ```SELECT * FROM `table1` ORDER BY `id` ASC LIMIT 0,20;``` 从第1条数据开始(起点) 查询得到20条数据(数据量) 下次`LIMIT 20,20`再得到20条数据 以此类推 最后拼接查询结果 得到整个表的数据
     * 实现dump方式1 使用php实现(默认) 支持mysql,pgsql,sqlite,dblib  php代码见[weevely3/mysqldump.tpl](https://github.com/epinna/weevely3/blob/master/modules/sql/_dump/mysqldump.tpl) 原项目为[mysqldump-php](https://github.com/ifsnop/mysqldump-php)
     * 工具命令 `:sql_dump DBname DBuser DBpass -dbms mysql -host localhost:3306` 把数据库dump 下载保存到本地目录`/var`下. 可指定保存为本地文件`-lpath /Users/xxx/Downloads/db1.sqldump`
     * 实现dump方式2 执行系统命令(只支持MySQL) 使用weevely中定义的php类`ShellCmd`执行系统命令启动`mysqldump`程序实现
