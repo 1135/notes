@@ -1,13 +1,14 @@
-### 权限提升
+### 目录
 
-提权(Privilege Escalation) 
+* [Checklist - Windows主机信息全面搜集](#checklist---windows主机信息全面搜集)
+* [Checklist - Windows提权之前必要信息搜集](#checklist---windows提权之前必要信息搜集)
+* [Checklist - EoP - Windows各种提权方式](#eop---windows各种提权方式)
 
-权限提升 (EoP, Elevation of Privilege)
+### Checklist - Windows主机信息全面搜集
 
-本地提权(LPE, Local Privilege Escalation)
+参考 [Windows-Notes-and-Cheatsheet.md](https://github.com/m0chan/m0chan.github.io/blob/master/_posts/2019-07-30-Windows-Notes-and-Cheatsheet.md)
 
-
-### Checklists - Windows提权之前必要信息搜集
+### Checklist - Windows提权之前必要信息搜集
 
 #### Windows 版本和配置
 ```
@@ -292,6 +293,15 @@ Get-ChildItem -path HKLM:\SYSTEM\CurrentControlSet\Services\SNMP -Recurse
 
 
 ### EoP - Windows各种提权方式
+
+#### 简介
+
+提权(Privilege Escalation) 
+
+权限提升 (EoP, Elevation of Privilege)
+
+本地提权(LPE, Local Privilege Escalation)
+
 
 #### EoP - 密码搜集
 
@@ -765,3 +775,4 @@ $ computer = "<hostname>"
 * 详细参考
   * [PayloadsAllTheThings/Windows - Privilege Escalation.md](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md#token-impersonation-rottenpotato)
   * [Windows-Notes-and-Cheatsheet.md](https://github.com/m0chan/m0chan.github.io/blob/master/_posts/2019-07-30-Windows-Notes-and-Cheatsheet.md)
+
