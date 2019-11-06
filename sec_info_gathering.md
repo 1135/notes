@@ -151,7 +151,7 @@ site:apple.com -site:www.apple.com -inurl:support
 |:-------------:|-----|
 |https://www.virustotal.com/#/domain/qq.com | 综合查询 Whois/子域名/DNS解析历史(支持子域名) |
 |https://crt.sh/?id=1656621355 |Subject Alternative Name (SAN) 是SSL标准`x509`中定义的一个扩展(一个使用了SAN(`subjectAltName`)字段的SSL证书 能支持多个不同域名的解析). 下载证书文件`.crt`或在线解析 可从证书文件中的`subjectAltName`下的`DNS:`看到该证书支持哪些域名|
-|https://findsubdomains.com/subdomains-of/qq.com|domain 子域名信息 Find subdomains online.|
+|https://spyse.com/search/subdomain?q=qq.com |domain 子域名信息 Find subdomains online.|
 |https://dnsdumpster.com/|domain DNS枚举子域名信息 FREE domain research tool that can discover hosts related to a domain.|
 |https://viewdns.info/|Reverse Whois/IP/domain/DNS/MS/NS Lookup.|
 |https://dnstable.com/ip/203.205.158.53| Reverse 解析为某ip的诸多域名|
