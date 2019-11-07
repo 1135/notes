@@ -1,5 +1,11 @@
+### shell proxy
 
-#### Proxy代理工具
+```
+# 临时设置环境变量 实现 HTTP/HTTPS 代理
+export http_proxy="http://127.0.0.1:8001"; export HTTP_PROXY="http://127.0.0.1:8001"; export https_proxy="http://127.0.0.1:8001"; export HTTPS_PROXY="http://127.0.0.1:8001"
+```
+
+### Proxy tools
 
 |名称|属性|描述|
 |:-------------:|--|-----|
@@ -10,9 +16,9 @@
 
 不建议使用ngrok - (闭源、可能被企业防火墙禁止、对arm支持有限)
 
-#### ProxyPool代理池
+### ProxyPool
 
-|名称|描述|
+|代理池|描述|
 |:---:|---------|
 |http://proxylist.fatezero.org/proxy.list | 在线代理池 每15分钟更新. 实测很多高匿代理会暴露真实ip(具体在http header的X-Forwarded-For中最后一个ip)   即https://github.com/fate0/proxylist/blob/master/proxy.list|
 
