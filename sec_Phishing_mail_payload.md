@@ -20,7 +20,8 @@
 |HTA文件|`.hta`|APT|
 |使用Office软件图标的可执行文件|`*`|VBA Marco - [蔓灵花(BITTER) APT](https://s.tencent.com/research/report/615.html)的邮件中投递了使用word图标的exe自解压文件|
 |.rar压缩文件|`.rar`|如果目标使用的rar程序存在CVE-2018-20250漏洞,当打开evil.rar常常会把恶意程序解压到"启动"`startup`文件夹|
-|SFX自解压文件|`.sfx`|APT|SFX(SelF-eXtracting)自解压文件是一种压缩文件 双击该文件就能自动执行解压缩|
+|SFX自解压文件|`.sfx`|SFX(SelF-eXtracting)自解压文件是一种压缩文件 双击该文件就能自动执行解压缩|
+| SCR文件 |`.scr`|TransparentTribe APT(来自巴基斯坦)|
 
 参考项目 [SocialEngineeringPayloads](https://github.com/bhdresh/SocialEngineeringPayloads)
 
