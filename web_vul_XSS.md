@@ -416,7 +416,7 @@ XSS proxy - 与XSS受害者的浏览器实时交互.  工具 [JShell](https://gi
   * 条件1 web后端使用了"同源策略不够严格"的html解析库
   * 条件2 该html解析库的输入(html代码)用户可控
 * 实际案例 - 转换html为pdf文件 [Local File Read via XSS in Dynamically Generated PDF](https://www.noob.ninja/2017/11/local-file-read-via-xss-in-dynamically.html)
-  * 满足条件1 已知html解析库[wkhtmltopdf](https://github.com/wkhtmltopdf/wkhtmltopdf)存在漏洞 见[the same-origin policy vulnerability · Issue #4536](https://github.com/wkhtmltopdf/wkhtmltopdf/issues/4536)
+  * 满足条件1 已知html解析库[wkhtmltopdf](https://github.com/wkhtmltopdf/wkhtmltopdf)存在[The same origin policy allows local files to be read by default · Issue #4536](https://github.com/wkhtmltopdf/wkhtmltopdf/issues/4536)
   * 满足条件2 该html解析库的输入(html代码)用户可控
 * 利用XSS读取本地文件 - 构造1.html(payload)使解析库解析 能否解析成功取决于不同解析库的具体实现
   * payload类型1 利用xhr发起异步请求读取`file://`域下的本地文件
@@ -448,7 +448,7 @@ x.send();
 //     创建XMLHTTPRequest对象
 //     使用该对象`.open`函数 初始化一个新的request(默认异步)
 //     再使用该对象的`.send`函数 发送该request去读取`file://`域下的另一文件`file:///etc/passwd`
-//     因为该解析库没做好跨域防御 所以该request的响应内容就是文件`/etc/passwd`的内容
+//     如果解析库没做好跨域防御 则该request的响应内容就是文件`/etc/passwd`的内容
 //     使用`document.write`将该request的响应内容(文件内容)写入`document`
 
 </script>
