@@ -279,45 +279,50 @@ $.ajax({
 
 跨域传输数据原理：window对象的name参数可以在多标签内共享
 
-如a.com的a.html中创建iframe标签并设置地址外域，在外域设置window.name，再跳转回本域，此时还能获取到外域设置的window.name，此时就达到了跨域的目的。
+在域a.com的a.html中创建iframe标签并设置`iframe.src`为b.com(外域)的地址`iframe.src = 'http://b.com/b.html';`
+
+在b.com(外域)的b.html中设置`window.name = 'xxx';`
+
+此时在域a.com的a.html中,能获取到刚才在b.com(外域)设置的`window.name`
+
 
 a.com的a.html的内容:
 ```
-<script type="text/javascript">
-    var state = 0, 
-    iframe = document.createElement('iframe'),//创建iframe元素
-    loadfn = function() {
-        if (state === 1) {
-            var data = iframe.contentWindow.name; // 读取到外域b.com的资源、数据
-            alert(data);    //弹出'happy'
-        } else if (state === 0) {
-            state = 1;
-            iframe.contentWindow.location = "http://a.com/proxy.html"; // proxy.html(内容为空 仅起中转作用)
-        }  
-    };
-    iframe.src = 'http://b.com/b.html';//设置a.com页面下的iframe元素 src属性的值为http://b.com/b.html
-    if (iframe.attachEvent) {
-        iframe.attachEvent('onload', loadfn);
-    } else {
-        iframe.onload  = loadfn;
-    }
-    document.body.appendChild(iframe);
+<script>
+var iframe = document.createElement('iframe');//在域a.com下创建一个iframe元素
+
+iframe.src="https://b.com/b.html"; //在域a.com下的/a.html 设置这个iframe元素的src属性的值为http://b.com/b.html
+
+document.body.appendChild(iframe);
+
+
+iframe.onload=function(){
+
+// 在a.com下 得到来自外域b.com的数据
+
+var data1 = iframe.contentWindow.name;
+var data2 = iframe.contentWindow.location.href;
+
+alert(data1);
+alert(data2);
+
+console.log("get data:",data1);
+console.log("get data:",data2);
+
+}
 </script>
 ```
-
-a.com的proxy.html的内容:
-(内容为空 仅起中转作用)
-
 
 b.com的b.html的内容:
 ```
-<script type="text/javascript">
+<script>
     // 需要传输的数据
     // 数据格式可以自定义:json 字符串...
     // 数据量：一般为2M，Firefox下约32M
-    window.name = 'happy';
+    window.name = 'data_in_domain_b.com';
 </script>
 ```
+
 ### 实例5 - window.postMessage
 
 `window.postMessage(message，targetOrigin)` - 该HTML5方法可从当前window对象向其他的window对象发送消息 不论这两个窗口是否同源
