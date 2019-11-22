@@ -229,7 +229,7 @@ Content-Type: application/xml
 
 * 根本原因 - JSONP可以"跨域"的根本原因是`<script>`标签能够("绕过"同源策略)请求其他域名的资源 如`<script src="http://www.B.com/1.js"></script>`
 * 理解 - json是目的 JSONP是手段 Padding指的是callback函数
-* 大致过程 - 域A.com的JavaScript脚本 从域A.com 对域B.com发起请求 得到B.com的响应 内容为json格式的数据(这样的数据符合JavaScript语法)。 域A.com的JavaScript脚本 把具体数据作为实际参数 传递给回调函数
+* 大致过程 - 域A.com下的JavaScript脚本 从域A.com发送HTTP请求到域B.com 得到B.com的响应 响应内容为json格式的数据(这样的数据符合JavaScript语法)  此时域A.com下的JavaScript脚本 把得到的具体数据作为实际参数 传递给域A.com下的回调函数 使用数据
 
 首先在域A.com的前端 有JavaScript脚本如下:
 
@@ -248,17 +248,17 @@ console.log('Your token is: ' + data.token);
 ```
 
 * JSONP详细步骤分析
-  * 域A.com有一个script标签 会向域B.com发出GET请求 `http://B.com/info?callback=foo` 其中参数callback的参数值为foo 三个字母组成的字符串(随后解释)
-  * 非同域 域B.com的后端 得到域A.com刚才发出的GET请求 得到来自A的字符串`foo` (foo 其实是域A.com前端JavaScript代码中定义的回调函数的函数名)
-  * 域B.com设置响应内容为`foo({"token": "XXXX"});`  这样做是为了把具体数据返回给域A.com的前端JavaScript
-    * 注意域B.com的Response Header中Content-Type必须是JavaScript  即`text/javascript`或`application/javascript`
+  * 域A.com有一个`script`标签 `src`属性的值为域B.com下的`http://B.com/info?callback=foo` 即从域A发出GET请求到域B 其中参数callback的参数值为`foo` 三个字母组成的字符串(随后解释)
+  * 非同域 域B.com的后端 得到了刚刚从域A.com发出的GET请求 也就得到了来自域A的字符串`foo` (foo 其实是域A.com前端JavaScript代码中定义的回调函数的函数名)
+  * 非同域 域B.com的后端 设置响应内容为`foo({"token": "XXXX"});` 这样做是为了把具体数据返回给域A.com下的JavaScript
+    * 注意域B.com的Response Header中Content-Type的值必须是JavaScript  即`text/javascript`或`application/javascript`
   * 域A.com的JavaScript脚本 得到响应内容 `foo({"token": "XXXX"});`
-  * 域A.com的JavaScript脚本 把json数据`{"token": "XXXX"}`作为实参 传入域A.com的本来就定义了的名为`foo`的函数 回调函数
+  * 域A.com的JavaScript脚本 把json数据 `{"token": "XXXX"}`作为实参 传入域A.com下的名为`foo`的函数(域A下早就定义了这个函数) 回调函数
 
 就这样，通过JSONP的方式实现了跨域请求：域A.com 的客户端脚本就拿到了来自 域B.com的json格式的数据 `{"token": "XXXX"}`
 
 * 使用JSONP实现跨域 常见**安全风险**
-  * 校验request header不严格 - 导致攻击者的域C.com中构造的前端代码(参考正常业务 域A.com的前端代码) 能够获取B.com的响应内容 `foo({"token": "XXXX"});`
+  * 如果B.com没有严格校验request header - 如没有严格校验`Referer` 导致攻击者在域C.com下构造JavaScript代码(参考正常业务 域A.com的前端代码) 能够获取B.com的响应内容 `foo({"token": "XXXX"});`
 
 ### 实例3 - JSON with Padding(jQuery实现)
 
