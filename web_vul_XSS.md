@@ -34,7 +34,7 @@
   * 检测方法1  - 浏览器&开发者工具 - 查看经过js解析过的html代码，输入构造的数据并查看其前端解析，构造的payload执行成功则存在DOM Based XSS
   * 检测方法2  - 使用浏览器(headless) - 根据该页面的前端代码设计缺陷，通常在浏览器(headless)的URL输入框构造XSSpayload并访问，使前端解析并执行该XSSpayload，根据headless调试进行判断，如果确认执行成功则存在DOM Based XSS
 
-### 基础知识 - DOM
+#### 基础知识 - DOM
 
 * DOM (Document Object Model)  html中每一个元素都是"节点":
   * 文档是一个文档节点
@@ -370,16 +370,17 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 - 最短的HTML context XSS payload是 `<script src=//14.rs>` (19 chars)
 
 
-### XSS利用方式
+### XSS漏洞影响
 
-XSS可以插入Javascript代码，所以JavaScript能实现的任何功能都是XSS的利用方式。
+XSS漏洞的利用方式很多，JavaScript能实现的任何功能都是XSS的利用方式。
 
 XSS proxy - 与XSS受害者的浏览器实时交互.  工具 [JShell](https://github.com/s0md3v/JShell)、[xsshell](https://github.com/raz-varren/xsshell)、[JSShell](https://github.com/Den1al/JSShell)
 
 举例如下
 * 获取Cookie - 如果没有`HttpOnly`则可获取Cookie 从而盗用账户身份(读取账户特有的信息/执行账户特有的操作)
   * 管理员 发起高权限操作 - 创建新账号 修改密码...
-  * 普通用户 发起普通用户权限操作 - 评论、发帖、支付转账、刷量...
+  * 普通用户 发起普通用户权限操作 - 评论、发帖、转账...
+* 获取浏览器的存储(Storage) - `localStorage` `sessionStorage` `indexedDB` `Web SQL Database`
 * 探测内网 - 利用实时通信标准WebRTC 获取存活主机ip列表 甚至端口 进而识别服务、web系统类型与版本（如发现内网confluence系统）
 * 攻击内网 - 根据探测结果(或对所有内网ip)发起漏洞利用攻击流量（利用web系统漏洞：confluence系统命令执行等；利用常见服务漏洞：redis未授权Getshell)
 * XSStoRCE - 使用node.js作为web后端 或 基于node.js的桌面应用框架(如Electron) 都可能通过XSS实现RCE
