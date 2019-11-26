@@ -223,7 +223,7 @@ Content-Type: application/xml
 
 
 * 使用CORS实现跨域 常见**安全风险**
-  * B.com的`Access-Control-Allow-Origin: *`可以接收并响应任何其他域的request 存在风险 应该设置域名白名单
+  * B.com的`Access-Control-Allow-Origin: *`可以接收并响应来自任何域的request 存在风险. 应该设置"源域名白名单"
 
 ### 实例2 - JSON with Padding
 
@@ -258,7 +258,20 @@ console.log('Your token is: ' + data.token);
 就这样，通过JSONP的方式实现了跨域请求：域A.com 的客户端脚本就拿到了来自 域B.com的json格式的数据 `{"token": "XXXX"}`
 
 * 使用JSONP实现跨域 常见**安全风险**
-  * 如果B.com没有严格校验request header - 如没有严格校验`Referer` 导致攻击者在域C.com下构造JavaScript代码(参考正常业务 域A.com的前端代码) 能够获取B.com的响应内容 `foo({"token": "XXXX"});`
+  * **JSON hijacking**
+    * 前提条件:B.com没有严格校验request header `origin` `Referer` 就响应了"数据"，则B.com存在JSON hijacking
+    * 利用方式:攻击者参考域A.com的jsonp代码(正常业务)，在"第三方"域C.com下的JavaScript代码发出跨域请求(访问域B.com的数据)，即可在"第三方"域C.com下获取到B.com的响应内容 `foo({"token": "XXXX"});`
+
+B.com存在JSON hijacking漏洞时，在域C.com下使用如下代码获取B.com的数据:
+```
+<script>
+function func(o){
+	document.write("i know who u r: "+o.userinfo.userid);
+}
+
+</script>
+<script src="http://B.com/xxx.php?callback=func"></script>
+```
 
 ### 实例3 - JSON with Padding(jQuery实现)
 
