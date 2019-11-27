@@ -206,18 +206,24 @@ mysql> show global variables like '%secure_file_priv%';
 1 row in set (0.00 sec)
 ```
 
-修改secure_file_priv的值:
+修改secure_file_priv的值(必须重启mysqld才能生效):
 ```
 # 要修改secure_file_priv的值，必须修改配置文件并重新启动`mysqld`服务
-# windows下的配置文件为`my.ini`
-# linux下的配置文件为`my.cnf`
+# windows下的配置文件为 my.ini
+# unix/linux/macOS 下的配置文件为my.cnf
 
+#编辑该文件修改配置`sudo vim /etc/my.cnf`
+
+# 默认设置1 没有进行任何配置情况下，`secure_file_priv`不存在，此时使用它的默认值`NULL` 即禁止mysqld导入或导出. 
+
+
+# 可选设置2 secure_file_priv="/tmp/" 表示mysqld只能在/tmp/目录下 导入或导出.
+[mysqld]
+secure_file_priv="/tmp/"
+
+# 可选设置3 secure-file-priv = ""    表示mysqld可以在任意目录进行导入或导出.
 [mysqld]
 secure-file-priv = ""
-
-# 情况1 没有进行任何配置情况下，`secure_file_priv`不存在，此时使用它的默认值`NULL` 即禁止mysqld导入或导出. 
-# 情况2 secure_file_priv="/tmp/" 表示mysqld只能在/tmp/目录下 导入或导出.
-# 情况3 secure-file-priv = ""    表示mysqld可以在任意目录进行导入或导出.
 ```
 
 ### 重点检测
