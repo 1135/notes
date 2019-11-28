@@ -158,6 +158,19 @@ Content-Type: text/html; charset=UTF-8
 
 例1 `Content-Security-Policy: default-src 'self'; script-src *;`
 
+
+#### 绕过CSP 方法4 - 借助上传功能
+
+如果web应用有上传功能，可以借助上传功能上传自定义JavaScript代码。
+
+构造一个包含JavaScript的图片文件，内容为
+```
+GIF89a=//<script>
+alert(1)//</script>
+```
+
+上传成功后看到该文件的域名，如果该域名符合CSP策略，则利用XSS漏洞时可"绕过"CSP执行自定义JavaScript代码。
+
 -----
 
 
