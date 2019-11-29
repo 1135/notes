@@ -679,6 +679,10 @@ if (isValidURL) {
 | JavaScript Encoding     | 用unicode转义格式(escaping format) `\uXXXX` (X是整数) 转义"除了字母数字字符之外的"所有ASCII < 256的字符|
 | CSS Hex Encoding        | CSS转义(CSS escaping) 支持 `\XX` 和 `\XXXXXX`. Using a two character escape can  cause problems if the next character continues the escape sequence.  There are two solutions (a) Add a space after the CSS escape (will be  ignored by the CSS parser) (b) use the full amount of CSS escaping  possible by zero padding the value. |
 
+#### 应急响应
+
+* 存储型XSS
+  * 必须删除业务数据库中的XSSpayload - 如果在web系统A中发现了存储型XSS，web系统A修复了XSS漏洞（web系统A做了输出编码 XSSpayload无法执行），但如果没有删除业务数据库中的XSSpayload，则可能在"XSS防御能力较弱"的web系统B中，从同一个数据库中读取出的同一条数据（XSSpayload），那么在web系统B会触发XSS漏洞
 
 #### 浏览器自带的XSS防御机制 XSS filter
 
