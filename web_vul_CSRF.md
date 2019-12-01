@@ -21,8 +21,8 @@ CSRF通过构造get/post等请求，设法使已登录用户victim不知情的�
    * 2.利用自身/兄弟/父子域名的XSS漏洞绕过CSRF防御机制 - 有的anti-CSRF机制是后端通过判断Referer的值，如果Referer的值 是自身/兄弟/父子域名下的url 就是"合法"请求
    * 3.利用任意第三方域名的XSS漏洞 - 使victim访问攻击者可控的第三方网站`https://3.com` 该第三方站点上用javascript构造GET请求(通过img标签 使victim发出GET请求) POST请求(构造目标站的表单数据并自动提交 使victim发出POST请求)
    * html注入漏洞 (参考通过XSS间接利用CSRF)
-* 漏洞联合 - 通过已有的CSRF漏洞 利用self-XSS漏洞(变废为宝)
-  * 利用过程 - 事实上self-XSS漏洞无法直接使对方触发，然而通过已有的CSRF漏洞构造"触发该self-XSS漏洞的"请求，对方触发CSRF漏洞即触发XSS漏洞
+* 漏洞联合 - CSRF漏洞 可使self-XSS漏洞"变废为宝"
+  * 利用过程 - 假设b.com下存在self-XSS漏洞和CSRF漏洞，直接利用self-XSS漏洞则victim只有自己，但是借助CSRF漏洞则victim可以是别人，比如可在攻击者可控的第三方网站`https://3.com`下利用CSRF漏洞 构造跨域请求发送到b.com，其中请求内容为"能够触发self-XSS漏洞的payload"，所以victim访问第三方网站`https://3.com`时，会发出CSRF请求到b.com并且在域b.com下被XSS攻击
 
 #### 利用任意第三方域名的XSS漏洞 发出GET请求
 
@@ -110,12 +110,18 @@ ip=1.1.1.1&offset=0&limit=20
     * 如使用`X-CSRF-token:xxxx`标明CSRF_TOKEN的值(即使CSRF利用成功发出了携带Cookie的HTTP请求 但后端判断`X-CSRF-token`不存在则拒绝请求)
   * One-time Token
     * 如每次提交表单都包含字段`Token=xxxx`且每次值不同 后端可校验是否正确
+* `Set-Cookie`使用`SameSite`属性
+  * 后端Response Header`Set-Cookie`中设置`SameSite`属性(由Google引入浏览器 用于缓解CSRF攻击)，`SameSite`属性有3种值:
+    * `Strict`严格 - 例如 域b.com的Response Header有`Set-Cookie: admin_cookie_strict=xxx; SameSite=Strict`，浏览器中会保存这一Cookie字段`admin_cookie_strict=xxx`，但由于`SameSite=Strict`为**严格**，所以浏览器对(非b.com域下发起的)访问b.com的**任何跨域请求**都不允许携带这一Cookie字段`admin_cookie=xxx`，所以可以彻底防御CSRF攻击。比如从域a.com下构造并发出跨域请求访问b.com(尝试CSRF)，绝对不会携带关键的cookie，从而b.com后端鉴权失败，CSRF攻击失败
+    * `Lax`宽松 - 例如 域b.com的Response Header有`Set-Cookie: admin_cookie_lax=xxx; SameSite=Lax`，浏览器中会保存这一Cookie字段`admin_cookie_lax=xxx`，但由于`SameSite=Strict`为**宽松**，所以浏览器对(非b.com域下发起的)访问b.com的**多种跨域请求**都不允许携带这一Cookie字段，只有以下3种方式(任何一种)，才能够携带b.com的cookie`admin_cookie_lax=xxx`
+      * 非同域下的a标签 `<a href="http://b.com"></a>`
+      * 非同域下的GET表单 `<form method="GET" action="http://b.com/formdemo">`
+      * 非同域下的link标签 `<link rel="prerender" href="http://b.com"/>`
+    * `None`关闭 - 如果`SameSite=None`则该属性无效
 * 二次验证 - 安全但影响用户体验(适用于仅对敏感功能处进行防御)
   * CAPTCHA 增加验证码机制
   * 再次输入密码
   * 手机验证码
-* Cookie安全 - 后端Set-Cookie使用SameSite属性 (由Google引入的用于缓解CSRF攻击的cookie属性 其值为Strict或Lax)
-  * 如`Set-Cookie: JSESSIONID=xxx; SameSite=Strict`则从其他站对目标站web后端发起的http请求(CSRF) 不会携带`JSESSIONID`这一Cookie字段
 * (不推荐)通过`Referer/Origin`校验来源域名
   * 缺陷1.只能防御从"不被信任"的域发起的伪造的http请求（如果 **父、子、兄弟域名** 或 **CORS中被信任的域名** 有XSS漏洞 配合构造一个伪造请求 此时referer和Origin的值都是被信任的域 此时“校验来源域名”无法防御）
   * 缺陷2.正常业务如果有302跳转 不携带Origin
