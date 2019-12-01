@@ -112,12 +112,15 @@ ip=1.1.1.1&offset=0&limit=20
     * 如每次提交表单都包含字段`Token=xxxx`且每次值不同 后端可校验是否正确
 * `Set-Cookie`使用`SameSite`属性
   * 后端Response Header`Set-Cookie`中设置`SameSite`属性(由Google引入浏览器 用于缓解CSRF攻击)，`SameSite`属性有3种值:
-    * `Strict`严格 - 例如 域b.com的Response Header有`Set-Cookie: admin_cookie_strict=xxx; SameSite=Strict`，浏览器中会保存这一Cookie字段`admin_cookie_strict=xxx`，但由于`SameSite=Strict`为**严格**，所以浏览器对(非b.com域下发起的)访问b.com的**任何跨域请求**都不允许携带这一Cookie字段`admin_cookie=xxx`，所以可以彻底防御CSRF攻击。比如从域a.com下构造并发出跨域请求访问b.com(尝试CSRF)，绝对不会携带关键的cookie，从而b.com后端鉴权失败，CSRF攻击失败
-    * `Lax`宽松 - 例如 域b.com的Response Header有`Set-Cookie: admin_cookie_lax=xxx; SameSite=Lax`，浏览器中会保存这一Cookie字段`admin_cookie_lax=xxx`，但由于`SameSite=Strict`为**宽松**，所以浏览器对(非b.com域下发起的)访问b.com的**多种跨域请求**都不允许携带这一Cookie字段，只有以下3种方式(任何一种)，才能够携带b.com的cookie`admin_cookie_lax=xxx`
-      * 非同域下的a标签 `<a href="http://b.com"></a>`
-      * 非同域下的GET表单 `<form method="GET" action="http://b.com/formdemo">`
-      * 非同域下的link标签 `<link rel="prerender" href="http://b.com"/>`
-    * `None`关闭 - 如果`SameSite=None`则该属性无效
+    * `Strict`严格
+      * 例如 域b.com的Response Header有`Set-Cookie: admin_cookie_strict=xxx; SameSite=Strict`，浏览器中会保存这一Cookie字段`admin_cookie_strict=xxx`，但由于`SameSite=Strict`为**严格**，所以浏览器对(非b.com域下发起的)访问b.com的**任何跨域请求**都不允许携带这一Cookie字段`admin_cookie=xxx`，所以可以防御CSRF攻击。比如从域a.com下构造并发出跨域请求访问b.com(尝试CSRF)，绝对不会携带关键的cookie，从而b.com后端鉴权失败，CSRF攻击失败
+    * `Lax`宽松 - 没有`SameSite`属性的cookie被浏览器默认为`SameSite=Lax`
+      * 例如 域b.com的Response Header有`Set-Cookie: admin_cookie_lax=xxx; SameSite=Lax`，浏览器中会保存这一Cookie字段`admin_cookie_lax=xxx`，但由于`SameSite=Strict`为**宽松**，所以浏览器对(非b.com域下发起的)访问b.com的**多种跨域请求**都不允许携带这一Cookie字段，只有以下3种方式(任何一种)，才能够携带b.com的cookie`admin_cookie_lax=xxx`
+        * 非同域下的a标签 `<a href="http://b.com"></a>`
+        * 非同域下的GET表单 `<form method="GET" action="http://b.com/formdemo">`
+        * 非同域下的link标签 `<link rel="prerender" href="http://b.com"/>`
+    * `None`无
+      * `SameSite=None`必须同时指定`Secure`，例如`Set-Cookie: session_none=abc123; SameSite=None; Secure`
 * 二次验证 - 安全但影响用户体验(适用于仅对敏感功能处进行防御)
   * CAPTCHA 增加验证码机制
   * 再次输入密码
