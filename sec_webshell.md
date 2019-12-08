@@ -5,7 +5,7 @@
 |webshell名称|主控端|目标环境|主控端proxy|描述|
 |:-------------:|--|--|-----|----|
 |[epinna/weevely3](https://github.com/epinna/weevely3)|python2| php | [shell proxy](sec_proxy.md#shell-proxy)|更适合linux环境下的后渗透 |
-|[rebeyond/Behinder](https://github.com/rebeyond/Behinder)|Java|php/jsp/.asp（.NET)|自带 http(s) proxy|“冰蝎” 动态二进制加密 webshell管理端|
+|[rebeyond/Behinder](https://github.com/rebeyond/Behinder)|Java|.php/.jsp/.asp（.NET)|自带 http(s) proxy|“冰蝎” 动态二进制加密 webshell管理端|
 |[ABPTTS](https://github.com/nccgroup/ABPTTS)|python|.jsp .war .aspx|/|TCP tunneling over HTTP/HTTPS for web application servers. [Black Hat USA 2016](https://www.blackhat.com/us-16/arsenal.html#a-black-path-toward-the-sun) |
 
 #### jsp环境
