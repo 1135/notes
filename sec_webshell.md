@@ -5,11 +5,17 @@
 |webshell名称|主控端|目标环境|主控端proxy|描述|
 |:-------------:|--|--|-----|----|
 |[epinna/weevely3](https://github.com/epinna/weevely3)|python2| php | [shell proxy](sec_proxy.md#shell-proxy)|更适合linux环境下的后渗透 |
-|[rebeyond/Behinder](https://github.com/rebeyond/Behinder)|Java|php/Java/.NET|自带 http(s) proxy|“冰蝎” 动态二进制加密 webshell管理端|
+|[rebeyond/Behinder](https://github.com/rebeyond/Behinder)|Java|php/jsp/.asp（.NET)|自带 http(s) proxy|“冰蝎” 动态二进制加密 webshell管理端|
 |[ABPTTS](https://github.com/nccgroup/ABPTTS)|python|.jsp .war .aspx|/|TCP tunneling over HTTP/HTTPS for web application servers. [Black Hat USA 2016](https://www.blackhat.com/us-16/arsenal.html#a-black-path-toward-the-sun) |
 
+#### jsp环境
 
-#### weevely3的后渗透功能总结
+```
+# 设置webshell.jsp的"修改时间" 设置成1.jsp的"修改时间"
+touch -r 1.jsp webshell.jsp
+```
+
+#### php环境 weevely3的后渗透功能总结
 
 * 主机信息搜集(详细内容参考其他笔记)
   * 工具命令`system_info` 查看当前webshell文件位置 操作系统类型 根目录 php版本 当前用户名 外网IP 等
