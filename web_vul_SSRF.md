@@ -4,31 +4,6 @@ SSRF (Server Side Request Forgery)
 
 任何能够直接或间接地使server发起网络请求的功能，如果该功能的参数是用户可控的，且对用户输入没有做严格的输入验证，就很有可能存在SSRF
 
-### 分类
-
-SSRF漏洞分类
-
-* 按利用方式分类
-  * Basic SSRF - 攻击者能够看到真实响应内容(【3】为真实响应 【4】响应的body与【3】它完全相同)
-  * Blind SSRF - 攻击者无法看到真实响应内容(【3】为真实响应 【4】响应的body固定不变) 需要通过其他方式观察响应 进行判断
-    * HTTP response status - HTTP响应的状态码(200 500)
-    * HTTP response time - 时间间隔的长短(得到HTTP响应时间点-发起HTTP请求的时间点)
-
-* 按触发点分类
-  * 类型1 http请求中有参数值"URL地址" 开发者没做好严格的输入验证 server直接访问"URL地址" 触发SSRF
-    * web在线代理
-    * 资源下载   图片.png、图标.ico、网页.html、文本.txt 等
-    * 分享
-    * url跳转 支持了URL Schema(file等协议) 可读取本机文件 `http://x.com/click.jsp?url=http://127.0.0.1:8082/config/dbconfig.xml`
-    * ...
-  * 类型2 用户上传文件(常见文件类型 `SVG` `JPG` `XML` `JSON`)  对该文件进行 解析、处理、渲染 文件过程中触发SSRF
-    * 网页处理 (将网页内容变为适应手机屏幕的格式)
-    * 图片处理 如ImageMagick CVE-2016-3718  如[PhantomJS Image Rendering](https://buer.haus/2017/06/29/escalating-xss-in-phantomjs-image-rendering-to-ssrflocal-file-read/)
-    * 图片处理 ImageMagick CVE-2016-3718
-    * 视频音频处理 Ffmpeg文件读取漏洞 CVE-2016-1897  CVE-2016-1898
-      * [新浪微盘存在Ffmpeg文件读取漏洞-SSRF](https://www.secpulse.com/archives/49510.html)
-      * [FFmpeg任意文件读取漏洞分析 - 知乎](https://zhuanlan.zhihu.com/p/28255225)
-
 ### 原理
 
 "隔山打牛"
@@ -63,6 +38,31 @@ SSRFserver -> attacker      【4】程序逻辑如果将req2的真实响应内�
   * `gopher://` Gopher是一种分布式文档传递服务
     * `http://example.com/ssrf.php?url=http://attacker.com/gopher.php`
 
+
+### 分类
+
+SSRF漏洞分类
+
+* 攻击者角度 按利用方式分类
+  * Basic SSRF - 攻击者能够看到真实响应内容(【3】为真实响应 【4】响应的body与【3】它完全相同)
+  * Blind SSRF - 攻击者无法看到真实响应内容(【3】为真实响应 【4】响应的body固定不变) 需要通过其他方式观察响应 进行判断
+    * HTTP response status - HTTP响应的状态码(200 500)
+    * HTTP response time - 时间间隔的长短(得到HTTP响应时间点-发起HTTP请求的时间点)
+
+* 开发者角度 按web应用的功能分类
+  * 类型1 http请求中有参数值"URL地址" 开发者没做好严格的输入验证 server直接访问"URL地址" 触发SSRF
+    * web在线代理
+    * 资源下载   图片.png、图标.ico、网页.html、文本.txt 等
+    * 分享
+    * url跳转 支持了URL Schema(file等协议) 可读取本机文件 `http://x.com/click.jsp?url=http://127.0.0.1:8082/config/dbconfig.xml`
+    * ...
+  * 类型2 用户上传文件(常见文件类型 `SVG` `JPG` `XML` `JSON`)  对该文件进行 解析、处理、渲染 文件过程中触发SSRF
+    * 网页处理 (将网页内容变为适应手机屏幕的格式)
+    * 图片处理 如ImageMagick CVE-2016-3718  如[PhantomJS Image Rendering](https://buer.haus/2017/06/29/escalating-xss-in-phantomjs-image-rendering-to-ssrflocal-file-read/)
+    * 图片处理 ImageMagick CVE-2016-3718
+    * 视频音频处理 Ffmpeg文件读取漏洞 CVE-2016-1897  CVE-2016-1898
+      * [新浪微盘存在Ffmpeg文件读取漏洞-SSRF](https://www.secpulse.com/archives/49510.html)
+      * [FFmpeg任意文件读取漏洞分析 - 知乎](https://zhuanlan.zhihu.com/p/28255225)
 
 ### 漏洞利用
 
