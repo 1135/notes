@@ -145,18 +145,20 @@ SSRF测试工具/利用工具
 |[D4Vinci/Cuteit(IP obfuscator)](https://github.com/D4Vinci/Cuteit)|python2|IP obfuscator 将恶意IP改为各种格式以绕过安全检测|
 |[tarunkant/Gopherus](https://github.com/tarunkant/Gopherus)|python2|生成gopher link 以利用SSRF漏洞 对其他服务器的RCE漏洞进行利用 |
 
-### 修复方式
+### 修复方案
 
-* 根据应用程序的功能和设计要求 发出请求通常2种情况
-  * 情况1:只向“指定”目标发送请求 - 用白名单方法
-  * 情况2:可向“任意”外部IP地址/域名发送请求
-    * 如果有非法字符 return false
-    * 禁用协议 - 仅允许必要的协议 如http和https
+* 根据应用程序的设计需求和功能 需要对非本机发出请求的场景 通常分为2种情况
+  * 情况1:只需要向"指定"主机(域名/IP)发送请求
+    * 修复方案:设置 主机(域名/IP)白名单列表，只允许web应用访问白名单列表中的主机
+  * 情况2:需要向"任意"主机(域名/IP)发送请求 无法设置 主机(域名/IP)白名单列表
+    * 设置协议白名单 - 仅允许必要的协议 如`http`和`https` 避免攻击者使用其他协议(如 `file://`，`phar://`，`gopher://`，`data://`，`dict://`等) 
+    * 输入验证(Input validation)
+      * 严格限制参数值的内容 - 参数值内容 视业务而定(如果参数值为IP/域名 可使用编程语言的标准库验证是否为有效的IP/域名)
+      * 严格限制参数值的长度 - 字符串的最大长度 视业务而定
+      * 字符黑名单检测 - 根据应用程序的实际需求，如果按实际需求参数值中不会有特殊字符，则添加检测逻辑：如果有非预期的非法字符(如 `#` `@` `?` 等)  则`return false` 拒绝向下执行
     * 禁止重定向(Redirect)
       * 301 redirect 永久性转移(Permanently Moved)
       * 302 redirect 暂时性转移(Temporarily Moved)
-    * 严格限制参数值内容-"关键字白名单"
-    * 严格限制参数值长度
     * ...
 
 参考 https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.md
