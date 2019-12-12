@@ -43,9 +43,11 @@ SSRFserver -> attacker      【4】程序逻辑如果将req2的真实响应内�
 
 SSRF漏洞分类
 
-* 攻击者角度 按利用方式分类
-  * Basic SSRF - 攻击者能够看到真实响应内容(【3】为真实响应 【4】响应的body与【3】它完全相同)
-  * Blind SSRF - 攻击者无法看到真实响应内容(【3】为真实响应 【4】响应的body固定不变) 需要通过其他方式观察响应 进行判断
+* 攻击者角度 按漏洞利用效果分类
+  * Basic SSRF - 可回显 (攻击者可见 真实响应内容【3】为真实响应 【4】响应的body与【3】它完全相同)
+    * 攻击者可利用"SSRFserver"访问内网主机 (如同一内网的`oa.intranet.apple-inc.com`) 并在"SSRFserver"域下看到内网的`oa.intranet.apple-inc.com`的响应内容(如 oa登录页面)
+    * 攻击者可利用"SSRFserver"访问公网主机 (如攻击者的`evil.com`) 并在"SSRFserver"域下看到`evil.com`的响应内容(如 XSSpayload)
+  * Blind SSRF - 不可回显 (攻击者不可见真实响应内容  【3】为真实响应 【4】响应的body固定不变)  需要通过间接方式观察响应 进行判断
     * HTTP response status - HTTP响应的状态码(200 500)
     * HTTP response time - 时间间隔的长短(得到HTTP响应时间点-发起HTTP请求的时间点)
 
@@ -66,17 +68,26 @@ SSRF漏洞分类
 
 ### 漏洞利用
 
-* 外网 - 对互联网发起请求(攻击其他网站等)
-* 内网 - 对内网中可访问的其他服务器进行探测或攻击
-  * 探测内网(Probe intranet)
-    * IP - 探测内网网络架构 存活主机
-    * service/port - 端口开放情况 如数据库类的服务 （常用判断依据：HTTP响应码、HTTP响应时长）
-    * web指纹识别 - 比如tomcat有[tomcat.png](https://github.com/apache/tomcat/tree/master/webapps/ROOT)等指纹
-    * Cloud Instances - 如果含有SSRF漏洞的Web应用运行在云实例 可以尝试获取"云服务商提供的让内部主机查询自身的元数据"
-      * AWS(Aws keys, ssh keys and [more](https://medium.com/@madrobot/ssrf-server-side-request-forgery-types-and-ways-to-exploit-it-part-1-29d034c27978))
-      * Google Cloud
-  * 攻击内网 - 获取主机权限/作为[RCE Chain](http://blog.orange.tw/2017/07/how-i-chained-4-vulnerabilities-on.html)中的一环
-    * web - SQLi
+通过"SSRFserver"与目标主机交互,目标主机的网络位置可以在内网 公网:
+* 公网 - 可通过"SSRFserver"与公网主机交互
+  * 利用SSRF实现XSS - 攻击者可利用"SSRFserver"访问公网主机 (如攻击者的evil.com) 并在"SSRFserver"域下看到evil.com的响应内容(如 XSSpayload)
+  * 利用SSRF实现钓鱼
+  * ...
+* 内网 - 可通过"SSRFserver"与内网主机交互 对"SSRFserver"所在内网的其他可达的服务器进行探测或渗透
+  * 探测内网(Probe intranet)
+    * 如果"SSRFserver" 不可回显Response:
+      * IP - 探测内网网络架构 存活主机
+      * service/port - 端口开放情况 如数据库类的服务 （常用判断依据：HTTP响应码、HTTP响应时长）
+    * 如果"SSRFserver" 可回显Response:
+      * 内网资产搜集与渗透 - 根据SSRF回显的Response可得到web前端代码,可做内网资产(web应用)搜集与渗透
+      * web指纹识别 - 比如tomcat有[tomcat.png](https://github.com/apache/tomcat/tree/master/webapps/ROOT)等指纹
+      * Cloud Instances - 如果含有SSRF漏洞的Web应用运行在云环境的某个实例(OS) 可以尝试获取"云服务商提供的让内部主机查询自身的元数据"
+        * AWS(Aws keys, ssh keys and [more](https://medium.com/@madrobot/ssrf-server-side-request-forgery-types-and-ways-to-exploit-it-part-1-29d034c27978))
+        * Google Cloud
+
+渗透内网的常用exploit
+  * 获取主机权限 或 挖掘其他漏洞(可作为[RCE Chain](http://blog.orange.tw/2017/07/how-i-chained-4-vulnerabilities-on.html)中的一环)
+    * web - SQLi(SSRF可回显Response时 才可用)
     * web - Struts2 RCE
     * web - Confluence Unauthorized RCE(CVE-2019-3396)
     * web - Jenkins插件RCE（CVE-2019-1003000  CVE-2019-1003001  CVE-2019-1003002)
