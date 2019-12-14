@@ -8,8 +8,8 @@
 
 |名称|主控端|被控端|文件特征|流量特征|主控端proxy|描述|
 |:-----:|--|--|---|---|---|----|
-|[epinna/weevely3](https://github.com/epinna/weevely3)|python>= 2.7.10| .php | 混淆内容 | 混淆(xor) |[shell proxy](sec_proxy.md#shell-proxy)|更适合linux环境下的后渗透. 特别的一点是自带php实现的zip压缩,便于打包"web应用源码"等|
-|[rebeyond/Behinder](https://github.com/rebeyond/Behinder)|Java(Jre6-8)|.php(5.4-7.2) .jsp(java 6+) .asp .aspx(.NET 2.0+)| 固定内容(可做混淆) | 加密(aes) |http(s) proxy|"冰蝎"动态二进制加密 webshell管理端 |
+|[epinna/weevely3](https://github.com/epinna/weevely3)|python>= 2.7.10| .php | 混淆内容 | 编码(xor) |[shell proxy](sec_proxy.md#shell-proxy)|更适合linux环境下的后渗透. 特别的一点是自带php实现的zip压缩,便于打包"web应用源码"等|
+|[rebeyond/Behinder](https://github.com/rebeyond/Behinder)|Java(Jre6-8)|.php(5.4-7.2) .jsp(java 6+) .asp .aspx(.NET 2.0+)| 固定内容 可做变形 | 加密(aes) |http(s) proxy|"冰蝎"动态二进制加密 webshell管理端 |
 |[ABPTTS](https://github.com/nccgroup/ABPTTS)|python|.jsp .war .aspx|/|/|/|TCP tunneling over HTTP/HTTPS for web application servers. [Black Hat USA 2016](https://www.blackhat.com/us-16/arsenal.html#a-black-path-toward-the-sun) |
 
 
