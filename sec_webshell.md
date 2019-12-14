@@ -2,15 +2,16 @@
 
 * 通用功能
   * 主控端proxy - 主控端可使用代理IP与webshell交互 主控端的自我保护"反溯源"
-  * 流量混淆 - 避免被NTA检测明文流量
-  * 文件混淆 - 避免被agent查杀
+  * 流量混淆 - 避免被NTA检测到明文流量特征
+  * 文件混淆 - 避免被主机agent检测到文件特征
   * ...
 
-|名称|主控端|目标环境|文件特征|流量特征|主控端proxy|描述|
-|:-------------:|--|--|--|--|-----|----|
-|[epinna/weevely3](https://github.com/epinna/weevely3)|python2| php | 文件内容默认混淆 | 默认混淆|[shell proxy](sec_proxy.md#shell-proxy)|更适合linux环境下的后渗透. 特别的一点是自带php实现的zip压缩,便于打包"web应用源码"等|
-|[rebeyond/Behinder](https://github.com/rebeyond/Behinder)|Java|.php .jsp .asp .aspx(.NET)| 文件内容默认固定 可做混淆 | aes加密流量 |http(s) proxy|“冰蝎” 动态二进制加密 webshell管理端 |
+|名称|主控端|被控端|文件特征|流量特征|主控端proxy|描述|
+|:-----:|--|--|---|---|---|----|
+|[epinna/weevely3](https://github.com/epinna/weevely3)|python>= 2.7.10| .php | 混淆内容 | 混淆(xor) |[shell proxy](sec_proxy.md#shell-proxy)|更适合linux环境下的后渗透. 特别的一点是自带php实现的zip压缩,便于打包"web应用源码"等|
+|[rebeyond/Behinder](https://github.com/rebeyond/Behinder)|Java(Jre6-8)|.php(5.4-7.2) .jsp(java 6+) .asp .aspx(.NET 2.0+)| 固定内容(可做混淆) | 加密(aes) |http(s) proxy|"冰蝎"动态二进制加密 webshell管理端 |
 |[ABPTTS](https://github.com/nccgroup/ABPTTS)|python|.jsp .war .aspx|/|/|/|TCP tunneling over HTTP/HTTPS for web application servers. [Black Hat USA 2016](https://www.blackhat.com/us-16/arsenal.html#a-black-path-toward-the-sun) |
+
 
 #### jsp环境
 
