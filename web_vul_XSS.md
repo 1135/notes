@@ -405,13 +405,15 @@ XSS proxy - 与XSS受害者的浏览器实时交互.  工具 [JShell](https://gi
 * 重定向 - Redirecting
 * DOS攻击 - 利用javascript发起注销请求 使用户cookie失效从而无法登录 严重影响业务
 * DDoS攻击 - 对其他站点进行应用层DDoS攻击 如持续发送HTTP请求
-* 获取系统和浏览器信息
-  * 操作系统类型、版本  浏览器类型、版本 (根据User-agent获取)
+* 获取浏览器信息
+  * 浏览器名称、版本 (根据User-agent获取)
   * 屏幕分辨率 (高度`window.screen.height;` 宽度`window.screen.width;`)
   * 语言
-* 获取录音数据 - (HTML5) 需要授权 Recording Audio
-* 获取摄像数据 - (HTML5) 需要授权 webcam
-* 获取地理位置 - (HTML5) 需要授权 访问受害者的Geo-location
+* 获取OS信息
+  * 操作系统类型、版本(根据User-agent获取；如果浏览器支持Java Applet 则Applet更准确 可获取OS详情 JVM详情 内存容量等)
+* 获取录音数据 - (HTML5) 浏览器会提示用户确认 Recording Audio
+* 获取摄像数据 - (HTML5) 浏览器会提示用户确认 webcam
+* 获取地理位置 - (HTML5) 浏览器会提示用户确认 Geo-location
 * 读取本地文件
 * ...
 
