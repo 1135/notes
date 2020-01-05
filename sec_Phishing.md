@@ -61,7 +61,8 @@
 |:-------------:|--|--|-----|
 |[gophish](https://github.com/gophish/gophish)|Golang|all|2k★ Open-Source Phishing Toolkit. 用于对企业进行定期的钓鱼测试. 启动后先在`Sending Profiles`中配置真实可用的`mail server`,发起一个Campaign:钓鱼邮件(内含钓鱼网站) [使用视频](https://www.youtube.com/watch?v=knc6Iq-hNcw)|
 |[blackeye](https://github.com/flagellantX/blackeye)|.sh .php|/| 钓鱼页面Phishing Pages 含各大网站`Facebook,Google,Twitter,Microsoft`等|
-|[UndeadSec/SocialFish](https://github.com/UndeadSec/SocialFish)|python3|/|终极的 Ultimate phishing tool. 使用xx.ngrok.io得到公网域名 含各大网站`Facebook,Google,Twitter,LinkedIn,GitHub,StackOverflow,Instagram`等|
+|[UndeadSec/SocialFish](https://github.com/UndeadSec/SocialFish)|python3|/|Phishing Tool & Information Collector. 内置了模拟各大社交类网站`Facebook,Google,Twitter,LinkedIn,GitHub,StackOverflow,Instagram`等|
+|[UndeadSec/EvilURL](https://github.com/UndeadSec/EvilURL)|python 3.x|/|找出某个域名的相似域名(Generate unicode evil domains for IDN Homograph Attack and detect them.)|
 |[kgretzky/evilginx2](https://github.com/kgretzky/evilginx2)|Golang|linux|2k★ MITM attack framework used for phishing. 效果好 只能通过域名识别出是钓鱼网站. [bolg - bBREAKDEV](https://breakdev.org/)|
 
 
