@@ -20,7 +20,7 @@ temp
 基于时间的盲注(Time-Based Blind SQL Injection Attacks)原理：使用能够"延时"的函数 构造SQL语句 然后根据响应时长(响应时间间隔的数值大小)进行判断
 
 * 攻击利用payload - 利用SQLi漏洞进行"数据获取"
-  * 方法1 利用"带外"方法 发出网络请求 以获取数据.  点击跳至[类型6 - "带外"(out-of-band)](#类型6---带外out-of-band)
+  * 方法1 利用"带外"方法 发出网络请求 以获取数据. 点击跳至理论[类型6 - "带外"(out-of-band)](#类型6---带外out-of-band)  点击跳至[实战案例](sec_sqlmap.md#案例1)
   * 方法2 利用 "延时函数" 与 条件语法(Condition syntax) 得到True/False 逐个字符判断即可得到完整字符串值
     * 利用条件:后端稳定(响应时间间隔稳定)
     * "延时"函数
