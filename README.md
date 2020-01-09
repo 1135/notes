@@ -15,7 +15,7 @@
  * [web - vul - Command Injection  原理 利用方式 修复方案](web_vul_CommandInjection.md)
  * [web - vul - Open Redirection 原理 利用方式 修复方案](web_vul_OpenRedirection.md)
  * [web - vul - Clickjacking 原理 利用方式 修复方案](web_vul_ClickJacking.md)
- * [web - SQLi sqlmap常用参数 tamper详解](sec_sqlmap.md)
+ * [web - SQLi sqlmap 常用参数 tamper详解 实际案例](sec_sqlmap.md)
  * [web - WEB应用安全部署架构 及 WAFbypass](web_WAF_bypass.md)
  * [web - 基础 - 密码学基础及应用(TLS 数字证书) 非对称加密RSA](web_x_https_tls.md)
  * [web - 基础 - 浏览器的同源策略(SOP) 跨域方案(CORS JSONP) 内容安全策略(CSP)](web_x_SOP.md)
