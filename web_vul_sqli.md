@@ -86,7 +86,7 @@ temp
 * 系统命令执行(参考sqlmap)
   * MySQL的用户自定义函数 - 上传一个二进制文件:共享库(shared library)到对应文件夹，它包含两个UDF(user-defined functions)用户自定义函数(函数作用都是执行系统命令). 然后在数据库创建该函数 并调用该函数 即可执行系统命令
   * MSSQL的`xp_cmdshell` - 扩展存储过程(extended stored procedure) 它是SQL Server的配置项，启用时能让SQL Server账号执行操作系统命令，返回文本行
-* 文件读写 - 前提:当前数据库user有FILE权限(通常数据库root用户才会有)
+* 文件读写 - 前提:当前数据库user有文件读写权限(数据库用户需要为高权限用户 且数据库配置中允许了文件读写权限)
   * 读取文件(Reading Files)
     * MySQL - `LOAD_FILE()`
     * 例1 `SELECT LOAD_FILE('/etc/passwd');` 
@@ -216,16 +216,20 @@ mysql> SELECT @@global.secure_file_priv;
 1 row in set (0.00 sec)
 ```
 
-修改secure_file_priv的值(必须重启mysqld之后才能生效):
+修改secure_file_priv的值:
+
 ```
-# 要修改secure_file_priv的值，必须修改配置文件并重新启动`mysqld`服务
+无法使用`set global`命令修改`secure_file_priv` 它是只读参数
+mysql> set global secure_file_priv='';
+ERROR 1238 (HY000): Variable 'secure_file_priv' is a read only variable
+
+# 要修改secure_file_priv的值，必须修改配置文件 并重新启动`mysqld`之后 修改才能生效
 # windows下的配置文件为 my.ini
 # unix/linux/macOS 下的配置文件为my.cnf
 
 #编辑该文件修改配置`sudo vim /etc/my.cnf`
 
 # 默认设置1 没有进行任何配置情况下，`secure_file_priv`不存在，此时使用它的默认值`NULL` 即禁止mysqld导入或导出. 
-
 
 # 可选设置2 secure_file_priv="/tmp/" 表示mysqld只能在/tmp/目录下 导入或导出.
 [mysqld]
