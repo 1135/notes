@@ -197,6 +197,7 @@ ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv opti
 
 查看当前环境中`secure-file-priv`的值:
 ```
+# 方法1
 mysql> show global variables like '%secure_file_priv%';
 +------------------+-------+
 | Variable_name    | Value |
@@ -204,9 +205,18 @@ mysql> show global variables like '%secure_file_priv%';
 | secure_file_priv | NULL  |
 +------------------+-------+
 1 row in set (0.00 sec)
+
+# 方法2
+mysql> SELECT @@global.secure_file_priv;
++---------------------------+
+| @@global.secure_file_priv |
++---------------------------+
+| NULL                      |
++---------------------------+
+1 row in set (0.00 sec)
 ```
 
-修改secure_file_priv的值(必须重启mysqld才能生效):
+修改secure_file_priv的值(必须重启mysqld之后才能生效):
 ```
 # 要修改secure_file_priv的值，必须修改配置文件并重新启动`mysqld`服务
 # windows下的配置文件为 my.ini
