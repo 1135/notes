@@ -111,11 +111,38 @@ Q: Inline queries
 --sql-shell
 ```
 
+```
+# MySQL数据常用的查询语句
+
+# 查询文件读写权限
+SELECT @@global.secure_file_priv;
+# 读取文件
+select load_file("D:\web\config.php");
+
+# 查询数据库版本
+SELECT @@global.version;
+
+# 查询数据用户及密码
+select host,user,password from mysql.user;
+
+# 查询general_log的状态
+# 方法1 结果为0或1  0即OFF  1即ON
+SELECT @@global.general_log;
+# 方法2 结果为ON或OFF
+show variables like 'general_log';
+
+# 查询general_log_file 日志文件的位置
+# 方法1
+SELECT @@global.general_log_file;
+# 方法2
+show variables like 'general_log_file';
+```
+
 #### 参数 - OS命令执行
 
-前提1：数据库为MySQL/PostgreSQL/Microsoft SQL Server
+前提1：数据库支持系统命令执行. 如MySQL/PostgreSQL/Microsoft SQL Server等
 
-前提2：当前用户有权限使用特定的函数. 在sqlmap中查看权限用 `--privileg`
+前提2：当前用户有权限使用特定的函数. 在sqlmap中查看权限用 `--privilege`
 
 
 ```
