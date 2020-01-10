@@ -84,8 +84,11 @@ temp
 * 绕过判断
   * Auth Bypass:如web登录功能存在SQLi 使用"万能密码"实现Login Bypass
 * 系统命令执行(参考sqlmap)
-  * MySQL的用户自定义函数 - 上传一个二进制文件:共享库(shared library)到对应文件夹，它包含两个UDF(user-defined functions)用户自定义函数(函数作用都是执行系统命令). 然后在数据库创建该函数 并调用该函数 即可执行系统命令
-  * MSSQL的`xp_cmdshell` - 扩展存储过程(extended stored procedure) 它是SQL Server的配置项，启用时能让SQL Server账号执行操作系统命令，返回文本行
+  * MySQL的UDF函数
+    * 前提条件:MySQL具备文件读取、写入权限.
+    * 原理:上传一个二进制文件 共享库(shared library)到对应文件夹，它包含两个用户自定义函数(user-defined functions,UDF)用户自定义函数,其中有2个函数的作用是执行系统命令. 然后在数据库使用SQL语句 创建该函数 并调用该函数 即可执行系统命令
+  * MSSQL的`xp_cmdshell`
+    * 原理:扩展存储过程(extended stored procedure) 它是SQL Server的配置项，启用时能让SQL Server账号执行操作系统命令，返回文本行
 * 文件读写 - 前提:当前数据库user有文件读写权限(数据库用户需要为高权限用户 且数据库配置中允许了文件读写权限)
   * 读取文件(Reading Files)
     * MySQL - `LOAD_FILE()`
