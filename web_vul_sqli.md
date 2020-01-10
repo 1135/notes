@@ -83,12 +83,15 @@ temp
   * MySQL `DELETE FROM some_table WHERE 1; --`
 * 绕过判断
   * Auth Bypass:如web登录功能存在SQLi 使用"万能密码"实现Login Bypass
-* 系统命令执行(参考sqlmap)
-  * MySQL的UDF函数
-    * 前提条件:MySQL具备文件读取、写入权限.
-    * 原理:上传一个二进制文件 共享库(shared library)到对应文件夹，它包含两个用户自定义函数(user-defined functions,UDF)用户自定义函数,其中有2个函数的作用是执行系统命令. 然后在数据库使用SQL语句 创建该函数 并调用该函数 即可执行系统命令
-  * MSSQL的`xp_cmdshell`
-    * 原理:扩展存储过程(extended stored procedure) 它是SQL Server的配置项，启用时能让SQL Server账号执行操作系统命令，返回文本行
+* 系统命令执行
+  * 获取系统shell - 通过MySQL [实战-利用mysql数据库的udf函数执行系统命令](sec_sqlmap.md#利用mysql数据库的udf函数执行系统命令)
+    * 前提条件:数据库进程(DBMS process)对目标文件夹具有文件读取、写入权限.
+    * 实现原理:上传一个二进制文件 共享库(shared library)到对应文件夹，它包含两个用户自定义函数(user-defined functions,UDF)用户自定义函数,其中有2个函数的作用是执行系统命令. 然后在数据库使用SQL语句 创建该函数 并调用该函数 即可执行系统命令.
+  * 获取系统shell - 通过Microsoft SQL Server
+    * 前提条件:`xp_cmdshell`扩展存储过程这一配置处于开启状态，或者可以被开启
+    * 利用过程:使用`xp_cmdshell`扩展存储过程(extended stored procedure)，它是SQL Server的一个配置项，启用时能让SQL Server账号执行操作系统命令，返回文本行
+    * 如果`xp_cmdshell`存储过程 被禁用(Microsoft SQL Server >= 2005 默认禁用)sqlmap会重新启用它
+    * 如果`xp_cmdshell`存储过程 不存在 则从头开始创建它
 * 文件读写 - 前提:当前数据库user有文件读写权限(数据库用户需要为高权限用户 且数据库配置中允许了文件读写权限)
   * 读取文件(Reading Files)
     * MySQL - `LOAD_FILE()`
