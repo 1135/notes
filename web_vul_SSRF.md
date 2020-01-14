@@ -137,14 +137,16 @@ SSRF漏洞分类
      * `10.100.21.7 <-> http://10.100.21.7.xip.io` `https://182.61.200.6.xip.io` SSL证书会"无效"
    * 利用 https://sslip.io 支持ssl 支持ipv6
      * https://52-0-56-137.sslip.io/
- * DNS重绑定(DNS Rebinding) **重点**
-   * 攻击者提交参数值`hack.com`给后端
-   * 后端验证:对`hack.com`进行第1次域名解析 得到了合法的外网ip(hack.com的DNS服务器设置为TTL=0) 该域名对应的ip非内网 域名验证通过
-   * 攻击者修改域名解析:(攻击者利用短暂的时间差 快速把域名解析结果ip改成为内网ip)
-   * 后端逻辑继续运行:后端的程序逻辑继续使用刚才的域名hack.com(由于hack.com的DNS服务器设置的TTL为0 后端只能第2次对hack.com进行域名解析)
-   * 后端使用了解析得到的内网ip
+ * DNS重绑定(DNS Rebinding) **重点** 攻击步骤
+   * 搭建ns服务器 - 搭建ns服务器`ns1.evil.com` 对域名`a.evil.com`的解析都由`ns1.evil.com`完成.
+   * 设置缓存时间 - 设置一条NS记录 使`a.evil.com`的缓存时间为0 即`TTL=0`. 所以每次访问`a.evil.com`都需要向`ns1.evil.com`发起DNS查询得到它最新的A记录
+   * 攻击者发出HTTP请求 提交参数值`a.evil.com`到目标站点的后端
+   * 后端验证:后端逻辑对`a.evil.com`进行"第1次域名解析" 得到了合法的外网IP 并判断发现不是内网IP 则anti-SSRF验证通过 继续向下执行
+   * 攻击者修改域名解析:经过"第1次域名解析"后 利用短暂的时间差 快速修改ns服务器`ns1.evil.com`上的A记录为内网IP`10.10.2.2`
+   * 后端执行:后端的程序逻辑继续使用刚才得到的参数值`a.evil.com`(由于`ns1.evil.com`对`a.evil.com`设置的A记录缓存时间`TTL=0` 所以后端对`a.evil.com`做了"第2次域名解析" 此时得到了内网IP`10.10.2.2`)
+   * 后端使用了解析得到的内网内网IP`10.10.2.2` SSRF攻击成功
  * 短网址跳转 - "短网址"响应(301 永久重定向)到内网地址 `http://10.10.116.11 => http://t.cn/RwbLKDx`
- * JS跳转
+ * JavaScript跳转
  * 以下工具
 
 SSRF测试工具/利用工具
