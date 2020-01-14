@@ -214,15 +214,9 @@ alert(1)//</script>
 
 ### 实例1 - CORS
 
-Request:
-
-A.com --req-> B.com
-
-`Origin`表示该CORS Request是`Origin`中的网站(通常通过JavaScript)发起的。
-
-从该请求可见 `http://A.com`的客户端脚本JavaScript 想要访问 目标 `http://B.com`的资源
-
-从域名`http://A.com`(request header `Origin`) 发出request "试图"访问目标主机`Host: B.com`
+* 根据Request可知 `A.com --req--> B.com`
+  * 发起请求的域 - `Origin`字段中的`http://A.com` 表示该Request是一个从`http://A.com`发起的跨域HTTP请求
+  * 访问的目标域 - `Host`字段中的`B.com`为该请求期望访问的目标域
 
 ```
 GET /resources/public-data/ HTTP/1.1
@@ -237,9 +231,12 @@ Referer: http://A.com/examples/access-control/simpleXSInvocation.html
 Origin: http://A.com
 ```
 
-Response:
-
-A.com <-resp-- B.com
+* 根据Response可知 `B.com --req--> A.com`
+  * 目标域自己通过"ACAO"来决定 接受来自哪些域的请求:
+    * `B.com`给出的响应中 如果有header`Access-Control-Allow-Origin: *` 则表示:`B.com`的资源 可以接收并响应来自任何域的request
+    * `B.com`给出的响应中 如果有header`Access-Control-Allow-Origin: http://A.com` 则表示:`B.com`的资源 只可以接收并响应来自指定域`http://A.com`的request
+  * 注意
+    * 只有`B.com`给出的响应中 HTTP响应头 `Access-Control-Allow-Origin` 里明确指定了允许 `http://A.com` 访问 `http://B.com` 的资源时，`http://A.com`网站的客户端脚本才有权(通过XHR等)对目标域 `http://B.com` 上的资源进行读写操作。
 
 ```
 HTTP/1.1 200 OK
@@ -254,15 +251,8 @@ Content-Type: application/xml
 [XML Data]
 ```
 
-如上可见`B.com`响应中的`Access-Control-Allow-Origin: *` 代表`B.com`这个Domain的资源 可以接收并响应任何其他域（包括A.com）的request
-
-如果`B.com`响应中是`Access-Control-Allow-Origin: http://A.com` 代表这个Domain的资源 只可以接收并响应 指定域`http://A.com`的request
-
-只有 `http://B.com` 返回的HTTP响应头 `Access-Control-Allow-Origin` 明确指定允许 `http://A.com` 访问 `http://B.com` 的资源时，`http://A.com` 网站的客户端脚本JavaScript 才有权(通过AJAX技术 如XHR)对目标 `http://B.com` 上的资源进行读写操作。
-
-
-* 使用CORS实现跨域 常见**安全风险**
-  * B.com的`Access-Control-Allow-Origin: *`可以接收并响应来自任何域的request 存在风险. 应该设置"源域名白名单"
+* 使用CORS实现跨域 常见的**安全风险**
+  * B.com的`Access-Control-Allow-Origin: *`可以接收并响应来自任何域的request 存在**巨大风险**. 应该设置"源域名白名单"
 
 ### 实例2 - JSON with Padding
 
