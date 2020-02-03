@@ -81,9 +81,12 @@ SSRF漏洞分类
     * 如果"SSRFserver" 可回显Response:
       * 内网资产搜集与渗透 - 根据SSRF回显的Response可得到web前端代码,可做内网资产(web应用)搜集与渗透
       * web指纹识别 - 比如tomcat有[tomcat.png](https://github.com/apache/tomcat/tree/master/webapps/ROOT)等指纹
-      * Cloud Instances - 如果含有SSRF漏洞的Web应用运行在云环境的某个实例(OS) 可以尝试获取"云服务商提供的让内部主机查询自身的元数据"
-        * AWS(Aws keys, ssh keys and [more](https://medium.com/@madrobot/ssrf-server-side-request-forgery-types-and-ways-to-exploit-it-part-1-29d034c27978))
-        * Google Cloud
+      * Cloud Instances
+        * 如果具有SSRF漏洞的Web应用运行在云环境的某个实例(OS)，则可通过SSRF漏洞实现用该实例的IP，去访问云服务商提供的"让内部主机查询自身元数据的服务" 获取该实例的 "元数据". 不同的云服务商都有这个风险
+          * AWS(Amazon Web Services) - 利用AWS的"实例元数据服务"(Instance Metadata service,IMS) 即可获取该云实例的"元数据"(Aws keys, ssh keys and [more](https://medium.com/@madrobot/ssrf-server-side-request-forgery-types-and-ways-to-exploit-it-part-1-29d034c27978)) 
+          * Microsoft Azure
+          * Google Cloud Engine
+          * ...
 
 渗透内网的常用exploit
   * 获取主机权限 或 挖掘其他漏洞(可作为[RCE Chain](http://blog.orange.tw/2017/07/how-i-chained-4-vulnerabilities-on.html)中的一环)
