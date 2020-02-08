@@ -129,19 +129,24 @@ SSRF漏洞分类
 
 ### 绕过技巧
 
-绕过不严谨的"域名校验编程实现"
- * 使用@ `a.com@10.10.10.10` `a.com:b@10.10.10.10`
- * IP地址的不同形式 - 进制转换
+* webserver层面 - 利用server特性进行绕过
+  * "请求夹带"(Request Smuggling) - 使用格式不正确的HTTP headers或利用Web服务器的特定"解析"(parsing)行为，将来自攻击者的请求注入到另一个请求的开头
+  * "请求分割"(Request Splitting) - 使用特定的Unicode字符，利用HTTP基于文本的特性，以在请求中使用"协议控制字符"(protocol control indicators)来分割行，以实现能够传递SSRF payload的注入。具体参考[Security Bugs in Practice: SSRF via Request Splitting](https://www.rfk.id.au/blog/entry/security-bugs-ssrf-via-request-splitting/)
+
+
+* web应用层面 - 绕过不严谨的"域名校验编程实现"
+  * 使用@ `a.com@10.10.10.10` `a.com:b@10.10.10.10`
+  * IP地址的不同形式 - 进制转换
    * 十进制形式 `127.0.0.1 <-> 2130706433` 计算方法`(127)*256^3+(0)*256^2+(0)*256^1+(1)*256^0=2130706433`  `(21)*256^1+(200)=5576` 如bing的外网IP转换为十进制形式 `13.107.21.200 <-> 13.107.5576 <-> 13.7017928 <-> 225121736`
    * 十六进制形式 `13.107.21.200 <-> 0xD6B15C8`
    * 混合各形式 如八进制.十进制 `13.107.21.200 <-> 015.7017928`
- * 自定义域名解析
+  * 自定义域名解析
    * 利用 [xip.name](https://github.com/peterhellberg/xip.name) 类似的还有 nip.io xip.io
      * `127.0.0.1 <-> http://2130706433.xip.name`支持十进制. 支持任意前缀`ping qq.com.127.0.0.1.xip.name`
      * `10.100.21.7 <-> http://10.100.21.7.xip.io` `https://182.61.200.6.xip.io` SSL证书会"无效"
    * 利用 https://sslip.io 支持ssl 支持ipv6
      * https://52-0-56-137.sslip.io/
- * DNS重绑定(DNS Rebinding) **重点** 攻击步骤
+  * DNS重绑定(DNS Rebinding) **重点** 攻击步骤
    * 搭建ns服务器 - 搭建ns服务器`ns1.evil.com` 对域名`a.evil.com`的解析都由`ns1.evil.com`完成.
    * 设置缓存时间 - 设置一条NS记录 使`a.evil.com`的缓存时间为0 即`TTL=0`. 所以每次访问`a.evil.com`都需要向`ns1.evil.com`发起DNS查询得到它最新的A记录
    * 攻击者发出HTTP请求 提交参数值`a.evil.com`到目标站点的后端
@@ -149,11 +154,11 @@ SSRF漏洞分类
    * 攻击者修改域名解析:经过"第1次域名解析"后 利用短暂的时间差 快速修改ns服务器`ns1.evil.com`上的A记录为内网IP`10.10.2.2`
    * 后端执行:后端的程序逻辑继续使用刚才得到的参数值`a.evil.com`(由于`ns1.evil.com`对`a.evil.com`设置的A记录缓存时间`TTL=0` 所以后端对`a.evil.com`做了"第2次域名解析" 此时得到了内网IP`10.10.2.2`)
    * 后端使用了解析得到的内网内网IP`10.10.2.2` SSRF攻击成功
- * 短网址跳转 - "短网址"响应(301 永久重定向)到内网地址 `http://10.10.116.11 => http://t.cn/RwbLKDx`
- * JavaScript跳转
- * 以下工具
+  * 短网址跳转 - "短网址"响应(301 永久重定向)到内网地址 `http://10.10.116.11 => http://t.cn/RwbLKDx`
+  * JavaScript跳转
 
-SSRF测试工具/利用工具
+
+SSRF自动化工具 用于发现漏洞、生成payload等
 
 |名称|属性|描述|
 |:-------------:|--|-----|
