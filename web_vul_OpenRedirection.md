@@ -59,7 +59,12 @@ WHITELISTEDDOMAIN="www.aaa.com" && sed 's/www.whitelisteddomain.tld/'"$WHITELIST
 ```
 
 
-**常见参数**
+**常出现跳转漏洞的功能点**
+```
+1.登录、注销处的URL跳转
+```
+
+**常出现跳转漏洞的URL格式**
 ```
 /{payload}
 ?next={payload}
@@ -87,7 +92,6 @@ WHITELISTEDDOMAIN="www.aaa.com" && sed 's/www.whitelisteddomain.tld/'"$WHITELIST
 ?continue={payload}
 ?return_path={payload}
 ```
-
 
 ### SDL - 防御与修复方案
 
