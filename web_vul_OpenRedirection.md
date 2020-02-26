@@ -4,23 +4,35 @@
 
 ### 漏洞原理
 
-如果重定向到`evil.tld`则存在任意重定向漏洞
+* 跳转方式1 HTTP Response Code & Header
+  * HTTP Response Status Code - Redirection `3xx`
+    - [300 Multiple Choices](https://httpstatuses.com/300)
+    - [301 Moved Permanently](https://httpstatuses.com/301)
+    - [302 Found](https://httpstatuses.com/302)
+    - [303 See Other](https://httpstatuses.com/303)
+    - [304 Not Modified](https://httpstatuses.com/304)
+    - [305 Use Proxy](https://httpstatuses.com/305)
+    - [307 Temporary Redirect](https://httpstatuses.com/307)
+    - [308 Permanent Redirect](https://httpstatuses.com/308)
+  * HTTP Response Header
+    - `Location: `
+* 跳转方式2 `meta`标签
+    - 绝对路径 `<meta http-equiv="Refresh" content="0; url=https://www.w3docs.com" />` 0秒跳转
+    - 相对路径 `<meta http-equiv="Refresh" content="3.5; url=../" />` 3.5秒跳转
+* 跳转方式3 Javascript实现跳转
+  * 1.`window.location.href`
+    * 绝对路径 `window.location.href='http://evil.com';`
+    * 相对路径 `window.location.href='../../';`  会从当前url`http://a.com/1/2/3/`跳转到`http://a.com/1/`
+      * 如果`../`非常多则跳转到`http://a.com/`
+  * 2.待补充
+
+
+**触发漏洞**
 ```
+访问
 https://famous-website.tld/signup?redirectUrl=https://evil.tld/account
+浏览器访问famous-website.tld 如果被重定向到域evil.tld 则存在任意重定向漏洞
 ```
-
-使用HTTP响应状态码`3xx`进行重定向
-
-**HTTP Redirection Status Code - 3xx**
-- [300 Multiple Choices](https://httpstatuses.com/300)
-- [301 Moved Permanently](https://httpstatuses.com/301)
-- [302 Found](https://httpstatuses.com/302)
-- [303 See Other](https://httpstatuses.com/303)
-- [304 Not Modified](https://httpstatuses.com/304)
-- [305 Use Proxy](https://httpstatuses.com/305)
-- [307 Temporary Redirect](https://httpstatuses.com/307)
-- [308 Permanent Redirect](https://httpstatuses.com/308)
-
 
 ### 漏洞影响
 
