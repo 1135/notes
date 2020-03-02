@@ -414,9 +414,13 @@ XSS proxy - 与XSS受害者的浏览器实时交互.  工具 [JShell](https://gi
 * 获取录音数据 - (HTML5) 浏览器会提示用户确认 Recording Audio
 * 获取摄像数据 - (HTML5) 浏览器会提示用户确认 webcam
 * 获取地理位置 - (HTML5) 浏览器会提示用户确认 Geo-location
-* 读取本地文件
+* Clipboard operation
+  * 设置剪切板的内容 - https://clipboardjs.com/
+  * 读取剪切板的内容(Chrome)
+    * `https://`协议下 只需申请一次读取剪切板的权限 则默认始终允许读取 [在线体验](https://1135.github.io/sites/3/read_clipborad.html)
+    * `file://`协议下 每一次读取剪切板的内容 都会询问用户是否允许读取
+* 读取本地文件 - 常见于非浏览器场景
 * ...
-
 
 #### XSS利用方式 - 探测内网
 
