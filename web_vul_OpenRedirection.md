@@ -22,9 +22,14 @@
 * 跳转方式3 Javascript实现跳转
   * 1.`window.location.href`
     * 绝对路径 `window.location.href='http://evil.com';`
+      * 如果参数可控则能XSS `window.location.href="javascript:alert(document.cookie)";`
     * 相对路径 `window.location.href='../../';`  会从当前url`http://a.com/1/2/3/`跳转到`http://a.com/1/`
       * 如果`../`非常多则跳转到`http://a.com/`
-  * 2.待补充
+  * 2.`window.location.replace`
+    * 绝对路径 `location.replace("http://new.tld?para=1#title");`
+      * 如果参数可控则能XSS `location.replace("javascript:alert(document.cookie)");`
+    * 相对路径 `location.replace("../");`
+  * 3.待补充
 
 
 **触发漏洞**
@@ -37,8 +42,8 @@ https://famous-website.tld/signup?redirectUrl=https://evil.tld/account
 ### 漏洞影响
 
 * 任意重定向(Open Redirection)漏洞影响
-  * 跳转 - 借用合法网站aaa.com的域名，跳转到"钓鱼"等其他网站
-  * XSS
+  * redirection - 合法域名white.com下 实现重定向 到"钓鱼"等其他网站
+  * XSS - 合法域名white.com下 实现XSS
 
 ### 测试方法
 
