@@ -44,10 +44,10 @@ SSRFserver -> attacker      【4】程序逻辑如果将req2的真实响应内�
 SSRF漏洞分类
 
 * 攻击者角度 按漏洞利用效果分类
-  * Basic SSRF - 可回显 (攻击者可见 真实响应内容【3】为真实响应 【4】响应的body与【3】它完全相同)
+  * Basic SSRF - 可回显 (攻击者可见【3】resp Body, 它通常与【4】resp Body完全相同 )
     * 攻击者可利用"SSRFserver"访问内网主机 (如同一内网的`oa.intranet.apple-inc.com`) 并在"SSRFserver"域下看到内网的`oa.intranet.apple-inc.com`的响应内容(如 oa登录页面)
     * 攻击者可利用"SSRFserver"访问公网主机 (如攻击者的`evil.com`) 并在"SSRFserver"域下看到`evil.com`的响应内容(如 XSSpayload)
-  * Blind SSRF - 不可回显 (攻击者不可见真实响应内容  【3】为真实响应 【4】响应的body固定不变)  需要通过间接方式观察响应 进行判断
+  * Blind SSRF - 不可回显 (攻击者看不到响应内容. 攻击者只能用间接方式 观察 判断 )
     * HTTP response status - HTTP响应的状态码(200 500)
     * HTTP response time - 时间间隔的长短(得到HTTP响应时间点-发起HTTP请求的时间点)
 
