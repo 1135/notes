@@ -43,15 +43,27 @@
   * 文本插入到HTML元素是文本节点
   * 注释是注释节点
 
-### DOM-XSS详细分析
+### 详细分析DOM-XSS的3个阶段
 
-输入 -> 触发
+```
+用户输入 --> (处理数据) -->触发XSS
+```
 
-#### 1.输入源
+举例说明:
+* 用户输入 - 如`document.URL`在chrome浏览器下是经过url编码的字符. 其组成部分`location.href` `location.pathname` `location.search` `location.hash`等都是经过URL编码的字符.
+* 处理数据 - 此时URL为 `xx.com/pathname#javascript:alert(1)` 如果未对该用户输入数据做任何处理 则容易触发XSS
+* 触发DOM-XSS - 触发位置较多
+   * JS代码逻辑
+   * 标签属性值 - 由于HTML标签的属性 有些属性支持 `javascipt:` 伪协议，如果这些属性可控则可实现xss
+     * 1.chrome测试通过 - `a`标签的`href`属性 点击触发 `<a href=javascript:alert(1)>click me!!</a>`
+     * 2.chrome测试通过 - 许多标签的事件属性  自动触发 `<img src onerror=javascript:alert(1) >` 而其`src`属性并不支持`javascipt:`
+   * ...
+
+#### 阶段1.用户输入
 
 参考Google Code [domxsswiki](https://github.com/wisec/domxsswiki)
 
-外部可控参数 即用户输入能够影响以下参数(如果处理不当可能会有"DOM型XSS")
+输入源 即用户输入能够影响以下参数(如果处理不当可能会有"DOM型XSS")
 ```
 # URL
 document.URL
@@ -96,19 +108,16 @@ location.search
 "?q=location"
 ```
 
-实际测试发现
+#### 阶段2.处理数据
 
-* 输入:chrome浏览器的`document.URL`是经过url编码的字符.即`location.pathname` `location.search` `location.hash`都是经过URL编码的字符.
-* 处理:可以使用`xx.com/pathname#javascript:alert(1)`不需要进行URL解码.
-* 触发:HTML标签的属性 有些属性支持 `javascipt:` 伪协议
-   * 1.chrome测试通过 - 写到a标签的`href`属性 点击触发. `<a href=javascript:alert(1)>click</a>`
-   * ...
+```
+web应用处理用户输入数据
+如果没做处理 或没做好正确的处理 则容易被攻击者构造出payload 触发XSS
+```
 
+#### 阶段3.触发XSS
 
-#### 2.触发
-
-可能导致DOM based XSS漏洞的函数
-
+可能导致DOM based XSS漏洞的函数: (具体能不能成功要看 阶段1 阶段2)
 ```
 eval
 Function
@@ -128,8 +137,9 @@ anyElement.innerHTML
 Range.createContextualFragment
 window.location
 document.location
+                   例1 document.location.href='javascript:alert(1)';  // location.href is the whole URL in a single string. Assigning a string to either is defined to cause the same kind of navigation, so take your pick.
+                   例2 document.location='javascript:alert(2)';  //location is a structured object, with properties corresponding to the parts of the URL.
 ```
-
 
 #### DOM based XSS 实例1 - 从anyElement.innerHTML触发
 
@@ -742,7 +752,7 @@ selector { property : "...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE..."; }
     * 注意 所有属性的值都需要被引号包裹 - 否则很不安全 使用"能够跳出属性值的字符"跳出属性的值 `[space]` `%` `*` `+` `,` `-` `/` `;` `<` `=` `>` `^` `|` 
     * 注意 URLs中禁止使用`data:` - 因为转义无法禁止攻击者使用`data:`使"数据"跳出URLs变为"代码"
     * 注意 不要使用URL编码对"完整URL"或"相对URL"进行编码
-      * 输入验证 - 如果将"不受信任的数据"放在`href`, `src`等基于URL的属性(URL-based attributes)中，需要验证输入数据以确保它没有指向不期望的协议，尤其是`javascript:`
+      * 输入验证 - 如果将"不受信任的数据"放在`href`, `src`等基于URL的属性(URL-based attributes)中，需要验证输入数据以确保它没有指向不期望的协议，尤其是`javascript:` 如`<a href="javascript:alert(&#x27;XSS&#x27;)">Click Me!!</a>`
       * 输出编码 - 像其他数据一样，URL的编码应该基于显示内容(输出)  例如`HREF=`中的值是用户驱动的URL 它应该被编码
 
 
