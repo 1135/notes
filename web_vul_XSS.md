@@ -2,7 +2,8 @@
 
 跨站脚本攻击(Cross Site Scripting)
 
-[HackerOne上已公开的各种XSS漏洞](https://hackerone.com/hacktivity?order_direction=DESC&order_field=popular&filter=type%3Apublic&querystring=XSS)
+* [HackerOne上已公开的各种XSS漏洞](https://hackerone.com/hacktivity?order_direction=DESC&order_field=popular&filter=type%3Apublic&querystring=XSS)
+* 各浏览器下的XSSpayload[Cross-Site Scripting (XSS) Cheat Sheet - 2020 Edition](https://portswigger.net/web-security/cross-site-scripting/cheat-sheet)
 
 ### 分类
 
