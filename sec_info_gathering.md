@@ -138,14 +138,39 @@ site:apple.com -site:www.apple.com -inurl:support
 #### 信息搜集 - Domain与IP
 
 * 子域名搜集方法
-  * 域传送漏洞 - DNS服务器配置不当，导致匿名用户利用"DNS域传送协议"获取某个域的所有记录
-  * SSL证书 - SSL证书.crt文件的SAN(`subjectAltName`)字段 看到该证书支持哪些域名
+  * SSL证书 - SSL证书`.crt`文件的SAN(Subject Alternate Name)字段`subjectAltName` 看到该证书支持哪些域名
   * 暴力枚举 - 暴力枚举子域名 结合自定义社工字典(根据该公司/组织的信息推测域名命名规律)
   * 搜索引擎 - 搜索语法
-  * 第三方网站 - 查询目标域名的公网当前DNS数据 DNS历史数据
+  * 第三方数据 - 查询目标域名的公网当前DNS数据 DNS历史数据 (如威胁情报站点 背后如果有DNS大数据查询结果就很好)
+  * CSP header中的子域名 - 防御XSS的CSP header可能有域名白名单
+  * DNS域传送漏洞 - DNS服务器配置不当，导致匿名用户利用"DNS域传送协议"获取某个域的所有记录
+  * DNS - SPF记录
   * APP与小程序 - 抓包
   * 代码泄露
+  * DNS - 域名系统安全扩展（DNS Security Extensions，DNSSEC）是用于确定源域名可靠性的数字签名. 如果DNSSEC NSEC开启则可获取全部域名. 某些 DNSSEC zone使用 NSEC3 记录，这些记录使用域名的hash来防止攻击者收集纯文本域名(攻击者在线下破解子域hash值)
   * ...
+
+```
+比如
+子域名暴力枚举工具 altdns
+使用altdns可根据一些已知的子域名 和可能的单词 进行暴力枚举 企图发现新的子域名
+用法如下
+
+git clone https://github.com/infosec-au/altdns.git
+cd altdns
+pip install -r requirements.txt
+python altdns/__main__.py -i /Users/xxx/Downloads/subdomains_known.txt -w words.txt -d 114.114.114.114 -o data_output.txt -r -s results_output.txt
+
+# 解释:
+# 输入 subdomains_known.txt 是该企业的已知域名. 如m.domain.com等
+# 输入 words.txt 子域名中常见的单词.   如 admin, dev, qa, test等
+# 输出 data_output.txt 已经改变的重新排列的域名 如mirror.m.domain.com ids-m.domain.com等
+# 选项 -r 表示对每个可能的域名进行DNS解析 以确定是否能得到IP
+# 选项 -s 指定结果文件的位置
+# 输出 results_output.txt 该程序暴力枚举子域名得到的结果
+# 选项 -d 指定DNS resolver  使用该选项则不会使用系统默认的DNS resolver
+```
+
 
 |域名相关工具|描述|
 |:-------------:|-----|
