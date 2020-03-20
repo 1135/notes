@@ -73,7 +73,7 @@ Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
 
 * 构造CSRF - 发出POST请求
   * 通过`XSS/JavaScript`,`HTML注入`等方法 在 `https://www.3.com/demo` 中注入以下html代码
-    * 如果需要指定该CSRF发出的http请求中的`Content-Type`值 只需设置form标签的`enctype`属性的值
+    * `form`标签支持的`enctype`属性的值 只有以下3种: 它可以指定该form表单提交时发出的http请求中的`Content-Type`值
       * 1.`<form enctype="application/x-www-form-urlencoded" ...` 默认情况
       * 2.`<form enctype="text/plain" ...`
       * 3.`<form enctype="multipart/form-data" ...`
