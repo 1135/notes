@@ -34,7 +34,7 @@ WAF的基础架构：串联(会话链路)、旁路(无法阻断)
 高防IP（DDoS防护） ->  CDN（静态资源加速） -> Web应用防火墙（中间层，应用层防护） -> 源站（ECS/SLB/VPC/IDC…）
 ```
 
-缺省任何产品时顺序不变 如:
+缺少任何产品时顺序不变 如:
 
 缺少WAF时的架构为：`高防IP -> CDN -> ECS`
 
@@ -94,7 +94,7 @@ WAF的基础架构：串联(会话链路)、旁路(无法阻断)
   * 方式2 其他服务 - 与该域名的其他服务(非web)进行交互
     * 邮件服务 - 获取到源站IP(设法让目标站发送邮件，如向一个不存在的地址aCLa21lc@domain.com发送邮件，通常会收到失败反馈邮件，下载邮件的.eml源文件，找到其中`Return-Path`字段中的IP地址、子域名)
     * 尝试通过IP访问目标 命令 `curl -k -H "Host: sub.domain.com" https://109.234.165.77`
-  * 方式3 全网扫描 - 利用"网络空间引擎" 匹配网页标题(title)
+  * 方式3 查询全网数据 - 利用"网络空间引擎"查询页面特征。比如网页标题(title)、图标[favicon.ico](https://www.google.cn/favicon.ico)等
 * 修复方案: 在源站上正确设置"回源IP防护" 以避免攻击者直接攻击源站IP 策略如下
   * 1.允许WAF的IP段访问源站的业务端口(80/443)
   * 2.禁止公网IP访问源站的业务端口(80/443)
@@ -102,16 +102,34 @@ WAF的基础架构：串联(会话链路)、旁路(无法阻断)
 ### WAF 根本绕过方式2 - 使用WAF无法识别的TLS加密算法
 
 * 前置条件 - WAF和WebServer都配有SSL证书(这种情况不常见)
-* 流量经过 - request -> WAF(配有SSL证书解密流量,解不开则放行) -> WebServer(配有SSL证书解密流量)
+* 流量经过 - `requests` -> `WAF(配有SSL证书解密流量,解不开则放行)` -> `WebServer(配有SSL证书解密流量)`
 * 绕过原理 - TLS Client(浏览器/curl)在TLS握手第一步时可主动选择SL/TLS ciphers"加密算法",如果找到WAF不支持的加密算法(WAF放行)且WebServer配有SSL证书支持解密该加密算法,则请求可绕过WAF直达WebServer
 
 参考[LandGrey/abuse-ssl-bypass-waf](https://github.com/LandGrey/abuse-ssl-bypass-waf)
 
+### WAF 根本绕过方式3 - 利用WAF的"超时放行"特性
+
+* 前置条件 - WAF开启了"超时放行"特性
+* 流量经过 - `requests` -> `WAF(WAF开启了"超时放行"特性,压力大时会直接放行一部分请求)` -> `WebServer`
+* 绕过原理 - WAF开启了"超时放行"特性:在流量过大等场景下会导致WAF压力大，为了避免因为拦截每一个请求导致响应超时影响业务可用性，会有一部分请求不会被WAF判断，直接放行到webServer
+* 实际测试 - 测试某云WAF发现，并发发送多个完全相同的请求(携带payload)，有约1/3的请求被云WAF放过，并成功触发了XSS
+
 ### WAF - 绕过规则
 
-* WAF识别
+* 1.识别WAF种类
   * [Ekultek/WhatWaf: Detect and bypass web application firewalls and protection systems](https://github.com/Ekultek/WhatWaf)
-* 绕过规则
+* 2.绕过该WAF的规则
   * 分块传输
   * `multipart/form-data`
+  * payload变形
   * ...
+
+
+payload变形案例 - 某JavaWeb网站存在漏洞，该网站且有WAF，如何绕过WAF成功利用Exp(有明显特征会被WAF拦截)?
+```
+//比如Exp为
+System.out.println("1135");
+
+//使用Unicode编码进行等价替代 实现了"去除"特征字符串 可绕过多数WAF
+\u0053\u0079\u0073\u0074\u0065\u006d\u002e\u006f\u0075\u0074\u002e\u0070\u0072\u0069\u006e\u0074\u006c\u006e("\u0031\u0031\u0033\u0035");
+```
