@@ -1,7 +1,11 @@
 ### 简介
 
 * 漏洞名称:点击劫持(ClickJacking)  UI覆盖(UI Redressing)
-* 攻击条件:HTTP Response Header 中 `X-FRAME-OPTIONS` 没有设置为 `DENY` 或 `SAMEORIGIN`
+* 攻击条件:
+  * HTTP Response Header 中 `X-FRAME-OPTIONS` 没有设置为 `DENY` 或 `SAMEORIGIN`
+  * 没有设置严格的内容安全策略(CSP,Content-Security-Policy)
+    * HTTP Response Header `Content-Security-Policy: xxx`
+    * HTTP Response Body `<meta http-equiv="Content-Security-Policy" content="xxx">`
 
 ### 漏洞危害
 
@@ -134,4 +138,7 @@
 
 ### SDL - 防御与修复方案
 
-* 在HTTP Response Header 中设置 `X-Frame-Options: DENY` 或 `X-Frame-Options: SAMEORIGIN`
+* 1.在HTTP Response Header 中设置 `X-Frame-Options: DENY` 或 `X-Frame-Options: SAMEORIGIN`
+* 2.设置严格的内容安全策略(CSP,Content-Security-Policy)
+    * HTTP Response Header `Content-Security-Policy: xxx`
+    * HTTP Response Body `<meta http-equiv="Content-Security-Policy" content="xxx">`
