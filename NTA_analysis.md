@@ -36,7 +36,8 @@ NTA is the process of intercepting, recording and analyzing network traffic comm
   * tshark 使用`-Y`指定display filter的筛选表达式 如`tshark -r 1.pcap -Y 'http.request.method==GET'`
 
 * 常用筛选表达式 - Display filter expression
-  * 查看所有web流量 `(http.request) or (ssl.handshake.type == 1)` 查看HTTP请求的URL + HTTPS(SSL/TLS)流量中使用的域名
+  * 查看所有web流量 `(http.request) or (ssl.handshake.type == 1)` 查看HTTP请求的URL + HTTPS流量中使用的域名 
+    * 注: SSL/TLS握手流量 Client Hello里的`Server Name Indication extension`中的`Server Name:`说明了域名
   * http GET数据包`http.request.method==GET`
   * http 包的内容(包含header url responseCode ...) `http contains "User-Agent: "`
   * http URL地址特征 `http.request.uri == "/logo.png"`
