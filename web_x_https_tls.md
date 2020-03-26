@@ -97,32 +97,43 @@ PKI包括:
 
 # TCP 3次握手过程(成功之后进行TLS握手)
 # TLS/SSL握手对象: TLS client(浏览器) 和 TLS server(Web Server)
-# TLS/SSL握手过程("握手阶段"涉及四次通信，都是"明文"通信)
+# TLS/SSL握手过程("握手阶段"涉及4次通信，都是"明文"通信)
 
-                              握手过程 第?次通信
-      ClientHello                  ----1---->
-
-
-                                                      ServerHello
-                                                     Certificate*
-                                               ServerKeyExchange*
-                                              CertificateRequest*
-                                   <----2----      ServerHelloDone
+                              TLS/SSL握手过程 第?次通信
+      ClientHello                  -----1---->
 
 
-      Certificate*
-      ClientKeyExchange
-      CertificateVerify*
-      [ChangeCipherSpec]
-      Finished                     -----3--->
+
+                                                        ServerHello
+                                                       Certificate*
+                                                 ServerKeyExchange*
+                                                CertificateRequest*
+                                   <----2-----      ServerHelloDone
 
 
-                                               [ChangeCipherSpec]
-                                   <----4----             Finished
+
+         Certificate*
+         ClientKeyExchange
+         CertificateVerify*
+         [ChangeCipherSpec]
+          Finished                 ------3--->
+
+
+
+                                                  [ChangeCipherSpec]
+                                   <----4-----             Finished
 
 
 # TLS/SSL握手结果:seesion key
 # 最后协商的结果是:二者有了同一个对称加密密钥(session key,会话密钥).用于二者互相通信时对messages进行对称加密.
 # 即 TLS握手使TLS client(浏览器)能够与TLS server(Web Server)这二者间建立了交流数据必需的密钥(对称加密的密钥).
-      Application Data             <------->     Application Data
+      Application Data             <--------->     Application Data
+```
+
+#### Q&A
+
+```
+Q: TLS/SSL握手过程中能看到域名吗?几次?
+A: TLS/SSL握手过程 第1次握手 TLS client向TLS server发送的Client Hello 里的Server Name Indication extension中的Server Name:说明了域名
+   TLS/SSL握手过程 第2次握手 TLS server向TLS client发送的Server Hello 里的 Certificate 数字证书里面能看到域名
 ```
