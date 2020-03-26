@@ -70,7 +70,7 @@ SSRF漏洞分类
 
 通过"SSRFserver"与目标主机交互,目标主机的网络位置可以在内网 公网:
 * 公网 - 可通过"SSRFserver"与公网主机交互
-  * 利用SSRF实现XSS - 攻击者可利用"SSRFserver"访问公网主机 (如攻击者的evil.com) 并在"SSRFserver"域下看到evil.com的响应内容(如 XSSpayload)
+  * 利用SSRF实现XSS - 攻击者可利用"SSRFserver"访问公网的`evil.com/xss.svg` 可在"SSRFserver"的域名下看到`evil.com`的Response Body(如 XSSpayload)
   * 利用SSRF实现钓鱼
   * ...
 * 内网 - 可通过"SSRFserver"与内网主机交互 对"SSRFserver"所在内网的其他可达的服务器进行探测或渗透
@@ -144,6 +144,7 @@ SSRF漏洞分类
     * 利用 [xip.name](https://github.com/peterhellberg/xip.name) 类似的还有 nip.io xip.io
       * `127.0.0.1 <-> http://2130706433.xip.name`支持十进制. 支持任意前缀`ping qq.com.127.0.0.1.xip.name`
       * `10.100.21.7 <-> http://10.100.21.7.xip.io` `https://182.61.200.6.xip.io` SSL证书会"无效"
+      * `127.0.0.1 <-> http://www.apple.com.anything.127.0.0.1.nip.io` 绕过不严谨的判断
     * 利用 https://sslip.io 支持ssl 支持ipv6
       * https://52-0-56-137.sslip.io/
   * DNS重绑定(DNS Rebinding) **重点** 攻击步骤
