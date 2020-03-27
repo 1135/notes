@@ -317,17 +317,26 @@ Referer: https://3.com/demo
 ### 漏洞影响
 
 * CSRF攻击场景 利用victim的身份进行操作
-  * 修改管理员密码 - 使管理员点击构造的链接 即可修改其密码
-  * 新建管理员账号 - 使管理员点击构造的链接 即可新增管理员
-  * 社交站点蠕虫(XSS结合CSRF) - 如果"向好友发送消息"的HTTP请求中没有设置CSRF-token请求头 则可结合XSS可构造出XSS+CSRF蠕虫 影响极大
-  * 拒绝服务(XSS结合CSRF) - 如果XSS能打到管理员后台 且管理员注销动作无CSRF防御机制 则可构造payload使管理员一登录就注销
+  * 修改管理员密码 - 使管理员点击构造的链接 即可修改其密码.
+  * 新建管理员账号 - 使管理员点击构造的链接 即可新增管理员.
+* 漏洞联合(XSS+CSRF)
+  * 【社交站点蠕虫】 - 如果"向好友发送消息"的HTTP请求中没有设置CSRF-token请求头 则可结合XSS可构造出XSS+CSRF蠕虫 影响极大.
+  * 【拒绝服务】 - 如果通过前台构造xssPayload提交 成功打到了管理后台 且管理员注销动作无CSRF防御机制 则可构造payload使管理员一登录就注销.
+  * 【web后台权限维持】
+    * 某案例 攻击者A通过前台构造xssPayload提交 管理员B登录管理后台查看数据 触发了xssPayload (漏洞1利用成功 但这是短暂的权限 cookie过期后将无法登录后台)
+    * 发现在后台有一个配置“网站名称”的选项 存在存储型xss漏洞(但是 漏洞2 仅前台普通用户会触发 管理后台并不会触发)
+    * 为了实现web后台的权限维持 构造CSRF请求 并利用漏洞2 使每个普通用户都提交 漏洞1 的xssPayload (也可以设置一定的随机性 部分用户提交也可以)
+    * 管理员日常登录后台查看数据 就会像他第一次触发 漏洞1 那样, 触发.
 
-### 测试
+**web场景测试技巧**
 
-* 相同请求重放 - 即可判断token是否为每次动态生成 仅一次性有效 用后失效
-* 完全删除CSRFtoken值令其为空 - 即可判断后端是否验证token是否有效
-* 修改CSRFtoken值中一个字符 - 即可判断后端验证机制是否严谨
-* HTTP方法由POST转换为GET - 即可判断后端验证机制是否严谨
+* 相同请求重放 - 即可判断token是否满足 正确设计:`token动态生成  token会被后端验证且只能被验证一次  经过后端验证后的token立即失效`
+* 修改token值 - 如修改Request Body并发送请求，查看Response Body是否和正常请求的Response Body相同
+* 删除token值 - 如修改Request Body为`para1=aaa&token=`并发送请求，查看Response Body是否和正常请求的Response Body相同
+* 完全删除token参数 - 如修改Request Body为`para1=aaa`并发送请求，查看Response Body是否和正常请求的Response Body相同
+* HTTP方法由POST转换为GET - 可判断后端是否严格要求了Request`method`,如果可以转换为GET method最好 方便构造PoC代码
+* ...
+
 
 ### SDL - 防御与修复方案
 
