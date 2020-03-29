@@ -53,18 +53,26 @@ SSRF漏洞分类
 
 * 开发者角度 按web应用的功能分类
   * 类型1 http请求中有参数值"URL地址" 开发者没做好严格的输入验证 server直接访问"URL地址" 触发SSRF
-    * web在线代理
-    * 资源下载   图片.png、图标.ico、网页.html、文本.txt 等
-    * 分享
-    * url跳转 支持了URL Schema(file等协议) 可读取本机文件 `http://x.com/click.jsp?url=http://127.0.0.1:8082/config/dbconfig.xml`
+    * 代理服务 - online web proxy等
+    * 资源下载 - 图片.png、图标.ico、网页.html、文本.txt 等
+    * url跳转 - 如果支持了URL Schema(file等协议) 可读取本机文件 `http://x.com/click.jsp?url=http://127.0.0.1:8082/config/dbconfig.xml`
     * ...
-  * 类型2 用户上传文件(常见文件类型 `SVG` `JPG` `XML` `JSON`)  对该文件进行 解析、处理、渲染 文件过程中触发SSRF
-    * 网页处理 (将网页内容变为适应手机屏幕的格式)
-    * 图片处理 如ImageMagick CVE-2016-3718  如[PhantomJS Image Rendering](https://buer.haus/2017/06/29/escalating-xss-in-phantomjs-image-rendering-to-ssrflocal-file-read/)
-    * 图片处理 ImageMagick CVE-2016-3718
-    * 视频音频处理 Ffmpeg文件读取漏洞 CVE-2016-1897  CVE-2016-1898
-      * [新浪微盘存在Ffmpeg文件读取漏洞-SSRF](https://www.secpulse.com/archives/49510.html)
-      * [FFmpeg任意文件读取漏洞分析 - 知乎](https://zhuanlan.zhihu.com/p/28255225)
+  * 类型2 用户上传文件(常见文件类型 `SVG` `JPG` `XML` `JSON`)  web应用 对该文件进行 解析、处理、渲染 过程中触发SSRF
+    * 处理网页文件 - 如html to pdf
+      * 读取本地文件 - 如果web后端调用了headlessChrome等程序或第三方库 并在`file://`打开了html文件 则可在该html文件中创建`iframe`读取`file://`域下的内容 即本地文件)
+      * SSRF
+        * 利用`iframe`实现可回显SSRF
+        * 利用`XMLHttpRequest`实现SSRF(在现代浏览器下有限制:需符合CORS)
+        * 利用`img`实现不可回显SSRF
+        * ...
+    * 处理图片文件
+      * ImageMagick CVE-2016-3718
+      * [PhantomJS Image Rendering](https://buer.haus/2017/06/29/escalating-xss-in-phantomjs-image-rendering-to-ssrflocal-file-read/)
+      * ...
+    * 处理视频音频文件
+      * Ffmpeg文件读取漏洞 CVE-2016-1897  CVE-2016-1898
+        * [新浪微盘存在Ffmpeg文件读取漏洞-SSRF](https://www.secpulse.com/archives/49510.html)
+        * [FFmpeg任意文件读取漏洞分析](https://zhuanlan.zhihu.com/p/28255225)
 
 ### 漏洞利用
 
