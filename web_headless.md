@@ -1,16 +1,39 @@
 ### Headless Chrome
 
-Mac系统安装Chrome即可使用headless模式.
+参考[Getting Started with Headless Chrome  |  Web  |  Google Developers](https://developers.google.cn/web/updates/2017/04/headless-chrome?hl=zh-cn)
 
-* 使用alias设置临时别名
-  * `alias google-chrome="/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome"`
-* 使用Headless模式发起HTTP请求 并打印页面DOM
-  * `google-chrome --headless --dump-dom http://xx.net`
-* 设置User-Agent 参考[User Agents](https://developers.whatismybrowser.com/)
-  * `--user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"`
+Mac系统安装Chrome浏览器 即可使用自带的headless模式
+
+```
+# 使用alias设置临时别名
+alias google-chrome="/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome"
+
+# 使用Headless模式发起HTTP请求 并使用--dump-dom(打印document.body.innerHTML到stdout)
+google-chrome --headless --dump-dom http://xx.net
+google-chrome --headless --disable-gpu --dump-dom ~/Users/xxx/Downloads/xss-read_local_file.html
+
+# 使用Headless模式发起HTTP请求 并使用可交互的REPL mode(read-eval-print loop)
+google-chrome --headless --disable-gpu --repl --crash-dumps-dir=./tmp https://www.chromestatus.com/
+[0329/113307.039550:INFO:headless_shell.cc(455)] Type a Javascript expression to evaluate or "quit" to exit.
+>>> location.href
+{"result":{"type":"string","value":"https://www.chromestatus.com/features"}}
+>>> quit
 
 
-Headless模式 默认的HTTP请求(可以看到User-Agent标明了Headless模式 浏览器版本 ...)
+# 选项 - 设置User-Agent 参考[User Agents](https://developers.whatismybrowser.com/)
+--user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"
+
+# 选项 - 截图  指定长宽(自动保存为screenshot.png)
+google-chrome --headless --disable-gpu --screenshot --window-size=1280,1696 https://www.chromestatus.com/
+
+# 选项 - 其他
+--hide-scrollbars
+--remote-debugging-port=9222
+--no-sandbox
+```
+
+
+Headless模式下 默认发出HTTP请求 (看到User-Agent中有字符串`HeadlessChrome`)
 ```
 GET / HTTP/1.1
 Host: xx.net
@@ -20,7 +43,6 @@ User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
 Accept-Encoding: gzip, deflate
 ```
-
 
 ### Puppeteer
 
