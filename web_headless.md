@@ -26,6 +26,9 @@ google-chrome --headless --disable-gpu --repl --crash-dumps-dir=./tmp https://ww
 # 选项 - 截图  指定长宽(自动保存为screenshot.png)
 google-chrome --headless --disable-gpu --screenshot --window-size=1280,1696 https://www.chromestatus.com/
 
+# 选项 - 生成PDF文件  可使用选项--print-to-pdf 生成 output.pdf
+chrome --headless --disable-gpu --print-to-pdf https://www.chromestatus.com/
+
 # 选项 - 其他
 --hide-scrollbars
 --remote-debugging-port=9222
