@@ -1,6 +1,8 @@
 ### 简介
 
-WebGoat是由OWASP维护的、Java编写的Web应用程序（靶场程序），它被故意设置了各种漏洞，也包含一些简洁课程内容，帮助我们从实践中理解Web安全,学习渗透测试技术。
+WebGoat是Java编写的Web应用程序(靶场程序).由OWASP维护.
+
+它被故意设置了各种漏洞,帮助我们从实践中理解Web安全.
 
 https://github.com/WebGoat/WebGoat/
 
@@ -22,7 +24,7 @@ java -jar webgoat-server-8.0.0.M21.jar  --server.port=8000 --server.address=0.0.
 
 访问WebGoat:
 ```
-http://ip:8000/WebGoat/login
+http://WebGoat:8000/WebGoat/login
 ```
 
 注册一个账号即可登录使用。
@@ -36,7 +38,7 @@ java -jar webwolf-8.0.0.M21.jar --server.port=9090 --server.address=0.0.0.0
 
 访问:
 ```
-http://10.211.55.4:9090/login
+http://webwolf:9090/login
 ```
 
 直接用WebGoat的账号密码登录即可。
