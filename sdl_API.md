@@ -11,12 +11,79 @@
 
 #### JWT
 
-[JSON Web Token - jwt.io](https://jwt.io/introduction/)
+介绍[JSON Web Token](https://jwt.io/introduction/)
 
-* 使用随机复杂的密钥(`JWT Secret`) 以增加暴力枚举的难度
-* 后端强制使用高强度算法(`HS256` or `RS256`). 不要从请求的payload中直接提取数据
+* JWT由3部分组成 这3部分用2个`.`连接成一个JWT:
+  * Header
+  * Payload
+  * Signature
+
+```
+JWT的格式:
+Base64Urlencode(Header).Base64Urlencode(Payload).Signature
+
+比如这个JWT:
+eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1ODY1MjUyNzcsImFkbWluIjoiZmFsc2UiLCJ1c2VyIjoiSmVycnkifQ.BWbSmWbTfsJBc5YMaKCXY4SlvxPZXuobf4vfAFJEXu00qC5nXeyA7csmC7PErf5YoxmbDzFVPobnzhndFe10xQ
+
+分解为3部分:
+Header:    eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9 --Base64Urldecode-> {"alg":"HS512","typ":"JWT"}
+Payload:   eyJpYXQiOjE1ODY1MjUyNzcsImFkbWluIjoiZmFsc2UiLCJ1c2VyIjoiSmVycnkifQ --Base64Urldecode-> {"iat":1586525277,"admin":"false","user":"Jerry"}
+Signature: BWbSmWbTfsJBc5YMaKCXY4SlvxPZXuobf4vfAFJEXu00qC5nXeyA7csmC7PErf5YoxmbDzFVPobnzhndFe10xQ
+
+--------
+Header
+Header通常包含2个内容:
+1.ALGORITHM - 用到的签名算法(signing algorithm)
+2.TOKEN TYPE - token的类型
+
+如:
+{
+  "alg": "HS512",
+  "typ": "JWT"
+}
+
+--------
+Payload
+Payload包含了"声明"(claims):有3种claims
+Registered claims - 一组非强制性但建议的预定义声明 如 iss (issuer), exp (expiration time), sub (subject), aud (audience) ...
+Public claims
+Private claims
+
+如:
+{
+  "iat": 1586525277,
+  "admin": "false",
+  "user": "Jerry"
+}
+
+--------
+
+Signature
+Signature的创建需要获取3个参数:
+1.encoded header
+2.encoded payload
+3.a secret - 我设置它为`secret_secret_2020_0331`
+
+算法已经在header中指定.
+
+
+如:
+使用HMACSHA512算法创建JWT的Signature的计算过程
+
+HMACSHA512(
+  base64UrlEncode(header) + "." +
+  base64UrlEncode(payload),
+  secret
+) 
+
+签名的作用:用于验证消息未被更改. 并且如果使用"私钥"(private key)进行签名,则该签名可用于验证JWT的发送者(是否为它所说的发送者).
+```
+
+JWT安全设计原则
+* 使用随机的复杂的密钥`JWT Secret` 这样暴力枚举的难度极大
+* 服务端不要从header中提取算法(algorithm) 在服务端强制使用指定的高强度算法 如`HS256`,`RS256`...
 * token过期时间 设置尽量短.  token expiration (`TTL`, `RTTL`)
-* 不要在JWT的payload中存储敏感数据 因为 [很容易被解码](https://jwt.io/#debugger-io)
+* 不要在JWT的"payload部分"中存储敏感数据 因为对"payload部分"进行base64Urldecode就能看到明文. [在线decode](https://jwt.io/#debugger-io)
 
 #### OAuth
 
