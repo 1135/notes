@@ -1,8 +1,35 @@
 ### 简介
 
-SQL注入漏洞(SQL injection) - 对用户请求中的输入的参数值过滤不严(如动态拼接字符串)
+SQL注入漏洞(SQL injection)
 
-### 类型
+漏洞原理:用户输入的字符串 被作为参数 直接拼接到SQL语句中.
+
+```
+# Vulnerable Code
+"SELECT * FROM users WHERE name = '" + userName + "'";
+
+# 正常用户 输入 Smith
+"SELECT * FROM users WHERE name = 'Smith'";
+
+# 攻击者A 输入 Smith’ OR '1' = '1
+"SELECT * FROM users WHERE name = 'Smith' OR '1' = '1'";
+# 则SQL语句如下 会返回users表中所有记录
+SELECT * FROM users WHERE name = 'Smith' OR TRUE;
+
+
+# 攻击者B 输入 Smith’ OR 1 = 1; --
+"SELECT * FROM users WHERE name = 'Smith' OR 1 = 1; --'";
+# 则SQL语句如下 会返回users表中所有记录
+SELECT * FROM users WHERE name = 'Smith' OR TRUE;--';
+
+
+# 攻击者C 输入 Smith’; DROP TABLE users; TRUNCATE audit_log; --
+"SELECT * FROM users WHERE name = 'Smith’; DROP TABLE users; TRUNCATE audit_log; --'";
+# 则SQL语句如下 会DROP整个users表(表本身也不存在了) 并 TRUNCATE整个audit_log表(表本身存在)
+SELECT * FROM users WHERE name = 'Smith’; DROP TABLE users; TRUNCATE audit_log; --';
+```
+
+### 漏洞类型
 
 * 类型1 - "基于布尔的盲注"(boolean-based blind)
 * 类型2 - "基于时间的盲注"(time-based blind)
