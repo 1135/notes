@@ -37,7 +37,8 @@ NTA is the process of intercepting, recording and analyzing network traffic comm
 
 * 常用筛选表达式 - Display filter expression
   * 查看所有web流量 `(http.request) or (ssl.handshake.type == 1)` 查看HTTP请求的URL + HTTPS流量中使用的域名 
-    * 注:[TLS/SSL握手过程中的4次通信 其中前2次都能看到域名](web_x_https_tls.md#qa)
+    * 注:[TLS/SSL握手过程中的4次通信 都是明文传输 其中前2次都能看到域名](web_x_https_tls.md#qa)
+    * 注:[TLS/SSL握手过程中的4次通信 都是明文传输 在此过程存在特征 可生成指纹用于**威胁检测**](web_x_https_tls.md#qa)
   * http GET数据包`http.request.method==GET`
   * http 包的内容(包含header url responseCode ...) `http contains "User-Agent: "`
   * http URL地址特征 `http.request.uri == "/logo.png"`
@@ -70,7 +71,7 @@ NTA is the process of intercepting, recording and analyzing network traffic comm
 ### 确定受影响主机的信息
 
 * 确定被感染主机的信息(系统信息、IP地址、MAC地址、计算机名、系统帐户名)
-  * [对恶意软件Dridex的流量分析 - FreeBuf互联网安全新媒体平台](https://www.freebuf.com/articles/es/195832.html)
+  * [对恶意软件Dridex的流量分析 - FreeBuf](https://www.freebuf.com/articles/es/195832.html)
   * 通过HTTP请求中的User-Agent判断设备类型、系统版本
     * Windows NT 5.1：Windows XP
     * Windows NT 6.0：Windows Vista
