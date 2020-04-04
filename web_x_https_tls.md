@@ -137,3 +137,11 @@ Q: TLS/SSL握手过程中能看到域名吗?几次?
 A: TLS/SSL握手过程 第1次握手 TLS client向TLS server发送的Client Hello 里的Server Name Indication extension中的Server Name:说明了域名
    TLS/SSL握手过程 第2次握手 TLS server向TLS client发送的Server Hello 里的 Certificate 数字证书里面能看到域名
 ```
+
+```
+Q: 威胁检测方面,如何检测使用TLS/SSL协议进行加密通信的威胁?
+A: 
+TLS/SSL握手过程中的4次通信 都是明文传输 在此过程存在特征 可生成指纹用于威胁检测.
+根据明文的Client Hello 生成 Client指纹 如JA3
+根据明文的Server Hello 生成 Server指纹 如JA3S
+```
