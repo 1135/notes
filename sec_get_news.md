@@ -57,7 +57,10 @@
 | 个人博客 0x09al | https://0x09al.github.io/feed.xml|
 | CORBEN LEO |https://www.corben.io/feed|
 | Somdev Sangwan(XSStrike AwesomeXSS author) | https://somdev.me/feed |
-| hackndo (域渗透)| https://en.hackndo.com/archives/ |
+| InQuest Blog (Blackhat USA 2019 speaker)| https://inquest.net/blog/rss |
+| 个人博客 XPN Redteamer windows | https://blog.xpnsec.com/rss/ |
+| 个人博客 m0chan windows域渗透 | https://m0chan.github.io/ |
+| [hackndo](https://en.hackndo.com/archives/) windows域渗透| 无法订阅 |
 
 |名称|属性|描述|
 |:-------------:|--|-----|
