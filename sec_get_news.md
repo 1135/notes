@@ -1,9 +1,5 @@
 ### 获取安全资讯
 
-* 意义
-  * 深度 有利于提高技术深度
-  * 广度 对安全会有更系统的认识
-
 * 模式
   * 被动接收为主 (营造环境/建立机制 让资讯主动展示在眼前 避免不必要的消耗)
   * 主动获取为辅（主动获取略耗费精力时间 按需获取)
@@ -61,7 +57,7 @@
 | 个人博客 0x09al | https://0x09al.github.io/feed.xml|
 | CORBEN LEO |https://www.corben.io/feed|
 | Somdev Sangwan(XSStrike AwesomeXSS author) | https://somdev.me/feed |
-
+| hackndo (域渗透)| https://en.hackndo.com/archives/ |
 
 |名称|属性|描述|
 |:-------------:|--|-----|
