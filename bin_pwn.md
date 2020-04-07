@@ -3,6 +3,10 @@
 
 pwn:通过二进制/系统调用等方式获得目标主机的shell.
 
+### 学习资料
+
+* [Nightmare](https://guyinatuxedo.github.io/index.html) 基于CTF学习 binary exploitation / reverse engineering
+
 ### 基本概念
 
 
