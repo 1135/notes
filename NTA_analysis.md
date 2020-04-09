@@ -28,26 +28,9 @@ Wireshark/tshark都有2个filter.
   * tshark 使用`-Y`指定display filter的筛选表达式 如`tshark -r 1.pcap -Y 'http.request.method==GET'`
 
 
-### filter语法
+### filter syntax
 
 参考 [wireshark-filter - The Wireshark Network Analyzer 3.2.3](https://www.wireshark.org/docs/man-pages/wireshark-filter.html)
-
-* 以下语法可用于 Capture filter 和 Display filter
-  * 只关注某IP的流量(to&from) `ip.addr == 192.168.10.1`
-  * 只关注某端口的流量 如DNS (port 53) traffic `udp.port == 53 || tcp.port == 53`
-  * 只关注某网段范围内的流量(to&from) `net 192.168.0.0/24` 或`net 192.168.0.0 mask 255.255.255.0`
-  * 只关注某网段范围内的流量(from) `src net 192.168.0.0/24`
-  * 捕获某主机的非http且非smtp流量 `host www.example.com and not port 80 and not port 25`
-  * 所有web流量 `(http.request) or (ssl.handshake.type == 1)` 查看HTTP请求的URL + HTTPS流量中使用的域名 
-    * 注:[TLS/SSL握手过程中的4次通信 都是明文传输 其中前2次都能看到域名](web_x_https_tls.md#qa)
-    * 注:[TLS/SSL握手过程中的4次通信 都是明文传输 在此过程存在特征 可生成指纹用于**威胁检测**](web_x_https_tls.md#qa)
-  * http GET数据包`http.request.method==GET`
-  * http 包的内容(包含header url responseCode ...) `http contains "User-Agent: "`
-  * http URL地址特征 `http.request.uri == "/logo.png"`
-  * HTTP/2协议的流量(to&from) `http2`
-  * 关注域名解析 `(dns.qry.name contains microsoft)`
-  * ...
-
 
 * 逻辑条件组合(适用于对各种筛选条件进行逻辑组合)
   * 与 `and`
@@ -55,22 +38,128 @@ Wireshark/tshark都有2个filter.
   * 非 `!(表达式)` `not(表达式)` **注意格式**  如 `not(ip.addr == 192.168.1.222)`
   * 等于`eq` `==`
   * 包含某字符串 `contains`
-* 筛选条件 - ip地址
-  * 目的ip地址 `ip.dst==192.168.101.8` `dst host 192.168.101.8`
-  * 源ip地址`ip.src==1.1.1.1` `src host 1.1.1.1`
-  * 发到 / 来自 某ip 的数据包 `host 10.3.1.1` `ip.addr == 192.168.10.1`
-  * 发到 / 来自 某域名解析的IP地址的数据包 `host www.1.com`
-* 筛选条件 - 端口
-  * 源端口 或 目的端口为 80 的数据包`tcp.port==80`
-  * 目的端口为 80 的数据包`tcp.dstport==80`
-  * 源端口为 80 的数据包`tcp.srcport==80`
-* 筛选条件 - MAC地址
-  * MAC地址是20:dc:e6:f3:78:cc的数据包  包括 源MAC地址 和 目的MAC地址`eth.addr==20:dc:e6:f3:78:cc`
-  * 源MAC地址 `eth.src==20:dc:e6:f3:78:cc`
-  * 目的MAC地址 `eth.dst==20:dc:e6:f3:78:cc`
-* 筛选条件 - 协议
- * 选中某协议 `tcp` `udp` `dns` `http` `icmp` `ssl` `ftp` `smtp` `msnms` `arp` ...
- * 排除某协议 `!ssl` `not ssl`
+
+
+* 以下语法可用于 Capture filter 和 Display filter
+  * 筛选条件 - 常用
+    * 只关注某个端口的流量 如只关注53端口(TCP或UDP) DNS traffic `udp.port == 53 || tcp.port == 53`
+    * 关注域名解析 `(dns.qry.name contains microsoft)`
+  * 筛选条件 - ip地址
+    * 只关注某IP的流量(to&from) `ip.addr == 192.168.10.1`
+    * 只关注某网段范围内的流量(to&from) `ip.addr == 10.15.3.0/24`
+    * 只关注某网段范围内的流量(from) `ip.src == 10.157.29.1/24`
+  * 筛选条件 - TCP端口 (UDP也类似)
+    * 只关注某TCP端口 源端口+目的端口的流量 `tcp.port==80`
+    * 只关注某TCP端口 目的端口的流量 `tcp.dstport==59602`
+    * 只关注某TCP端口 源端口的流量 `tcp.detport==443`
+  * 明文web流量
+    * http GET数据包 `http.request.method==GET`
+    * http 包的内容(包含header url responseCode ...) `http contains "User-Agent: "`
+    * http URL地址特征 `http.request.uri == "/logo.png"`
+    * HTTP/2协议的流量(to&from) `http2`
+  * 所有非加密的web流量 即: HTTP流量 + HTTPS流量中的`Client Hello`和`Server Hello, Certificate`
+    * `(http) or (tls.handshake.type == 1) or (tls.handshake.type == 2)`
+    * 注:[TLS/SSL握手过程中的4次通信 都是明文传输 其中前2次都能看到域名](web_x_https_tls.md#qa)
+    * 注:[TLS/SSL握手过程中的4次通信 都是明文传输 在此过程存在特征 可生成指纹用于**威胁检测**](web_x_https_tls.md#qa)
+  * 筛选条件 - MAC地址
+    * MAC地址是20:dc:e6:f3:78:cc的流量 源MAC地址+目的MAC地址 `eth.addr==20:dc:e6:f3:78:cc`
+    * 源MAC地址 `eth.src==20:dc:e6:f3:78:cc`
+    * 目的MAC地址 `eth.dst==20:dc:e6:f3:78:cc`
+  * 筛选条件 - 协议
+    * 选中某协议 `tcp` `udp` `dns` `http` `icmp` `ssl` `ssh` `ftp` `smtp` `msnms` `arp` ...
+    * 排除某协议 `!ssl` `not ssl`
+  * ...
+
+---
+
+更多筛选条件:
+
+Only to show the outgoing packets from the management frame.
+
+```
+wlan.fc.type==0
+```
+
+To show incoming, outgoing packets through control frame.
+
+```
+wlan.fc.type==1
+```
+
+To show packets transferred over the data frame.
+
+```
+wlan.fc.type==2
+```
+
+Association lists the requests.
+
+```
+wlan.fc.type_subtype==0
+```
+
+Association lists the answers.
+
+```
+wlan.fc.type_subtype==1
+```
+
+Probe lists requests.
+
+```
+wlan.fc.type_subtype==4
+```
+
+Lists the probe responses.
+
+```
+wlan.fc.type_subtype==5
+```
+
+Lists Beacon signals / waves.
+
+```
+wlan.fc.type_subtype==8
+```
+
+Lists the Authentication requests.
+
+```
+wlan.fc.type_subtype==11
+```
+
+Lists deauthentication requests.
+
+```
+wlan.fc.type_subtype==12
+```
+
+Lists the HTTP Get requests.
+
+```
+http.request
+```
+
+Lists packages for the source or destination mac address.
+
+```
+wlan.addr == MAC-Address
+```
+
+The source lists packages that have a mac address.
+
+```
+wlan.sa == MAC-Address
+```
+
+Lists packages that have a target mac address.
+
+```
+wlan.da == MAC-Address
+```
+
+
+
 
 ### 确定受影响主机的信息
 
