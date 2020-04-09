@@ -46,8 +46,8 @@ Wireshark/tshark都有2个filter.
     * 关注域名解析 `(dns.qry.name contains microsoft)`
   * 筛选条件 - ip地址
     * 只关注某IP的流量(to&from) `ip.addr == 192.168.10.1`
-    * 只关注某网段范围内的流量(to&from) `ip.addr == 10.15.3.0/24`
-    * 只关注某网段范围内的流量(from) `ip.src == 10.157.29.1/24`
+    * 只关注某网段范围内的流量(to&from) `ip.addr == 10.17.3.0/24`
+    * 只关注某网段范围内的流量(from) `ip.src == 10.17.3.0/24`
   * 筛选条件 - TCP端口 (UDP也类似)
     * 只关注某TCP端口 源端口+目的端口的流量 `tcp.port==80`
     * 只关注某TCP端口 目的端口的流量 `tcp.dstport==59602`
