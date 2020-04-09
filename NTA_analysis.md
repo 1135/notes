@@ -18,11 +18,11 @@ NTA is the process of intercepting, recording and analyzing network traffic comm
 
 ### Wireshark/tshark - capture filter
 
-
-* 通过capture filter设置捕获条件 从而只捕获想要捕获的流量
-  * Wireshark 抓包前 直接在capture filter框输入筛选表达式
+* 设置捕获条件 实现只捕获想要捕获的流量
+  * Wireshark 抓包之前 直接在GUI上的`capture filter`框输入筛选表达式
   * tshark 使用`-f`指定display filter的筛选表达式 如`tshark -f "predef:MyPredefinedHostOnlyFilter"`
-* 常用的捕获表达式 - Capture filter expression
+
+* 常用的捕获表达式 - Capture filter expression 参考[CaptureFilters - The Wireshark Wiki](https://wiki.wireshark.org/CaptureFilters)
   * 关注某主机 只捕获该ip的流量 `host 172.18.5.4`
   * 关注网段 只捕获该ip范围内的"进+出"流量(to&from) `net 192.168.0.0/24` 或`net 192.168.0.0 mask 255.255.255.0`
   * 关注网段 只捕获该ip范围内的"出"流量(from) `src net 192.168.0.0/24`
