@@ -16,39 +16,43 @@ NTA is the process of intercepting, recording and analyzing network traffic comm
 
 恶意软件分析工具与资源 [awesome-malware-analysis](https://github.com/rshipp/awesome-malware-analysis)
 
-### Wireshark/tshark - capture filter
+### filter
 
-* 设置捕获条件 实现只捕获想要捕获的流量
+Wireshark/tshark都有2个filter.
+
+* Capture filter - 设置捕获条件 实现只捕获想要捕获的流量
   * Wireshark 抓包之前 直接在GUI上的`capture filter`框输入筛选表达式
   * tshark 使用`-f`指定display filter的筛选表达式 如`tshark -f "predef:MyPredefinedHostOnlyFilter"`
-
-* 常用的捕获表达式 - Capture filter expression 参考[CaptureFilters - The Wireshark Wiki](https://wiki.wireshark.org/CaptureFilters)
-  * 关注某主机 只捕获该ip的流量 `host 172.18.5.4`
-  * 关注网段 只捕获该ip范围内的"进+出"流量(to&from) `net 192.168.0.0/24` 或`net 192.168.0.0 mask 255.255.255.0`
-  * 关注网段 只捕获该ip范围内的"出"流量(from) `src net 192.168.0.0/24`
-  * 只捕获指定端口的流量 如DNS (port 53) traffic `port 53`
-  * 捕获某主机的非http且非smtp流量 `host www.example.com and not port 80 and not port 25`
-  
-### Wireshark/tshark - display filter
-
-* 通过display filter设置筛选条件 从而只显示出想要显示的流量
-  * Wireshark 抓包后 直接在display filter框输入筛选表达式
+* Display filter - 设置显示条件 实现只显示出想要显示的流量
+  * Wireshark 抓包之后 直接在GUI上的`display filter`框输入筛选表达式
   * tshark 使用`-Y`指定display filter的筛选表达式 如`tshark -r 1.pcap -Y 'http.request.method==GET'`
 
-* 常用筛选表达式 - Display filter expression
-  * 查看所有web流量 `(http.request) or (ssl.handshake.type == 1)` 查看HTTP请求的URL + HTTPS流量中使用的域名 
+
+### filter语法
+
+参考 [wireshark-filter - The Wireshark Network Analyzer 3.2.3](https://www.wireshark.org/docs/man-pages/wireshark-filter.html)
+
+* 以下语法可用于 Capture filter 和 Display filter
+  * 只关注某IP的流量(to&from) `ip.addr == 192.168.10.1`
+  * 只关注某端口的流量 如DNS (port 53) traffic `udp.port == 53 || tcp.port == 53`
+  * 只关注某网段范围内的流量(to&from) `net 192.168.0.0/24` 或`net 192.168.0.0 mask 255.255.255.0`
+  * 只关注某网段范围内的流量(from) `src net 192.168.0.0/24`
+  * 捕获某主机的非http且非smtp流量 `host www.example.com and not port 80 and not port 25`
+  * 所有web流量 `(http.request) or (ssl.handshake.type == 1)` 查看HTTP请求的URL + HTTPS流量中使用的域名 
     * 注:[TLS/SSL握手过程中的4次通信 都是明文传输 其中前2次都能看到域名](web_x_https_tls.md#qa)
     * 注:[TLS/SSL握手过程中的4次通信 都是明文传输 在此过程存在特征 可生成指纹用于**威胁检测**](web_x_https_tls.md#qa)
   * http GET数据包`http.request.method==GET`
   * http 包的内容(包含header url responseCode ...) `http contains "User-Agent: "`
   * http URL地址特征 `http.request.uri == "/logo.png"`
+  * HTTP/2协议的流量(to&from) `http2`
   * 关注域名解析 `(dns.qry.name contains microsoft)`
-  * 关注某主机 发到 / 来自 某ip 的数据包 `host 10.3.1.1` `ip.addr == 192.168.10.1`
-  
+  * ...
+
+
 * 逻辑条件组合(适用于对各种筛选条件进行逻辑组合)
   * 与 `and`
   * 或 `or`
-  * 非 `!(表达式)` `not(表达式)` **注意格式**
+  * 非 `!(表达式)` `not(表达式)` **注意格式**  如 `not(ip.addr == 192.168.1.222)`
   * 等于`eq` `==`
   * 包含某字符串 `contains`
 * 筛选条件 - ip地址
