@@ -11,7 +11,7 @@
   * 说明 - 可以在当前域下进行"跨域资源嵌入" 来"展示"非当前域的资源 如CSS/JavaScript/图片
   * 原理 - 因为浏览器限制了非同域资源的权限 如非同域JavaScript不能真正 读 写 非同域的资源
   * 举例
-    * `<link>`标签 通常使用href属性来指定css资源. (因为浏览器下载css文件的同时 不会停止对当前Document的处理) 如`<link href="common.css" rel="stylesheet"/>`
+    * `<link>`标签 通常使用`href`属性来指定css资源. (因为浏览器下载css文件的同时 不会停止对当前Document的处理) 如`<link href="common.css" rel="stylesheet"/>`
     * `<img>`标签 嵌入跨域图片. 通常使用src属性来指定资源 支持图片格式PNG,JPEG,GIF,BMP,SVG...
     * `<script>`标签 嵌入跨域脚本. 通常使用src属性来指定资源. 浏览器解析到该元素时 会暂停其他资源的下载和处理(直到该资源加载且执行结束后才会继续) 下载资源并应用到当前Document中. 如`<script src ="test.js"></script>`
     * `<iframe>`标签 通常使用src属性来指定资源 会下载资源并应用到当前Document中
@@ -389,4 +389,3 @@ html中的锚链接
 ```
 
 如在本页面中跳转到"简介": 开发者模式输入 `location.hash="#简介"`
-
