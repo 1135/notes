@@ -520,6 +520,9 @@ sessionStorage.clear();
 
 localStorage
 ```
+//查看数据 - localStorage中的所有的数据
+alert(JSON.stringify(localStorage))
+
 // 查看数据 - 遍历localStorage中的所有的数据 使用了.key方法
 for(var i = 0; i < localStorage.length; i++)
 {
