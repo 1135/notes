@@ -43,7 +43,7 @@
  * [sec - 基础 - 字符与编码 格式转换](sec_encoder.md)
  * [sec - 基础 - regex 正则表达式](sec_regex.md)
  * [sec - 获取最新安全资讯的具体方式(RSS源 mail)](sec_get_news.md)
- * [sec - 企业信息泄露源 监测(github等代码仓库) + 应急处置](sec_info_scan.md)
+ * [sec - 企业信息泄露源 监测(github等代码仓库) + 应急处置](sec_info_leak.md)
  * [sec - 主机端口扫描 思路及自动化](host_sec_port_service_exp.md)
  * [bin - pwn linux下的二进制程序pwn](bin_pwn.md)
  * [bin - GDB调试 原理 命令](bin_GDB.md)
