@@ -202,8 +202,8 @@ alert(1)//</script>
 
 ### 如何允许跨源访问-方案
 
-* 实现跨域的根本方法(W3C标准)
-  * [Cross-Origin Resource Sharing (CORS)](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS)跨域资源共享 - 允许任何http method的跨源AJAX请求. [CORS详情详解](http://www.ruanyifeng.com/blog/2016/04/cors.html)
+* [Cross-Origin Resource Sharing (CORS)](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS)"跨域资源共享"是**实现跨域的标准方法(W3C标准)**  - 允许任何http method的跨Origin请求. [了解更多](http://www.ruanyifeng.com/blog/2016/04/cors.html)
+
 * 实现跨域的其他办法
   * JSONP - 特点:只支持GET method 且无法双向传输数据
   * `window.postMessage(message，targetOrigin)` - 该HTML5方法可从当前window对象向其他的window对象发送消息 不论这两个窗口是否同源
