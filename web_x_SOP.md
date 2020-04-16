@@ -253,6 +253,11 @@ Content-Type: application/xml
 
 * 使用CORS实现跨域 常见的**安全风险**
   * B.com的`Access-Control-Allow-Origin: *`可以接收并响应来自任何域的request 存在**巨大风险**. 应该设置"源域名白名单"
+* 使用CORS实现跨域 **安全的方案**
+  * 设置`Origin`白名单
+    * 对HTTP request中的Origin如果不信任，则HTTP Response不带这2个Header
+    * `Access-Control-Allow-Origin: white.com`
+    * `Access-Control-Allow-Credentials: true`
 
 ### 实例2 - JSON with Padding
 
