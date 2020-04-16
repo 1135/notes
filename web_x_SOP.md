@@ -214,9 +214,9 @@ alert(1)//</script>
 
 ### 实例1 - CORS
 
-* 根据Request可知 `A.com --req--> B.com`
+* Request `A.com ---req--> B.com`
   * 发起请求的域 - `Origin`字段中的`http://A.com` 表示该Request是一个从`http://A.com`发起的跨域HTTP请求
-  * 访问的目标域 - `Host`字段中的`B.com`为该请求期望访问的目标域
+  * 访问的目标域 - `Host`Header中的`B.com`就是该请求期望访问的目标域
 
 ```
 GET /resources/public-data/ HTTP/1.1
@@ -231,8 +231,8 @@ Referer: http://A.com/examples/access-control/simpleXSInvocation.html
 Origin: http://A.com
 ```
 
-* 根据Response可知 `B.com --req--> A.com`
-  * 目标域自己通过"ACAO"来决定 接受来自哪些域的请求:
+* Response `A.com <--resp--- B.com`
+  * 目标域(被访问的)通过自身后端设置header`Access-Control-Allow-Origin`来决定 接受来自哪些域的请求:
     * `B.com`给出的响应中 如果有header`Access-Control-Allow-Origin: *` 则表示:`B.com`的资源 可以接收并响应来自任何域的request
     * `B.com`给出的响应中 如果有header`Access-Control-Allow-Origin: http://A.com` 则表示:`B.com`的资源 只可以接收并响应来自指定域`http://A.com`的request
   * 注意
@@ -251,11 +251,38 @@ Content-Type: application/xml
 [XML Data]
 ```
 
+----
+
 * 使用CORS实现跨域 常见的**安全风险**
   * B.com的`Access-Control-Allow-Origin: *`可以接收并响应来自任何域的request 存在**巨大风险**. 应该设置"源域名白名单"
-* 使用CORS实现跨域 **安全的方案**
-  * 设置`Origin`白名单
-    * 对HTTP request中的Origin如果不信任，则HTTP Response不带这2个Header
+* attack步骤
+  * 步骤(1)如攻击者在evil.com上编写以下JavaScript代码(实现CORS跨域)
+  * 步骤(2)正常用户 登录B.com
+  * 步骤(3)正常用户 访问evil.com (因为B.com后端的CORS未正确配置)所以evil.com向B.com发出跨域请求得到了B.com的响应,evil获取到了B.com的数据.
+
+```
+var invocation = new XMLHttpRequest();
+
+  invocation.onreadystatechange = function() {
+    if (invocation.readyState == XMLHttpRequest.DONE) {
+      alert(invocation.response);
+    }
+  }
+
+function cors(){
+  if(invocation) {
+    invocation.open('GET', "https://www.B.com/content-paywall/api/accesslevel", true);
+    invocation.withCredentials = true;
+    invocation.send(); 
+  }
+}
+
+cors();
+```
+
+* 使用CORS实现跨域 **安全的方案(修复方案)**
+  * 业务"后端"实现`Origin`白名单,把信任的域加入`Origin`白名单. 如果HTTP request中的`Origin`不在白名单内,则对应的HTTP Response不带这2个Header.
+    * 对Origin如果不信任，则HTTP Response不带这2个Header
     * `Access-Control-Allow-Origin: white.com`
     * `Access-Control-Allow-Credentials: true`
 
