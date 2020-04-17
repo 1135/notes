@@ -58,7 +58,7 @@ WAF的基础架构：串联(会话链路)、旁路(无法阻断)
 
 其中"WAF的源IP"就是回源IP地址(Return Source IP Address)
 
-在源站上正确设置"回源IP防护" 以避免攻击者直接攻击源站IP 策略如下:
+在源站上正确配置 "回源IP防护" 以避免攻击者直接攻击源站IP 策略如下:
 
 1.允许WAF的IP段访问源站的业务端口(80/443)
 ```
@@ -84,9 +84,9 @@ WAF的基础架构：串联(会话链路)、旁路(无法阻断)
 
 此时则只有先经过WAF，从WAF出口的流量才可以访问到源站的业务端口。
 
-### WAF/CDN 根本绕过方式1 - 攻击源站IP
+### WAF/CDN 根本绕过方式1 - 查找源站IP
 
-* 前置条件:针对目标必须是 开启了WAF但没有设置"回源IP防护"的站点 可找到源站IP(直接对源站的真实ip发起请求,流量不经过WAF/CDN)
+* 前置条件:针对目标必须是 开启了WAF但没有正确配置"回源IP防护"的网站 找到Origin IP(behind WAF)发起请求,流量不经过WAF/CDN等防护
   * 方式1 查找相关域名的A记录
     * DNS历史记录(DNS history records) - 查看该域名DNS解析的历史记录 主要是A记录 (可能是该站最开始没上WAF/CDN时的IP) 参考工具[vincentcox/bypass-firewalls-by-DNS-history](https://github.com/vincentcox/bypass-firewalls-by-DNS-history)
     * 子域名的A记录
