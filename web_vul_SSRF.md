@@ -95,8 +95,9 @@ SSRF漏洞分类
         * 说明:如果具有SSRF漏洞的Web应用运行在云环境中某个实例(OS)上，则可通过SSRF漏洞实现用该实例的IP，去访问云服务商提供的"让内部主机查询自身元数据的服务" 来获取该实例的"元数据". 不同的云服务商都有这个风险.
           * AWS(Amazon Web Services) - 利用AWS的"实例元数据服务"(Instance Metadata service,IMS) 即可获取该云实例的"元数据"(Aws keys, ssh keys and [more](https://medium.com/@madrobot/ssrf-server-side-request-forgery-types-and-ways-to-exploit-it-part-1-29d034c27978)) 
           * Alibaba Cloud - [获取实例元数据 - 实例| 阿里云](https://www.alibabacloud.com/help/zh/doc-detail/108460.htm)
-          * Microsoft Azure
+          * Microsoft Azure [Instance Metadata Service](https://azure.microsoft.com/en-us/blog/announcing-general-availability-of-azure-instance-metadata-service/)
           * Google Cloud Engine
+          * Digital Ocean - all data `http://169.254.169.254/metadata/v1.json`
           * ...
 
 渗透内网的常用exploit
