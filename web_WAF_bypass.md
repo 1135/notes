@@ -94,7 +94,7 @@ WAF的基础架构：串联(会话链路)、旁路(无法阻断)
   * 方式2 其他服务 - 与该域名的其他服务(非web)进行交互
     * 邮件服务 - 获取到源站IP(设法让目标站发送邮件，如向一个不存在的地址aCLa21lc@domain.com发送邮件，通常会收到失败反馈邮件，下载邮件的.eml源文件，找到其中`Return-Path`字段中的IP地址、子域名)
     * 尝试通过IP访问目标 命令 `curl -k -H "Host: sub.domain.com" https://109.234.165.77`
-  * 方式3 查询全网数据 - 利用"网络空间引擎"查询页面特征。比如网页标题(title)、图标[favicon.ico](https://www.google.cn/favicon.ico)等
+  * 方式3 查询全网数据 - 利用"网络空间引擎"查询页面特征。并搜索特征 比如同一网页标题(title)、图标[favicon.ico](https://www.google.cn/favicon.ico)、robots.txt等
 * 修复方案: 在源站上正确设置"回源IP防护" 以避免攻击者直接攻击源站IP 策略如下
   * 1.允许WAF的IP段访问源站的业务端口(80/443)
   * 2.禁止公网IP访问源站的业务端口(80/443)
