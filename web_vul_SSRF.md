@@ -100,42 +100,45 @@ SSRF漏洞分类
           * Digital Ocean - all data `http://169.254.169.254/metadata/v1.json`
           * ...
 
+
 渗透内网的常用exploit
   * 获取主机权限 或 挖掘其他漏洞(可作为[RCE Chain](http://blog.orange.tw/2017/07/how-i-chained-4-vulnerabilities-on.html)中的一环)
-    * web - SQLi(SSRF可回显Response时 才可用)
-    * web - Struts2 RCE
+    * web - Tomcat Manager 暴力枚举 [需回显Response body]
     * web - Confluence Unauthorized RCE(CVE-2019-3396)
     * web - Jenkins插件RCE（CVE-2019-1003000  CVE-2019-1003001  CVE-2019-1003002)
+    * web - Jenkins弱口令 [需回显Response body]
+      * 登录后 使用"脚本命令行执行"即`http://jenkins.some-inc.com:8080/script`执行Groovy script 如`println "whoami".execute().text`
     * web - Github Enterprise RCE < 2.8.7
-    * web - Tomcat Manager 暴力枚举
+    * web - SQLi等 [需回显Response body]
+    * web - Struts2 RCE
     * web - PHP FastCGI RCE
       * 利用条件 端口9000可访问 且未配置身份认证
       * 工具命令 `gopherus --exploit fastcgi`
     * Redis未授权/弱口令导致RCE
       * 利用条件 redis以root权限启动 端口6379可未授权访问 可执行任意redis命令
-      * 利用方式1 反弹shell - 执行redis命令`flushall` 然后写一个定时任务crontab(bash脚本) 保存到`/var/spool/cron/` 即可
-      * 利用方式2 get webshell - 执行redis命令`flushall` 然后写入webshell文件 保存到web目录
+      * 利用方式1 反弹系统shell - 执行redis命令`flushall` 然后写字符串:定时任务crontab(执行bash脚本)内容 保存到`/var/spool/cron/`
+      * 利用方式2 get webshell - 执行redis命令`flushall` 然后写字符串:webshell内容 保存到web目录 `/需指定具体目录`
       * 工具命令 `gopherus --exploit redis`
     * MongoDB未授权/弱口令可获取数据
     * MySQL未授权 RCE
-      * 利用条件:如果MySQL Server某账号为空口令 则可[构造Gopher链接](https://spyclub.tech/2018/02/05/2018-02-05-ssrf-through-gopher/) 发送tcp数据到MySQL端口(3306)以执行任意SQL语句
-      * 利用方式1 get webshell - 执行SQL语句 写入webshell文件 保存到web目录
+      * 利用条件 MySQL Server某账号为空口令 则可[构造Gopher链接](https://spyclub.tech/2018/02/05/2018-02-05-ssrf-through-gopher/) 发送tcp数据到MySQL端口 以执行任意SQL语句
+      * 利用方式1 get webshell - 执行SQL语句 写webshell文件 保存到web目录 `/需指定具体目录`
       * 利用方式2 获取数据 - 构造SQL语句发出带外请求
       * 工具命令 `gopherus --exploit mysql`
     * Memcached 未授权/弱口令可获取数据 可RCE 默认端口11211
       * Python-Pickle De-serialization `gopherus --exploit pymemcache`
       * PHP De-serialization `gopherus --exploit phpmemcache`
       * Ruby-Marshal De-serialization `gopherus --exploit rbmemcache`
-      * dumping Memcached content  `gopherus --exploit dmpmemcache`
+      * dumping Memcached content `gopherus --exploit dmpmemcache`
     * Zabbix 默认端口10050
       * 利用条件 Zabbix服务器开放了10050端口并配置了`EnableRemoteCommands = 1` 则可执行shell命令
       * 工具命令 `gopherus --exploit zabbix` 
     * SMTP  默认端口25
       * 利用方式 利用开放的SMTP端口发送邮件
-      * 工具命令 `gopherus --exploit smtp`
+      * 工具命令 `gopherus --exploit smtp` 指定4个参数:`From Mail` `To Mail` `Subject` `Text`
     * ...
 
-工具[Gopherus](https://github.com/tarunkant/Gopherus)可以生成`gopher://`链接 以便利用已知的SSRF漏洞 构造`gopher://`链接 发送tcp数据 攻击内网.
+工具[Gopherus](https://github.com/tarunkant/Gopherus)可以生成`gopher://`链接 以便利用已知的SSRF漏洞. 构造`gopher://`链接 发送tcp数据 攻击内网.
 
 
 ### 绕过技巧
