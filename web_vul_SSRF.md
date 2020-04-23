@@ -37,7 +37,7 @@ SSRFserver -> attacker      【4】程序逻辑如果将req2的真实响应内�
     * 重要作用:几乎可与任意**TCP** service交互
       * (1)指定`ip` `port` `bytes`
       * (2)you can exploit a SSRF to communicate with any TCP service.(but you need to know how to talk to the service first.)
-    * 利用过程 `http://example.com/ssrf.php?url=http://evil.com/gopher.php` 重定向到 `gopher://yourlink.tld`. [详细过程](ssrf利用过程---gopher协议结合跳转)
+    * 利用过程 `http://example.com/ssrf.php?url=http://evil.com/gopher.php` 重定向到 `gopher://yourlink.tld`. [详细过程](#ssrf利用过程---gopher协议结合跳转)
   * `tftp://` TFTP（Trivial File Transfer Protocol,简单文件传输协议) works over UDP
     * 重要作用:几乎可构造并发送任意的**UDP** packets
     * 利用过程
@@ -59,7 +59,7 @@ SSRF漏洞分类
   * Basic SSRF - 可回显 (攻击者可见【3】resp Body, 它通常与【4】resp Body完全相同 )
     * 攻击者可利用"SSRFserver"访问内网主机 (如同一内网的`oa.intranet.apple-inc.com`) 并在"SSRFserver"域下看到内网的`oa.intranet.apple-inc.com`的响应内容(如 oa登录页面)
     * 攻击者可利用"SSRFserver"访问公网主机 (如攻击者的`evil.com`) 并在"SSRFserver"域下看到`evil.com`的响应内容(如 XSSpayload)
-  * Blind SSRF - 不可回显 (攻击者看不到响应内容. 攻击者只能用间接方式 观察 判断 )
+  * Blind SSRF - 不可回显 (攻击者看不到【3】resp Body. 攻击者只能用间接方式 观察 判断 )
     * HTTP response status - HTTP响应的状态码(200 500)
     * HTTP response time - 时间间隔的长短(得到HTTP响应时间点-发起HTTP请求的时间点)
 
