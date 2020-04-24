@@ -1,30 +1,3 @@
-### 简介
-
-[Web application firewall](https://en.wikipedia.org/wiki/Web_application_firewall)
-
-各家WAF原理研究 [Awesome-WAF: 🔥 Everything awesome about web-application firewalls (WAF).](https://github.com/0xInfection/Awesome-WAF)
-
-* Appliance - 设备 硬件WAF
-  * Barracuda Networks WAF
-  * Citrix Netscaler Application Firewall
-  * F5 Big-IP ASM
-  * Fortinet FortiWeb
-  * Imperva SecureSphere
-  * Penta Security WAPPLES
-  * Radware AppWall
-  * Sophos XG Firewall
-* Cloud - 云WAF
-  * Alibaba Cloud
-  * Amazon Web Services AWS WAF
-  * Cloudbric
-  * Cloudflare
-  * F5 Silverline
-  * Fastly
-  * Imperva Incapsula
-  * Radware
-* Open-source 开源WAF
-  * ModSecurity
-
 ### WEB应用-安全部署架构
 
 WAF的基础架构：串联(会话链路)、旁路(无法阻断)
@@ -51,6 +24,8 @@ WAF的基础架构：串联(会话链路)、旁路(无法阻断)
   * 配置完成
 
 ### 基础概念
+
+WAF:[web application firewall](https://en.wikipedia.org/wiki/Web_application_firewall)
 
 接入WAF后，WAF代理了公网所有的客户端请求(过滤访问流量)，将过滤后的访问流量导向源站业务端口
 
@@ -84,7 +59,9 @@ WAF的基础架构：串联(会话链路)、旁路(无法阻断)
 
 此时则只有先经过WAF，从WAF出口的流量才可以访问到源站的业务端口。
 
-### WAF/CDN 根本绕过方式1 - 查找源站IP
+### WAF/CDN 根本绕过方式
+
+#### WAF/CDN 根本绕过方式1 - 查找源站IP
 
 * 前置条件:针对目标必须是 开启了WAF但没有正确配置"回源IP防护"的网站 找到Origin IP(behind WAF)发起请求,流量不经过WAF/CDN等防护
   * 方式1 查找相关域名的A记录
@@ -99,7 +76,7 @@ WAF的基础架构：串联(会话链路)、旁路(无法阻断)
   * 1.允许WAF的IP段访问源站的业务端口(80/443)
   * 2.禁止公网IP访问源站的业务端口(80/443)
 
-### WAF 根本绕过方式2 - 使用WAF无法识别的TLS加密算法
+#### WAF 根本绕过方式2 - 使用WAF无法识别的TLS加密算法
 
 * 前置条件 - WAF和WebServer都配有SSL证书(这种情况不常见)
 * 流量经过 - `requests` -> `WAF(配有SSL证书解密流量,解不开则放行)` -> `WebServer(配有SSL证书解密流量)`
@@ -107,7 +84,7 @@ WAF的基础架构：串联(会话链路)、旁路(无法阻断)
 
 参考[LandGrey/abuse-ssl-bypass-waf](https://github.com/LandGrey/abuse-ssl-bypass-waf)
 
-### WAF 根本绕过方式3 - 利用WAF的"超时放行"特性
+#### WAF 根本绕过方式3 - 利用WAF的"超时放行"特性
 
 * 前置条件 - WAF开启了"超时放行"特性
 * 流量经过 - `requests` -> `WAF(WAF开启了"超时放行"特性,压力大时会直接放行一部分请求)` -> `WebServer`
@@ -116,14 +93,40 @@ WAF的基础架构：串联(会话链路)、旁路(无法阻断)
 
 ### WAF - 绕过规则
 
-* 1.识别WAF种类
+* 1.识别WAF名称
+  * 各家WAF研究 [Awesome-WAF: 🔥 Everything awesome about web-application firewalls (WAF).](https://github.com/0xInfection/Awesome-WAF)
   * [Ekultek/WhatWaf: Detect and bypass web application firewalls and protection systems](https://github.com/Ekultek/WhatWaf)
-* 2.绕过该WAF的规则
+* 2.绕过指定WAF的规则 - 实际案例[evasion-techniques](https://github.com/0xInfection/Awesome-WAF#evasion-techniques)
   * 分块传输
   * `multipart/form-data`
   * Unicode Compatibility(利用Unicode的兼容性)
   * payload变形
   * ...
+
+
+#### 常见WAF
+
+* Appliance - 硬件设备WAF
+  * Barracuda Networks WAF
+  * Citrix Netscaler Application Firewall
+  * F5 Big-IP ASM
+  * Fortinet FortiWeb
+  * Imperva SecureSphere
+  * Penta Security WAPPLES
+  * Radware AppWall
+  * Sophos XG Firewall
+* Cloud - 云WAF
+  * Alibaba Cloud
+  * Amazon Web Services AWS WAF
+  * Cloudbric
+  * Cloudflare
+  * F5 Silverline
+  * Fastly
+  * Imperva Incapsula
+  * Radware
+* Open-source WAF
+  * ModSecurity
+  
 
 #### 案例1 **payload变形**
 
@@ -208,5 +211,3 @@ BypassWAF
 
 # payload有效 可触发
 ```
-
-
