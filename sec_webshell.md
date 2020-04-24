@@ -1,7 +1,9 @@
 ### Webshell管理工具
 
+#### webshells(common)
+
 * 通用功能
-  * 主控端proxy - 主控端可使用代理IP与webshell交互 主控端的自我保护"反溯源"
+  * 主控端proxy - 主控端可使用代理(自我保护"反溯源"),与webshell交互
   * 流量混淆 - 避免被NTA检测到明文流量特征
   * 文件混淆 - 避免被主机agent检测到文件特征
   * ...
@@ -10,15 +12,16 @@
 |:-----:|--|--|---|---|---|----|
 |[epinna/weevely3](https://github.com/epinna/weevely3)|python>= 2.7.10| .php | 混淆内容 | 编码(xor) |[shell proxy](sec_proxy.md#shell-proxy)|更适合linux环境下的后渗透. 特别的一点是自带php实现的zip压缩,便于打包"web应用源码"等|
 |[rebeyond/Behinder](https://github.com/rebeyond/Behinder)|Java(Jre6-8)|.php(5.4-7.2) .jsp(java 6+) .asp .aspx(.NET 2.0+)| 固定内容 可做变形 | 加密(aes) |http(s) proxy|"冰蝎"动态二进制加密 webshell管理端 |
+
+
+#### webshells(Proxy)
+
+web-based proxy tools.
+
+|名称|主控端|被控端|文件特征|流量特征|主控端proxy|描述|
+|:-----:|--|--|---|---|---|----|
 |[ABPTTS](https://github.com/nccgroup/ABPTTS)|python|.jsp .war .aspx|/|/|/|TCP tunneling over HTTP/HTTPS for web application servers. [Black Hat USA 2016](https://www.blackhat.com/us-16/arsenal.html#a-black-path-toward-the-sun) |
-
-
-#### jsp环境
-
-```
-# 设置webshell.jsp的"修改时间" 设置成1.jsp的"修改时间"
-touch -r 1.jsp webshell.jsp
-```
+|[sensepost/reGeorg](https://github.com/sensepost/reGeorg)|python 2.7|.aspx .ashx .jsp .php .js|/|/|/|The successor to reDuh, pwn a bastion webserver and create SOCKS proxies through the DMZ. Pivot and pwn.|
 
 #### php环境 weevely3的后渗透功能总结
 
@@ -92,7 +95,16 @@ touch -r 1.jsp webshell.jsp
     * 使用sed命令实现`:file_clearlog -vector clearlog 1.1.1.1 access.log`
     * 使用sed命令实现`:file_clearlog -vector old_school 1.1.1.1 access.log`
 
-### 检测案例1 - 通过堆栈检测未知webshell(可发现冰蝎webshell)
+#### jsp环境
+
+```
+# 设置webshell.jsp的"修改时间" 设置成1.jsp的"修改时间"
+touch -r 1.jsp webshell.jsp
+```
+
+### webshell检测
+
+#### 检测案例1 - 通过堆栈检测未知webshell(可发现冰蝎webshell)
 
 冰蝎webshell的JSP版本通过自定义ClassLoader + defineClass方法来实现eval特性。
 ```
