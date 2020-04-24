@@ -7,12 +7,19 @@ export http_proxy="http://127.0.0.1:8001"; export HTTP_PROXY="http://127.0.0.1:8
 
 ### Proxy tools
 
-|名称|属性|描述|
+* 分类
+  * [web-based proxy tools](sec_webshell.md#webshellsproxy)
+  * Host-based proxy tools
+
+
+|Host-based proxy tools|属性|描述|
 |:-------------:|--|-----|
 |[frp](https://github.com/fatedier/frp)|Golang|18k★ 高性能的反向代理(reverse proxy). 用于内网穿透(将NAT或防火墙后面的本地服务器暴露给Internet),支持协议:tcp, udp, http, https.[中文文档](https://github.com/fatedier/frp/blob/master/README_zh.md)|
 |[inlets](https://github.com/alexellis/inlets)|Golang|3k★ 将本地服务器暴露给Internet. 可使用SSL over websockets进行加密传输 `wss://`|
 |[brook](https://github.com/txthinking/brook)|Golang|6k★ C/S架构【Server端】(Linux/MacOS/Windows/Android/iOS)开启VPN/Socks5/Shadowsocks 以及Socks5 to HTTP|
 |[cnlh/nps](https://github.com/cnlh/nps)|Golang|5k★ 支持tcp、udp流量转发，支持内网http代理、内网socks5代理，同时支持snappy压缩、站点保护、加密传输、多路复用、header修改等。支持web图形化管理，集成多用户模式|
+|[earthquake/XFLTReaT](https://github.com/earthquake/XFLTReaT)|python|隧道框架 支持TCP / UDP / ICMP / SOCKS(v4, 4a, 5) / HTTP CONNECT / SCTP / WebSocket / RDP (Windows only)|
+
 
 不建议使用ngrok - (闭源、可能被企业防火墙禁止、对arm支持有限)
 
