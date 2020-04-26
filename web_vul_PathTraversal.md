@@ -366,10 +366,20 @@ curl -i "http://0.0.0.0:8000/%2E%2E/debug.js"
 存在目录穿越漏洞的代码 第8088行 https://github.com/totaljs/framework/blob/3fd5788ef28f3caf944d76a1135ab367bc0953b8/index.js#L8088
 
 ```node
-// 逻辑:如果存在特殊字符串则返回404  黑名单为 ./  .%  %2e  注意 没有%2E
-if ((c === '.' && (n === '/' || n === '%')) || (c === '%' && n === '2' && req.uri.pathname[i + 2] === 'e')) {
-//return 404
-}
+// req.uri.pathname的值:  如访问1.com/path/name 则 req.uri.pathname为/path/name
+
+// 遍历每一个字符(除了最后一个)及其下一个字符
+for (var i = 0; i < req.uri.pathname.length - 1; i++) {
+	var c = req.uri.pathname[i];
+	var n = req.uri.pathname[i + 1];
+	
+	// 逻辑:如果字符串req.uri.pathname存在黑名单字符串则返回404
+	// 这里黑名单为 ./  .%  %2e  注意 没有%2E
+	if ((c === '.' && (n === '/' || n === '%')) || (c === '%' && n === '2' && req.uri.pathname[i + 2] === 'e')) {
+	//return 404
+	}
+
+//...
 ```
 
 修复之后
@@ -377,10 +387,19 @@ if ((c === '.' && (n === '/' || n === '%')) || (c === '%' && n === '2' && req.ur
 const TRAVELCHARS = { e: 1, E: 1 };
 // ...
 
-// 逻辑:如果存在特殊字符串则返回404  黑名单为 ./  .%  %2e %2E
-if ((c === '.' && (n === '/' || n === '%')) || (c === '%' && n === '2' && TRAVELCHARS[req.uri.pathname[i + 2]])) {
-//return 404
-}
+// req.uri.pathname的值:  如访问1.com/path/name 则 req.uri.pathname为/path/name
+
+// 遍历每一个字符(除了最后一个)及其下一个字符
+for (var i = 0; i < req.uri.pathname.length - 1; i++) {
+	var c = req.uri.pathname[i];
+	var n = req.uri.pathname[i + 1];
+	// 逻辑:如果字符串req.uri.pathname存在黑名单字符串则返回404
+	// 这里黑名单为 ./  .%  %2e %2E
+	if ((c === '.' && (n === '/' || n === '%')) || (c === '%' && n === '2' && TRAVELCHARS[req.uri.pathname[i + 2]])) {
+	//return 404
+	}
+
+//...
 ```
 
 
