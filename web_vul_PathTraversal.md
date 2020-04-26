@@ -134,7 +134,7 @@ cat ././../././1.txt
     * tar压缩包 失败 解压得到了symlinks文件自身
     * 其他压缩文件格式 暂未测试
 
-### 实例1 - Zip Slip系列漏洞
+### 例1 - Zip Slip系列漏洞
 
 #### 原理
 
@@ -333,7 +333,7 @@ Projects Affected and Fixed
 
 
 
-### 实例2 - 单次替换
+### 例2 - 单次替换
 
 代码仓库
 
@@ -402,29 +402,38 @@ while(pathname.indexOf("/../") != -1) {
 因为在这个例子中用到node库中url.parse函数 它会把`\`转换为`/` 参考node自带库中url.parse的定义 https://github.com/nodejs/node/blob/master/lib/url.js
 
 
-#### 实测总结 - node自带的fs模块的readFile函数
+#### 小结 - 测试`readFile`函数
 
+测试一下node自带的fs模块中的`readFile`函数
 
 1.读取普通文件(files)
 ```
 # 读取普通文件 将文件内容转化为文本 输出
 var mypath = "/Users/xxx/Downloads/../../../etc/passwd";fs.readFile(mypath,function(err,data){console.log(data.toString())})
+# 如果过滤不严格可以实现目录穿越.
 ```
 
-2.读取符号链接文件(symlinks)
 
-创建符号链接文件 `ln -s ../1.txt symfile`
+2.对"符号链接文件"(symlinks)的读取都是"预期行为"(expected behavior)
+
 ```
-# 读取一个名为symfile的符号链接文件 实际上可以读取到规定目录之外的文件 从而得到1.txt的内容
-# 但这通常只被认为是预期行为(expected behavior)，除非存在确实能够影响的攻击场景 如可以上传指定的symlinks
+# 创建一个名为symfile的符号链接文件 指向../1.txt
+ln -s ../1.txt symfile
+
+# 用`readFile`函数读取它:一个名为symfile的符号链接文件
 var mypath = "/Users/xxx/Downloads/symfile";fs.readFile(mypath,function(err,data){console.log(data.toString())})
-```
 
+# 结果:实际上可以读取到"符号链接文件"指向的真正文件的内容 规定目录之外的文件1.txt的内容也可以读取到
+
+# 对"符号链接文件"(symlinks)的读写是目录穿越漏洞吗? 不是
+# 因为 "符号链接文件"(symlinks)只能在本机有效,不存在真实的攻击场景.(上传任何symlinks到别的主机都不可能实现)
+# 所以 对"符号链接文件"(symlinks)的读取都是"预期行为"(expected behavior)
+```
 
 #### 修复与防御
 
 * 限制web应用可访问的目录
   * PHP 在配置文件php.ini中指定open_basedir的值，如windows下用`;`分割`open_basedir = D:\soft\sites\www.a.com\;` linux下用`：`分割`/home/wwwroot/tp5/:/tmp/:/var/tmp/:/proc/`
 * web应用设计-避免路径可控（尤其关注"文件操作类"的功能与函数）
-* web应用设计-循环替换"某些字符串"为空 如`..` `./` `.\` `\\` `//` 并 使用编程语言函数获取"将要解压的文件夹路径"的"规范路径名" 并判断它是否以预期设计的合法的"目的文件夹"开头
+* web应用设计-循环替换"某些字符串"为空 如`..` `./` `.\` `\\` `//`等 并 使用编程语言函数获取"将要解压的文件夹路径"的"规范路径名" 并判断它是否以预期设计的合法的"目的文件夹"开头
 * web应用设计-使用成熟的压缩解压操作库 避免文件解压过程中出现路径穿越漏洞
