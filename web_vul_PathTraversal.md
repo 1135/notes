@@ -4,9 +4,9 @@
 * 漏洞原理:攻击者通过可控的输入，通过"参数值"、"构造的压缩文件"等形式，将构造的"路径"传递给后端逻辑，实现路径穿越。
 * 漏洞案例: [CVE - directory traversal](https://www.cvedetails.com/vulnerability-list/opdirt-1/directory-traversal.html)
 
-### 漏洞危害
+### 漏洞场景
 
-* 漏洞危害:任意文件"CURD"操作 即 写入(新建+覆盖) 修改 读取 删除
+* 漏洞场景:任意文件"CURD"操作 即 写入(新建+覆盖) 修改 读取 删除 都可能存在目录穿越漏洞.
   * 新建文件 - 上传压缩文件功能(常见于 手动更新升级包 恢复配置信息 等功能)
     * 例1 上传zip文件 如果后端解压逻辑直接解压文件 未考虑压缩包中的条目名称(文件名)可能包含`../` 则存在目录穿越漏洞. 可构造压缩包进行利用
   * 新建文件 - 上传文件功能
@@ -16,18 +16,27 @@
   * 修改文件 - 编辑文件功能.(常见于 文件管理功能 能够编辑文件信息、重命名文件)
     * 例4 如果后端接受了文件名 且未考虑文件名中的`../` 直接拼接路径与文件名 则存在目录穿越漏洞. 在文件管理功能处 重命名文件为`../etc/passwd` 实现读取任意文件
 
-#### 任意文件读取漏洞
+#### 漏洞危害
 
-通过读取文件实现主机信息搜集:
+* 利用思路
+  * 读取 - 主机信息搜集
+  * 写入 - 获取权限
+  * 删除 - 重新安装web应用获取权限
 
 * linux - 参考linux文件字典[dictionary/file_linux_info.txt](https://github.com/1135/dictionary/blob/master/file_linux_info.txt)
-  * 凭证信息 获取ssh登录权限
+  * web目录
+    * "写入" - 把webshell内容写入到目标主机web目录文件中 得到webshell
+  * 凭证信息
     * `/root/.ssh/id_rsa` `~/.ssh/id_rsa` **ssh私钥**
-    * `/root/.ssh/authorized_keys`
+    * `/root/.ssh/authorized_keys` 文件内容为公钥和主机名
+      * "读取" - 目标机的该文件只是知道了哪些主机可以公钥登录这台主机.
+      * "写入" - 该文件则可使攻击者主机登录目标机.
     * `/root/.ssh/id_ras.keystore`
     * `/root/.ssh/known_hosts`
     * `/etc/passwd` 登录用户名
-    * `/etc/shadow` 登录口令密文  可用rainbow table破解(概率不大)
+      * "写入" - 覆盖鉴权认证文件,把已知ssh账号口令的`/etc/passwd`写入到目标主机 攻击者可使用ssh口令登录目标机
+    * `/etc/shadow` 登录口令密文
+      * "读取" - 可用rainbow table破解(概率不大)
   * 敏感日志文件
     * `/root/.bash_history`用户历史命令记录文件
     * `/root/.mysql_history` MySQL历史命令记录文件
@@ -55,14 +64,6 @@
     * 从hosts获取域名及ip 可能有内网相关信息 `/etc/hosts`
 * windows - 参考windows文件字典[dictionary/file_windows_info.txt](https://github.com/1135/dictionary/blob/master/file_windows_info.txt)
 
-
-#### 任意文件写入漏洞
-
-* web
-  * get webshell - 把webshell写入到目标主机web目录
-* linux
-  * 覆盖鉴权认证文件 - 把已知ssh账号口令的`/etc/passwd`写入到目标主机 以登陆ssh
-* ...
 
 ### 基础知识
 
