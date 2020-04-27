@@ -43,15 +43,16 @@
 | 执行 | 由浏览器实现 | 由浏览器实现 |
 
 * CSP - 内容安全策略(Content Security Policy)
-    * CSP本质 - 浏览器端的白名单机制. 允许开发者通过`HTTP Response`为Web应用的客户端资源(JavaScript, CSS, images...)设置源白名单 使浏览器执行"开发者设置的CSP策略"
-    * 原则 "除非明确允许 默认禁止"
+    * 定义 - CSP是浏览器执行的一种策略,它定义了指定页面的不同位置下,具体哪些Web应用的客户端资源(JavaScript, CSS, images, iframes...)可以被调用或执行.
+    * 执行 - 浏览器会遵循(开发者设置的)CSP策略,主动阻止违规行为(block violations).
+    * 白名单 - CSP其实是白名单. 即"默认都禁止 除非在策略中明确允许".
     * CSP安全评估工具 - [CSP Evaluator](https://csp-evaluator.withgoogle.com/)由Google开发
     * W3C标准[Content Security Policy Level 3](https://w3c.github.io/webappsec-csp/) 
     * [CSP Reference & Examples](https://content-security-policy.com/)
 
 #### 配置CSP
 
-* 启用CSP
+* 启用CSP - 开发者通过`HTTP Response`来启用CSP 同时指明具体策略
   * 方法1 通过设置Response Header 格式为`Content-Security-Policy: <policy-directive>; <policy-directive>`
   * 方法2 通过设置Response Body `meta`标签 (不建议 浏览器对它的兼容性不如方法1) `<meta http-equiv="Content-Security-Policy" content="xxx">`
 
