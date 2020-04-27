@@ -72,17 +72,17 @@
 
 
 #### 严格的CSP可以减轻XSS 例1
-  * 攻击场景 - 攻击者利用XSS漏洞将`<script src="evil.com/XSSattack1">`注入到a.com的html 可见script-src中的的源为evil.com
-  * 同源策略 - 因为攻击脚本在script-src中 同源策略本来就不会限制script-src 可见同源策略不会防御XSS
-  * CSP - 内容安全策略中如果有`script-src 'self'`（仅允许来自同源的脚本） 则使浏览器限制了a.com下的script-src的源 所以这个XSS利用方式 失败
+  * 攻击场景 - 攻击者利用已知XSS漏洞,构造出一个XSS攻击语句`<script src="evil.com/XSSattack1">`,注入到目标站`a.com`的html中.
+  * 同源策略 - 同源策略本来就不判断`script-src`的源,也不会block某个`script-src`源. 因为攻击脚本在`script-src`中,所以攻击成功.
+  * CSP - 内容安全策略中如果有`script-src 'self'`浏览器遵循CSP指令,即限制了目标站`a.com`下的`script-src`的源(仅允许script-src源为自身下的源).所以这个攻击语句(其中script-src中的源为`evil.com`)必然被阻止. 攻击失败.
 
 #### 绕过CSP 方法1 - DNS prefetch
 
 * 绕过原理 - CSP本来就不会完全限制DNS prefetch机制
-  * CSP3有`prefetch-src`指令 限制link标签的src和href的源 
+  * CSP3有`prefetch-src`指令 可限制link标签的src的源 href的源
 * 绕过过程
-  * 攻击者构造输入 - 找到一处XSS漏洞 能够执行JavaScript脚本 但因严格的CSP 导致无法得到数据(cookie等)
-  * 浏览器执行策略 - 浏览器执行严格的CSP策略`Content-Security-Policy: default-src 'self'`也无法限制DNS prefetch机制
+  * 攻击者构造输入 - 找到一处XSS漏洞 能够执行JavaScript脚本 但因严格的CSP,导致无法将数据(cookie等)发送给攻击者
+  * 浏览器执行策略 - 浏览器执行相对严格的CSP策略`Content-Security-Policy: default-src 'self'`也无法限制DNS prefetch机制
   * 监听 - 攻击者在evil.com上记录DNS请求 即可得到数据(cookie等)
 * 结论 - 不够严格的CSP 可被绕过实现数据泄露
 
