@@ -51,19 +51,26 @@ Listening on [0.0.0.0] (family 0, port 12346)
 TESTUDPPACKEToctettsize0blksize512timeout6
 ```
 
-### 分类
-
-SSRF漏洞分类
+### 漏洞分类
 
 * 攻击者角度 按漏洞利用效果分类
-  * Basic SSRF - 可回显 (攻击者可见【3】resp Body, 它通常与【4】resp Body完全相同 )
-    * 攻击者可利用"SSRFserver"访问内网主机 (如同一内网的`oa.intranet.apple-inc.com`) 并在"SSRFserver"域下看到内网的`oa.intranet.apple-inc.com`的响应内容(如 oa登录页面)
-    * 攻击者可利用"SSRFserver"访问公网主机 (如攻击者的`evil.com`) 并在"SSRFserver"域下看到`evil.com`的响应内容(如 XSSpayload)
-  * Blind SSRF - 不可回显 (攻击者看不到【3】resp Body. 攻击者只能用间接方式 观察 判断 )
-    * HTTP response status - HTTP响应的状态码(200 500)
-    * HTTP response time - 时间间隔的长短(得到HTTP响应时间点-发起HTTP请求的时间点)
+  * Basic SSRF - **可回显**
+    * 描述 : 攻击者可见【3】resp Body, 它通常与【4】resp Body完全相同
+      * to内网 - 攻击者可利用"SSRFserver"访问内网主机 (如同一内网的`oa.intranet.apple-inc.com`) 并在"SSRFserver"域下看到内网的`oa.intranet.apple-inc.com`的响应内容(如 oa登录页面)
+      * to公网 - 攻击者可利用"SSRFserver"访问公网主机 (如攻击者的`evil.com`) 并在"SSRFserver"域下看到`evil.com`的响应内容(如 XSSpayload)
+  * Blind SSRF - **不可回显**
+    * 描述 : 攻击者看不到【3】resp Body. 攻击者只能用**间接**方式 观察 判断
+      * HTTP response status - HTTP响应的状态码(200 500)
+      * HTTP response time - 时间间隔的长短(得到HTTP响应时间点-发起HTTP请求的时间点)
 
-* 开发者角度 按web应用的功能分类
+
+* **可回显的SSRF漏洞 (几乎等于突破内网边界)**
+  * [漏洞分析 - Kong未授权访问漏洞(CVE-2020-11710) - 先知社区](https://xz.aliyun.com/t/7631)
+  * ...
+
+----------------
+
+* 开发者角度的SSRF漏洞 - 按web应用的功能分类
   * 类型1 http请求中有参数值"URL地址" 开发者没做好严格的输入验证 server直接访问"URL地址" 触发SSRF
     * 代理服务 - online web proxy等
     * 资源下载 - 图片.png、图标.ico、网页.html、文本.txt 等
@@ -73,9 +80,9 @@ SSRF漏洞分类
     * 处理网页文件 - 如html to pdf
       * 读取本地文件 - 如果web后端调用了headlessChrome等程序或第三方库 并在`file://`打开了html文件 则可在该html文件中创建`iframe`读取`file://`域下的内容 即本地文件)
       * SSRF
-        * 利用`iframe`实现可回显SSRF
-        * 利用`XMLHttpRequest`实现SSRF(在现代浏览器下有限制:需符合CORS)
-        * 利用`img`实现不可回显SSRF
+        * 利用`iframe`标签 - 实现SSRF
+        * 利用`XMLHttpRequest`构造JavaScript代码 - 实现SSRF(在现代浏览器下有限制:需符合CORS)
+        * 利用`img`标签 - 实现SSRF(不可回显)
         * ...
     * 处理图片文件
       * ImageMagick CVE-2016-3718
@@ -86,24 +93,27 @@ SSRF漏洞分类
         * [新浪微盘存在Ffmpeg文件读取漏洞-SSRF](https://www.secpulse.com/archives/49510.html)
         * [FFmpeg任意文件读取漏洞分析](https://zhuanlan.zhihu.com/p/28255225)
 
+
 ### 漏洞利用
 
-通过"SSRFserver"与目标主机交互,目标主机的网络位置可以在内网 公网:
-* 公网 - 可通过"SSRFserver"与公网主机交互
+通过"存在SSRF漏洞的服务器"(SSRFserver)与"目标主机"交互,目标主机的网络位置可在内网/公网:
+
+* to公网 - 可通过"SSRFserver"与公网主机交互
   * 利用SSRF实现XSS - 攻击者可利用"SSRFserver"访问公网的`evil.com/xss.svg` 可在"SSRFserver"的域名下看到`evil.com`的Response Body(如 XSSpayload)
   * 利用SSRF实现钓鱼
   * ...
-* 内网 - 可通过"SSRFserver"与内网主机交互 对"SSRFserver"所在内网的其他可达的服务器进行探测或渗透
+* to内网 - 可通过"SSRFserver"与内网主机交互 对"SSRFserver"所在内网的其他可达的服务器进行探测或渗透
   * 探测内网(Probe intranet)
-    * 如果"SSRFserver" 不可回显Response:
+    * 不可回显的SSRF漏洞 根据Response间接判断:（常用判断依据：HTTP响应码、HTTP响应时长）
       * IP - 探测内网网络架构 存活主机
-      * service/port - 端口开放情况 如数据库类的服务 （常用判断依据：HTTP响应码、HTTP响应时长）
-    * 如果"SSRFserver" 可回显Response:
-      * 内网资产搜集 与 横向移动
+      * service/port - 端口开放情况 如数据库类的服务
+    * **"可回显的"**SSRF漏洞 根据Response Body**"直接"**判断:
+      * 【危害1】内网资产搜集
         * "指纹识别" - 根据SSRF回显的Response可得到web前端代码进行"指纹识别" 以搜集内网资产(web应用等) 可能有助于横向移动
           * 比如 tomcat的一个指纹是 [tomcat.png](https://github.com/apache/tomcat/tree/master/webapps/ROOT)
           * ...
-      * 通过SSRF漏洞获取实例的"元数据" (该方法只适用于云环境下的Cloud Instances)
+      * 【危害2】渗透内网 - 参考[内网常见漏洞exploit](#内网常见漏洞exploit)
+      * 【危害3】通过SSRF漏洞获取实例的"元数据" (该方法只适用于云环境下的Cloud Instances)
         * 说明:如果具有SSRF漏洞的Web应用运行在云环境中某个实例(OS)上，则可通过SSRF漏洞实现用该实例的IP，去访问云服务商提供的"让内部主机查询自身元数据的服务" 来获取该实例的"元数据". 不同的云服务商都有这个风险.
           * AWS(Amazon Web Services) - 利用AWS的"实例元数据服务"(Instance Metadata service,IMS) 即可获取该云实例的"元数据"(Aws keys, ssh keys and [more](https://medium.com/@madrobot/ssrf-server-side-request-forgery-types-and-ways-to-exploit-it-part-1-29d034c27978)) 
           * Alibaba Cloud - [获取实例元数据 - 实例| 阿里云](https://www.alibabacloud.com/help/zh/doc-detail/108460.htm)
@@ -113,11 +123,14 @@ SSRF漏洞分类
           * ...
 
 
-渗透内网的常用exploit
+
+#### 内网常见漏洞exploit
+
   * 获取主机权限 或 挖掘其他漏洞(可作为[RCE Chain](http://blog.orange.tw/2017/07/how-i-chained-4-vulnerabilities-on.html)中的一环)
     * web - Tomcat Manager 暴力枚举 [需回显Response body]
     * web - Confluence Unauthorized RCE(CVE-2019-3396)
-    * web - Jenkins插件RCE（CVE-2019-1003000  CVE-2019-1003001  CVE-2019-1003002)
+    * web - Jenkins本身 🔥pre-auth RCE  (CVE-2018-1000861 CVE-2019-1003005 CVE-2019-1003029 ) [orangetw/awesome-jenkins-rce-2019](https://github.com/orangetw/awesome-jenkins-rce-2019)
+    * web - Jenkins插件 RCE CVE-2019-1003000  CVE-2019-1003001  CVE-2019-1003002)
     * web - Jenkins弱口令 [需回显Response body]
       * 登录后 使用"脚本命令行执行"即`http://jenkins.some-inc.com:8080/script`执行Groovy script 如`println "whoami".execute().text`
     * web - Github Enterprise RCE < 2.8.7
