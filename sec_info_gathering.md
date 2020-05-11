@@ -51,6 +51,7 @@ ip:106.75.28.0/24
 
 port:"22"
 
+product:"Docker"
 product:"OpenSSH"
 product:"nginx"
 product:"Apache httpd"
@@ -62,7 +63,7 @@ country:JP
 
 city:"Tokyo"
 
-# 待补充
+等等
 ```
 
 
