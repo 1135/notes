@@ -173,20 +173,18 @@ python altdns/__main__.py -i /Users/xxx/Downloads/subdomains_known.txt -w words.
 ```
 
 
-|域名相关工具|描述|
+|信息源|描述|
 |:-------------:|-----|
-|https://www.virustotal.com/#/domain/qq.com | 综合查询 Whois/子域名/DNS解析历史(支持子域名) |
-| https://subdomainfinder.c99.nl/ | 查子域名 |
+|https://www.virustotal.com/#/domain/qq.com | 综合查询 Whois / subDomain / Passive DNS(IP History,曾经解析到哪些IP) . 可查子域名的Passive DNS |
+|https://subdomainfinder.c99.nl/ | Domain -> subDomain |
 |https://crt.sh/?id=1656621355 |Subject Alternative Name (SAN) 是SSL标准`x509`中定义的一个扩展(一个使用了SAN(`subjectAltName`)字段的SSL证书 能支持多个不同域名的解析). 下载证书文件`.crt`或在线解析 可从证书文件中的`subjectAltName`下的`DNS:`看到该证书支持哪些域名|
-|https://spyse.com/search/subdomain?q=qq.com |domain 子域名信息 Find subdomains online.|
-|https://dnsdumpster.com/|domain DNS枚举子域名信息 FREE domain research tool that can discover hosts related to a domain.|
-|https://viewdns.info/|Reverse Whois/IP/domain/DNS/MS/NS Lookup.|
-|https://dnstable.com/ip/203.205.158.53| Reverse 解析为某ip的诸多域名|
-|https://viewdns.info/iphistory/?domain=qq.com|DNS解析历史(IP History) 该网站不支持查询子域名的历史IP|
-|http://www.domaincrawler.com/qq.com|综合查询 whois/Mailserver(s)/subdomains|
-|https://www.threatcrowd.org/ |Open Source Threat Intelligence. IP/Domain/mail|
-|https://censys.io/ipv4/104.93.196.220/table| 根据tls证书获取域名 443.https.tls.certificate.parsed.extensions.subject_alt_name.dns_names|
-|https://url.fht.im/domain_search?domain=qq.com| 基于大数据 [查看被搜索引擎收录的URL](https://url.fht.im/url_search?domain=v.qq.com)|
+|https://spyse.com/search/subdomain?q=qq.com | Domain -> subDomain |
+|https://dnsdumpster.com/| Domain -> DNS Servers / MX Records / TXT Records / Host (A) Records / Domain Map.|
+|https://viewdns.info/|[Reverse] Whois/IP/domain/DNS/MS/NS Lookup.|
+|https://dnstable.com/ip/203.205.158.53| [Reverse] IP -> Domain|
+|https://viewdns.info/iphistory/?domain=qq.com | Passive DNS(IP History,曾经解析到哪些IP). 没有子域名的历史IP|
+|https://censys.io/ipv4/104.93.196.220/table | 根据tls证书获取域名`443.https.tls.certificate.parsed.extensions.subject_alt_name.dns_names`|
+|https://url.fht.im/domain_search?domain=qq.com | 基于大数据 [查看被搜索引擎收录的URL](https://url.fht.im/url_search?domain=v.qq.com)|
 
 ---
 
