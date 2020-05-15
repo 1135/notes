@@ -21,7 +21,7 @@ github高级语法
 * 编程语言 `language:java`
 * 搜索个人 `user:1135`
 * 搜索组织 `org:spring-cloud`
-* 仓库的名称 `in:name can 仓库名`
+* 仓库的名称 `in:name 仓库名`
 * 仓库的描述 `in:descripton 仓库描述`
 * 仓库的README文件 `in:readme 关键字`
 * star数量筛选 `stars:>300`
