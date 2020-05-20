@@ -432,8 +432,8 @@ targetOrigin 用来指定即将接收到消息的window对象所在的那个域 
 ```
 
 * 在线演示 - 使用window.postMessage跨域
-  * 页面 https://1135.github.io/sites/2/demo.html
-  * 源码 https://github.com/1135/1135.github.io/tree/master/sites/2
+  * 页面 https://1135.github.io/sites/demo_postMessage/index.html
+  * 源码 https://github.com/1135/1135.github.io/tree/master/sites/demo_postMessage/index.html
 
 * 使用window.postMessage实现跨域 常见**安全风险**
   * XSS
