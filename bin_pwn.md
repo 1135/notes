@@ -113,21 +113,20 @@ Now values on the stack are moved on by either pushing them onto the stack, or p
 
 
 * a Stack
-  * `push` - `将1个"值" ---写入到--> 1个stack`. pushing a value (not necessarily stored in a register) means writing it to the stack.
-  * `pop` - `将"栈顶"的内容 ---恢复到--> 1个"寄存器"中`. popping means restoring whatever is on top of the stack into a register.
+  * `push` - `将1个"值"(不一定保存在1个"寄存器"中) ----写入到---> 1个stack`. pushing a value (not necessarily stored in a register) means writing it to the stack.
+  * `pop` - `将这个stack"栈顶"的内容 ----放回到---> 1个"寄存器"中`. popping means restoring whatever is on top of the stack into a register.
   * ...
 
 简单介绍下`push`和`pop`
 ```
-push 0xdeadbeef      ; push a value to the stack
-pop eax              ; eax is now 0xdeadbeef
+push 0xdeadbeef      ; push a value to the stack  将一个"值" 写入到 这个栈.  现在这个stack"栈顶"的内容 为 0xdeadbeef
+pop eax              ; eax is now 0xdeadbeef   将"栈顶"的内容(whatever) 放回到 1个具体的寄存器eax中 现在寄存器eax中的内容 为 0xdeadbeef
 
-; swap contents of registers
+; swap contents of registers 交换2个寄存器中的内容
 push eax
 mov eax, ebx
 pop ebx
 ```
-
 
 The exact bounds of the stack is recorded by two registers, rbp and rsp.  
 
@@ -163,6 +162,54 @@ There is one register that contains flags. A flag is a particular bit of this re
 There are other flags then the one listed, however we really don't deal with them too much (and out of these, there are only a few we actively deal with).
 
 If you want to hear more about this, checkout: https://en.wikibooks.org/wiki/X86_Assembly/X86_Architecture
+
+#### Instructions
+
+* 常见指令(common instructions)
+  * [mov](#mov)
+  * [dereference](#dereference)
+  * ...
+
+##### mov
+
+`mov` - The move instruction just moves data from one register to another.
+
+```
+mov指令 move指令只将数据 从一个寄存器 移动到 另一个寄存器.
+将数据从rdx寄存器移至rax寄存器.
+mov rax, rdx
+```
+
+##### dereference
+
+If you ever see brackets like `[]`, they are meant to dereference, which deals with pointers.
+
+如果你曾经看到过方括号(brackets)即`[]` 它的作用是"取消引用"(dereference),它处理指针.
+
+A pointer is a value that points to a particular memory address (it is a memory address). Dereferencing a pointer means to treat a pointer like the value it points to.
+
+一个指针是一个指向"特定内存地址"的值. 取消引用一个指针(取消指针的引用),意味着将"这个指针"当作"这个指针所指向的值".
+
+```
+mov rax, [rdx]
+```
+
+Will move the value pointed to by `rdx` into the `rax` register. 
+
+寄存器`rdx`中保存了一个"指针". 将寄存器`rdx`中的那个指针所指向的值,移动到`rax`寄存器中. 
+
+
+On the flipside:
+
+反过来:
+
+```
+mov [rax], rdx
+```
+
+Will move the value of the `rdx` register into whatever memory is pointed to by the `rax` register. The actual value of the `rax` register does not change.
+
+将`rdx`寄存器中的值 移动到 `rax`寄存器所指向的"任何内存"(whatever memory)中. `rax`寄存器中的值不变.
 
 
 #### Other
