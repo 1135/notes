@@ -72,6 +72,46 @@ a qword = 8 bytes of data.
 +-----------------+---------------+---------------+------------+
 ```
 
+
+Here is a list of the `x64` registers, and what their common use cases are.
+
+下面是`x64`寄存器的列表,以及它们的常用用例.
+
+```
+rbp: Base Pointer, points to the bottom of the stack
+rsp: Stack Pointer, points to the top of the stack
+rip: Instruction Pointer, points to the instruction to be executed
+
+-------
+General Purpose Registers
+These can be used for a variety of different things
+rax:
+rbx:
+rcx:
+rdx:
+rsi:
+rdi:
+r8:
+r9:
+r10:
+r11:
+r12:
+r13:
+r14:
+r15:
+```
+In x64 linux arguments to a function are passed via registers. The first few args are passed by these registers:
+
+在x64 linux中,一个函数的参数通过寄存器传递. 前几个参数是通过这些寄存器传递的:
+```
+rdi:    First Argument
+rsi:    Second Argument
+rdx:    Third Argument
+rcx:    Fourth Argument
+r8:     Fifth Argument
+r9:     Sixth Argument
+```
+
 #### Stacks
 
 我们要处理的最常见的内存区域之一就是"栈"(Stacks).
@@ -128,11 +168,12 @@ mov eax, ebx
 pop ebx
 ```
 
-The exact bounds of the stack is recorded by two registers, rbp and rsp.  
+The exact bounds of the stack is recorded by two registers, `rbp` and `rsp`.  
 
-* x64架构下 一个stack的精确边界被2个寄存器记录着:
-  * `rbp` - "栈底" The base pointer `rbp` points to the bottom of the stack.
-  * `rsp` - "栈顶" The stack pointer `rsp` points to the top of the stack.
+* x64架构下 一个stack的精确边界被 寄存器`rbp` 和 寄存器`rsp`记录着:
+  * `rbp` - "栈底指针"(Base Pointer)寄存器. `rbp` points to the bottom of the stack.
+  * `rsp` - "栈顶指针"(Stack Pointer)寄存器. `rsp` points to the top of the stack.
+  * `rip` - "指令指针"(Instruction Pointer)寄存器. `rip` points to the instruction to be executed. 总是指向下一个"指令"的内存地址.
 
 #### Flags
 
@@ -168,14 +209,18 @@ If you want to hear more about this, checkout: https://en.wikibooks.org/wiki/X86
 * 常见指令(common instructions)
   * [mov](#mov)
   * [dereference](#dereference)
+  * [lea](#lea)
+  * [add](#add)
+  * [sub](#sub)
   * ...
 
 ##### mov
 
 `mov` - The move instruction just moves data from one register to another.
 
+mov指令 只将数据 从一个寄存器 移动到 另一个寄存器.
+
 ```
-mov指令 move指令只将数据 从一个寄存器 移动到 另一个寄存器.
 将数据从rdx寄存器移至rax寄存器.
 mov rax, rdx
 ```
@@ -211,6 +256,48 @@ Will move the value of the `rdx` register into whatever memory is pointed to by 
 
 将`rdx`寄存器中的值 移动到 `rax`寄存器所指向的"任何内存"(whatever memory)中. `rax`寄存器中的值不变.
 
+
+##### lea
+
+`lea` - The lea instruction calculates the address of the second operand, and moves that address in the first.
+
+lea指令 计算 "源"操作数(即第2个操作数)的"地址" 并将这个"地址" 赋值到 "目的"操作数(即第1个操作数).
+
+```
+lea rdi, [rbx+0x10]
+```
+
+This will move the address of `rbx+0x10` into the `rdi` register.
+
+这会把`rbx+0x10`的"地址" 赋值到 `rdi`寄存器中.
+
+##### add
+
+`add` - This just adds the two values together, and stores the sum in the first argument.
+
+这只是将2个值相加,并将sum存储在第1个参数中.
+
+```
+add rax, rdx
+```
+
+That will set `rax` equal to `rax + rdx`
+
+这会使`rax`的值等于`rax + rdx`
+
+##### sub
+
+This value will subtract the second operand from the first one, and store the difference in the first argument.
+
+第1个操作数减去第2个操作数，并将差值存储在第1个参数中.
+
+```
+sub rsp, 0x10
+```
+
+This will set the `rsp` register equal to `rsp - 0x10`
+
+这会使`rsp`寄存器的值等于`rsp - 0x10`
 
 #### Other
 
