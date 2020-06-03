@@ -23,7 +23,7 @@
   * 写入 - 获取权限
   * 删除 - 重新安装web应用获取权限
 
-* linux - 参考linux文件字典[dictionary/file_linux_info.txt](https://github.com/1135/dictionary/blob/master/file_linux_info.txt)
+* linux - 参考linux文件字典[dictionary/file_linux_path.txt](https://github.com/1135/dictionary/blob/master/file_linux_path.txt)
   * web目录
     * "读取" - 读取web目录下的配置文件/应用代码等
     * "写入" - 把webshell内容写入到目标主机web目录文件中 得到webshell
@@ -46,6 +46,8 @@
     * `/proc/version`内核版本号
     * `/proc/cpuinfo`cpu信息
     * `/proc/meminfo`内存信息
+  * 中间件
+    * root权限下读取`/var/lib/mlocate/mlocate.db` `/proc/self/cmdline` 通常可发现tomcat相关信息
   * 代码信息 读取web应用的代码做代码审计
     * Java中Tomcat的`WEB-INF`目录下的`WEB-INF/web.xml`等配置文件 得到`.class`等文件的路径字符串
     * PHP `php.ini`
