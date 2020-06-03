@@ -337,7 +337,7 @@ Projects Affected and Fixed
 
 
 
-### 例3 - 过滤不完全
+### 例2 - 黑名单不完整
 
 参考[[Total.js] Path traversal vulnerability allows to read files outside public directory](https://hackerone.com/reports/748765)
 
@@ -370,7 +370,7 @@ curl -i "http://0.0.0.0:8000/%2E%2E/debug.js"
 ```node
 // req.uri.pathname的值:  如访问1.com/path/name 则 req.uri.pathname为/path/name
 
-// 遍历每一个字符(除了最后一个)及其下一个字符
+// 遍历每一个字符 和它的下一个字符 (除了最后一个 因为最后一个字符没有下一个字符)
 for (var i = 0; i < req.uri.pathname.length - 1; i++) {
 	var c = req.uri.pathname[i];
 	var n = req.uri.pathname[i + 1];
@@ -391,7 +391,7 @@ const TRAVELCHARS = { e: 1, E: 1 };
 
 // req.uri.pathname的值:  如访问1.com/path/name 则 req.uri.pathname为/path/name
 
-// 遍历每一个字符(除了最后一个)及其下一个字符
+// 遍历每一个字符 和它的下一个字符 (除了最后一个 因为最后一个字符没有下一个字符)
 for (var i = 0; i < req.uri.pathname.length - 1; i++) {
 	var c = req.uri.pathname[i];
 	var n = req.uri.pathname[i + 1];
@@ -405,7 +405,7 @@ for (var i = 0; i < req.uri.pathname.length - 1; i++) {
 ```
 
 
-### 例2 - 单次替换
+### 例3 - 单次替换非法字符串
 
 代码仓库
 
