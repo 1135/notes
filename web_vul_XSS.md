@@ -685,14 +685,13 @@ x.send();
   * [OWASP Java Encoder Project](https://www.owasp.org/index.php/OWASP_Java_Encoder_Project) - 内含了各种位置下的正确编码处理函数
   
 
-* XSS防御规则#0 - 拒绝所有(deny all) 除了规则#1-5中允许的位置，其他全部禁止放入"不受信任的数据" 如以下位置
+* XSS防御规则#0 - 拒绝所有(deny all)输入、禁止放入"不受信任的数据"(除了规则#1-5中允许的那5个位置). 如以下位置必须禁止放入用户输入:
   * `<script>...script标签中 永不放入不受信任的数据...</script>`
   * `<!--...HTML注释中 永不放入不受信任的数据...-->`
   * `<div ...HTML标签的属性的名称中 永不放入不受信任的数据...=test />`
   * `<HTML标签名称中永不放入不受信任的数据... href="/test" />`
   * `<style>...CSS中 永不放入不受信任的数据...</style>`
   * 注意 永远禁止接受来自不受信任来源的JavaScript代码并运行它 没有任何防御方法可以解决这种情况 (如 名为`callback`的参数包含JavaScript代码段)
-
 
 
 * XSS防御规则#1 - 将"不受信任的数据"放在 HTML元素的Content之前，需要做HTML实体编码
