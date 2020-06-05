@@ -673,24 +673,24 @@ x.send();
   * [Cross_Site_Scripting_Prevention_Cheat_Sheet.md](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.md)
   * [DOM_based_XSS_Prevention_Cheat_Sheet.md](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.md)
 
-* HTML实体编码(HTML entity encoding) 用来防御XSS是远远不够的!!
+* HTML实体编码(HTML entity encoding) 只用来它来防御XSS是远远不够的!!
   * 适用情况1. 将"不受信任的数据"放在 HTML文档body中时(the body of the HTML document)，如`<div>`标签内，需要做HTML实体编码
   * 适用情况2. 将"不受信任的数据"放在 HTML属性中时，需要做HTML实体编码(开发人员最好给HTML标签的属性的值,前后都加上引号)
-  * 无效情况1. 将"不受信任的数据"放在 `<script>`标签内的任何位置时，不用做HTML实体编码，因为对防御XSS无效!!
-  * 无效情况2. 将"不受信任的数据"放在 "事件处理属性"(event handler attribute)中时，如`onmouseover`，不用做HTML实体编码，因为对防御XSS无效!!
-  * 无效情况3. 将"不受信任的数据"放在 `CSS`中时，不用做HTML实体编码，因为对防御XSS无效!!
-  * 无效情况4. 将"不受信任的数据"放在 `URL`中时，不用做HTML实体编码，因为对防御XSS无效!!
+  * 无效情况1. 将"不受信任的数据"放在 **`<script>`** 标签内的任何位置时，不用做HTML实体编码，因为对防御XSS无效!!
+  * 无效情况2. 将"不受信任的数据"放在 **"事件处理属性"(event handler attribute)** 中时，如`onmouseover`，不用做HTML实体编码，因为对防御XSS无效!!
+  * 无效情况3. 将"不受信任的数据"放在 **`CSS`** 中时，不用做HTML实体编码，因为对防御XSS无效!!
+  * 无效情况4. 将"不受信任的数据"放在 **`URL`** 中时，不用做HTML实体编码，因为对防御XSS无效!!
 
 * 防御XSS的安全编码库(Security Encoding Library)
   * [OWASP Java Encoder Project](https://www.owasp.org/index.php/OWASP_Java_Encoder_Project) - 内含了各种位置下的正确编码处理函数
   
 
-* XSS防御规则#0 - 拒绝所有(deny all)输入、禁止放入"不受信任的数据"(除了规则#1-5中允许的那5个位置). 如以下位置必须禁止放入用户输入:
+* XSS防御规则#0 - 拒绝所有(deny all) 即禁止把"不受信任的数据"放入HTML document的任何位置(除了规则#1-5中允许的那5个位置). 如以下位置禁止放入"不受信任的数据"(用户输入等):
   * `<script>...script标签中 永不放入不受信任的数据...</script>`
-  * `<!--...HTML注释中 永不放入不受信任的数据...-->`
-  * `<div ...HTML标签的属性的名称中 永不放入不受信任的数据...=test />`
-  * `<HTML标签名称中永不放入不受信任的数据... href="/test" />`
-  * `<style>...CSS中 永不放入不受信任的数据...</style>`
+  * `<!--...HTML注释中_永不放入不受信任的数据...-->`
+  * `<div ...HTML标签的属性的名称中_永不放入不受信任的数据...=test />`
+  * `<HTML标签名称中_永不放入不受信任的数据... href="/test" />`
+  * `<style>...CSS中_永不放入不受信任的数据...</style>`
   * 注意 永远禁止接受来自不受信任来源的JavaScript代码并运行它 没有任何防御方法可以解决这种情况 (如 名为`callback`的参数包含JavaScript代码段)
 
 
@@ -698,7 +698,7 @@ x.send();
   * 将"不受信任的数据"放在 常见标签中时，需要做HTML实体编码 `div`, `p`, `b`, `td` ...
     * 如 `<body>...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE...</body>`
     * 注意 推荐使用十六进制格式的HTML实体 除了XML中重要的5个字符(`&` `<` `>` `"` `'`) 以及正斜杠`/`  见附表1
-    * 注意 在其他html上下文中 本规则远远不够 需参考其他规则!!
+    * 注意 数据输出位置不同 则处置方式不同. 所以在其他html上下文中 XSS防御规则#1 远远不够. 参考其他规则!!
 
 附表1
 
@@ -714,14 +714,16 @@ x.send();
 
 * XSS防御规则#2 - 将"不受信任的数据"放在 HTML元素的常见的属性的值(如`width`,`name`,`value`等)之前，需要做HTML实体编码
   * 反例 属性的值没有用引号包裹 很不安全 使用"能够跳出属性值的字符"跳出属性的值 `[space]` `%` `*` `+` `,` `-` `/` `;` `<` `=` `>` `^` `|` 
-  * 正例 所有属性的值都应该被单引号或双引号`"`包裹 并对属性的值做HTML实体编码 `<div attr='...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE...'>content`
+  * 正例 所有属性的值都应该被单引号`'`或双引号`"`包裹 并对属性的值做HTML实体编码 `<div attr='...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE...'>content`
   * 防御方案 - 必须用引号包裹属性的值,并且属性的值需要做HTML实体编码(用`&#xHH;`转义"除了字母数字字符之外的"所有`ASCII < 256`的字符 即可转义"能够跳出属性值的字符")
-  * 注意 本规则不应被用于 复杂的属性(如`href`,`src`,`style`等) 和 任何"事件处理属性"(如`onmouseover`等) 参考规则#3
-* XSS防御规则#3 - 将"不受信任的数据"放在 JavaScript的"数据值"之前,需要做 `JavaScript Escape`
-  * 针对动态生成的JavaScript代码的情况: `<script>`脚本块 和 "事件处理属性"(event handler attribute)
-  * 防御方案 - 将"不受信任的数据"放在 JavaScript代码中 只有放在被引号括起来的"数据值"部分并将数据进行HTML实体编码(用`&#xHH;`转义"除了字母数字字符之外的"所有`ASCII < 256`的字符 即可转义"能够跳出属性值的字符")
-    * 注意 不能使用`\"`这种可被逃逸的简单的转义(1.运行时引号字符可能被HTML属性解析器首先匹配 2.输入的`\"`可能被转义为`\\"`使双引号逃脱转义)
-  * 反例 将"不受信任的数据"放在 某些JavaScript函数中 永远不安全!! 做任何转义都不行!! 包括`JavaScript Escape`也不行
+  * 注意 本规则不应被用于 复杂的属性(如`href`,`src`,`style`等) 和 任何"事件处理属性"(如`onmouseover`等) 需参考 XSS防御规则#3
+* XSS防御规则#3 - 将 "不受信任的数据" 放在 "JavaScript Data Values" 之前,需要做 `JavaScript Escape`
+  * 本规则针对"动态生成的JavaScript代码"的情况: 如`<script>`脚本块 "事件处理属性"(event handler attribute)
+  * 防御方案 - 将 "不受信任的数据" 放在 JavaScript代码中 只有放在被引号括起来的"数据值"部分并将数据进行HTML实体编码(用`&#xHH;`转义"除了字母数字字符之外的"所有`ASCII < 256`的字符 即可转义"能够跳出属性值的字符")
+    * 注意 不能使用其他转义 如`\"`这种可以被 **escape-the-escape attacks** 逃逸的转义.
+      * 原因1.引号字符`'`或`"` 可能被首先运行起来的"HTML属性解析器"(HTML attribute parser)匹配到.
+      * 原因2.逃脱转义. 攻击者构造输入数据`\"` 可能被转义为 `\\"` 使双引号逃脱转义.
+  * 注意 将"不受信任的数据"放在 **某些JavaScript函数**中 永远不安全!! 做任何转义都不行!! 包括`JavaScript Escape`也不行
     * 如 window.setInterval `<script>window.setInterval('...此处的数据做任何转义都无法防御XSS...');</script>`
   * 正例 传入实参 `<script>alert('...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE...')</script>`
   * 正例 变量赋值 `<script>x='...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE...'</script>`
