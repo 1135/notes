@@ -47,7 +47,8 @@
 ### 详细分析DOM-XSS的3个阶段
 
 ```
-用户输入 --> (处理数据) -->触发XSS
+数据输入源 --> (处理) --> 数据输出点 触发XSS
+Sources --> ... --> Sinks
 ```
 
 举例说明:
@@ -60,37 +61,62 @@
      * 2.chrome测试通过 - 许多标签的"事件处理属性"  自动触发 `<img src onerror=javascript:alert(1) >` 而其`src`属性并不支持`javascipt:`
    * ...
 
-#### 阶段1.用户输入
+#### 阶段1.数据源
 
 参考Google Code [domxsswiki](https://github.com/wisec/domxsswiki)
 
-输入源 即用户输入能够影响以下参数(如果处理不当可能会有"DOM型XSS")
+数据源(Sources) 即用户输入能够影响以下参数(如果处理不当可能会有"DOM型XSS")
 ```
-# URL
+# Sources 1: URL-based DOM Property Sources
+
+# 整个URL
 document.URL
 document.documentURI
 document.baseURI
 
-# URL各部分
+# 部分URL
 location
 location.href
 location.search
 location.hash
 location.pathname
 
-# 其他
-document.cookie
-document.referrer
-window.name
+----
+
+## Sources 2: Communication based Sources
+
+# Ajax (XMLHTTPRequest/Fetch)
+
+# WebSocket
+
+# Window Messaging
 window.postMessage
-history.pushState()
-history.replaceState()
+
+----
+
+## Sources 3: Storage-based Sources
+
+document.cookie
 localStorage
 sessionStorage
+
+----
+
+## Sources 4: Navigation-based DOM Property Sources
+
+window.name
+document.referrer
+
+----
+
+## 其他Sources
+
+history.pushState()
+history.replaceState()
 ```
 
 ```
-实例：浏览器开启开发者模式 访问 https://cn.bing.com/search?q=location#abc
+例子：浏览器开启开发者模式 访问 https://cn.bing.com/search?q=location#abc
 
 得到完整URL
 location.href
@@ -116,30 +142,51 @@ web应用处理用户输入数据
 如果没做处理 或没做好正确的处理 则容易被攻击者构造出payload 触发XSS
 ```
 
-#### 阶段3.触发XSS
+#### 阶段3.数据输出点(Sinks) 触发XSS
 
-可能导致DOM based XSS漏洞的函数: (具体能不能成功要看 阶段1 阶段2)
+可能导致DOM based XSS漏洞的函数: (具体能否成功 取决于 阶段1 阶段2)
 ```
+## Sinks 1: Sinks that execute payload as JavaScript
+
 eval
 Function
 setTimeout
 setInterval
 setImmediate
 execScript
-crypto.generateCRMFRequest
 ScriptElement.src
 ScriptElement.text
 ScriptElement.textContent
 ScriptElement.innerText
-anyTag.onEventName
-document.write
-document.writeln
+anyTag.onEventName   // <div onclick="alert(1)">
+
+----
+
+## Sinks 2: Sinks that execute payload as HTML
+
 anyElement.innerHTML
-Range.createContextualFragment
+anyElement.outerHTML
+document.write   // Will overwrite the page.
+document.writeln // Will overwrite the page.
+
+----
+
+## Sinks 3: Sinks that evaluate JavaScript URIs
+
 window.location
-document.location
-                   例1 document.location.href='javascript:alert(1)';  // location.href is the whole URL in a single string. Assigning a string to either is defined to cause the same kind of navigation, so take your pick.
-                   例2 document.location='javascript:alert(2)';  //location is a structured object, with properties corresponding to the parts of the URL.
+document.location      // 例1 document.location='javascript:alert(2)';  //location is a structured object, with properties corresponding to the parts of the URL.
+document.location.href // 例2 document.location.href='javascript:alert(1)';  // location.href is the whole URL in a single string. Assigning a string to either is defined to cause the same kind of navigation, so take your pick.
+location.assign        // 例3 location.assign("javascript:alert(1)")
+location.replace       // 例4 location.replace("javascript:alert(1)")
+
+<form action='javascript:alert1'> // submit
+
+----
+
+## 其他Sinks
+
+Range.createContextualFragment
+crypto.generateCRMFRequest
 ```
 
 #### DOM based XSS 实例1 - 从anyElement.innerHTML触发
