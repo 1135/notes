@@ -313,7 +313,7 @@ function cors() {
 
 ### 实例2 - JSON with Padding
 
-* 根本原因 - JSONP可以"跨域"的根本原因是`<script>`标签能够("绕过"同源策略)请求其他域名的资源 如`<script src="http://www.B.com/1.js"></script>`
+* 根本原因 - JSONP可以"跨域"的根本原因是`<script>`标签能够("绕过"同源策略)请求其他域名的资源 如`<script src="http://www.3.com/jquery.js"></script>`
 * 理解 - json是目的 JSONP是手段 Padding指的是callback(回调函数)
 * 大致过程 - 域A.com下的JavaScript脚本 从域A.com发送HTTP请求到域B.com 得到B.com的响应 响应内容为json格式的数据(这样的数据符合JavaScript语法)  此时域A.com下的JavaScript脚本 得到的具体数据 并把它作为实参 传递给域A.com下的回调函数 实现使用数据
 
@@ -322,26 +322,26 @@ function cors() {
 ```javascript
 // 在body中添加一个 <script>标签
 var tag_script = document.createElement('script');
-tag_script.src = 'http://B.com/info?callback_name=foo'; // A.com告诉外部的服务器B 回调函数的函数名是foo .即要求B.com的响应 能在A.com下的JavaScript脚本里执行 如foo({"token": "XXXX"}); 
+tag_script.src = 'http://database.B.com/info?callback_name=foo'; // A.com告诉外部的服务器B 回调函数的函数名是foo .即要求B.com的响应 能在A.com下的JavaScript脚本里执行 如foo({"token": "XXXX"}); 
 // 为什么不能直接写成json数据 如`{"token": "XXXX"}`呢? 因为在JavaScript上下文里 这样写无法调用任何函数. 即无法实现调用回调函数foo
 document.body.appendChild(tag_script);
 
 // foo函数 是域A.com的一个函数.
-// 当外部的服务器B 响应"数据"后 A.com会调用名为foo的回调函数(callback)
+// 当B.com的后端 响应"数据"后, A.com的JavaScript会调用名为foo的回调函数(callback)
 function foo(data) {
 console.log('[A.com] Your token is: ' + data.token);
 };
 ```
 
 * JSONP详细步骤分析
-  * 域A.com有一个`script`标签 `src`属性的值为域B.com下的`http://B.com/info?callback_name=foo` 即从域A发出GET请求到域B 其中参数callback的参数值为`foo` 三个字母组成的字符串(随后解释)
-  * 非同域 域B.com的后端 得到了刚刚从域A.com发出的GET请求 也就得到了来自域A的字符串`foo` (foo 其实是域A.com前端JavaScript代码中定义的回调函数的函数名)
+  * 域A.com有一个`script`标签 `src`属性的值为域B.com下的`http://database.B.com/info?callback_name=foo` 即从域A.com发出GET请求到域B.com URL中的参数callback_name的参数值为`foo` 三个字母组成的字符串.
+  * 非同域 域B.com的后端 得到了刚刚从域A.com发出的GET请求 也就得到了来自域A的字符串`foo` (`foo` 其实是函数名, 是域A.com的客户端JavaScript代码中定义的回调函数的函数名)
   * 非同域 域B.com的后端 设置响应内容为`foo({"token": "XXXX"});` 这样做是为了把具体数据返回给域A.com下的JavaScript
     * 注意域B.com的Response Header中Content-Type的值必须是JavaScript  即`text/javascript`或`application/javascript`
   * 域A.com的JavaScript脚本 得到响应内容 `foo({"token": "XXXX"});`
-  * 域A.com的JavaScript脚本 把json数据 `{"token": "XXXX"}`作为实参 传入域A.com下的名为`foo`的函数(域A下早就定义了这个函数) 回调函数
+  * 域A.com的JavaScript脚本 把json数据 `{"token": "XXXX"}`作为实参 传入域A.com下的名为`foo`的函数(域A.com下早已定义了这个回调函数)
 
-就这样，通过JSONP的方式实现了跨域请求：域A.com 的客户端脚本就拿到了来自 域B.com的json格式的数据 `{"token": "XXXX"}`
+就这样通过JSONP的方式实现了: 域A.com 的JavaScript脚本拿到了来自 域B.com的数据 `{"token": "XXXX"}` 是json格式的数据
 
 * 使用JSONP实现跨域 常见**安全风险**
   * **JSONP Injection**
@@ -351,13 +351,13 @@ console.log('[A.com] Your token is: ' + data.token);
 已知B.com存在JSONP Injection漏洞时,在攻击者的域evil.C.com下使用JavaScript代码,可获取来自B.com的数据:
 ```javascript
 <script>
-function foo(data){ // The function is named `foo`
+function foo(data){ // The function is named `foo`. It is a callback function.
 	alert("[evil.C.com] Your token is: " + data.token);
 }
 
 </script>
 
-<script src="http://B.com/xxx.php?callback_name=foo"></script>
+<script src="http://database.B.com/info?callback_name=foo"></script>
 ```
 
 ### 实例3 - JSON with Padding(jQuery实现)
@@ -366,13 +366,13 @@ jQuery可以使用匿名函数
 
 ```
 $.ajax({
-    url:"http://www.B.com/open.php?callback=?",
+    url:"http://database.B.com/open.php?callback=?",
     dataType:"jsonp",
     success:function(data){
         console.log(data);
         //ToDo..
     }
-});    
+});
 ```
 
 ### 实例4 - 利用window.name与iframe实现跨域
