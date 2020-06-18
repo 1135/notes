@@ -241,6 +241,9 @@ select @@basedir;
 # 查询文件读写权限
 SELECT @@global.secure_file_priv;
 
+# 查询文件读写权限 如果是NULL会返回0 否则返回1
+select IF((select(@@global.secure_file_priv)),1,0);
+
 # 读取文件
 select load_file("D:\web\config.php");
 
