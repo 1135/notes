@@ -415,7 +415,15 @@ drop function sys_eval;
 ### Usage
 
 ```
-Usage: python sqlmap.py [options]
+➜  sqlmap git:(master) ✗ python sqlmap.py -hh
+        ___
+       __H__
+ ___ ___[)]_____ ___ ___  {1.4.6.2#dev}
+|_ -| . ["]     | .'| . |
+|___|_  [,]_|_|_|__,|  _|
+      |_|V...       |_|   http://sqlmap.org
+
+Usage: Python sqlmap.py [options]
 
 Options:
   -h, --help            Show basic help message and exit
@@ -427,10 +435,9 @@ Options:
     At least one of these options has to be provided to define the
     target(s)
 
-    -d DIRECT           Connection string for direct database connection
     -u URL, --url=URL   Target URL (e.g. "http://www.site.com/vuln.php?id=1")
+    -d DIRECT           Connection string for direct database connection
     -l LOGFILE          Parse target(s) from Burp or WebScarab proxy log file
-    -x SITEMAPURL       Parse target(s) from remote sitemap(.xml) file
     -m BULKFILE         Scan multiple targets given in a textual file
     -r REQUESTFILE      Load HTTP request from a file
     -g GOOGLEDORK       Process Google dork results as target URLs
@@ -439,6 +446,8 @@ Options:
   Request:
     These options can be used to specify how to connect to the target URL
 
+    -A AGENT, --user..  HTTP User-Agent header value
+    -H HEADER, --hea..  Extra header (e.g. "X-Forwarded-For: 127.0.0.1")
     --method=METHOD     Force usage of given HTTP method (e.g. PUT)
     --data=DATA         Data string to be sent through POST (e.g. "id=1")
     --param-del=PARA..  Character used for splitting parameter values (e.g. &)
@@ -446,11 +455,10 @@ Options:
     --cookie-del=COO..  Character used for splitting cookie values (e.g. ;)
     --load-cookies=L..  File containing cookies in Netscape/wget format
     --drop-set-cookie   Ignore Set-Cookie header from response
-    --user-agent=AGENT  HTTP User-Agent header value
+    --mobile            Imitate smartphone through HTTP User-Agent header
     --random-agent      Use randomly selected HTTP User-Agent header value
     --host=HOST         HTTP Host header value
     --referer=REFERER   HTTP Referer header value
-    -H HEADER, --hea..  Extra header (e.g. "X-Forwarded-For: 127.0.0.1")
     --headers=HEADERS   Extra headers (e.g. "Accept-Language: fr\nETag: 123")
     --auth-type=AUTH..  HTTP authentication type (Basic, Digest, NTLM or PKI)
     --auth-cred=AUTH..  HTTP authentication credentials (name:password)
@@ -473,11 +481,13 @@ Options:
     --safe-url=SAFEURL  URL address to visit frequently during testing
     --safe-post=SAFE..  POST data to send to a safe URL
     --safe-req=SAFER..  Load safe HTTP request from a file
-    --safe-freq=SAFE..  Test requests between two visits to a given safe URL
+    --safe-freq=SAFE..  Regular requests between visits to a safe URL
     --skip-urlencode    Skip URL encoding of payload data
     --csrf-token=CSR..  Parameter used to hold anti-CSRF token
     --csrf-url=CSRFURL  URL address to visit for extraction of anti-CSRF token
+    --csrf-method=CS..  HTTP method to use during anti-CSRF token page visit
     --force-ssl         Force usage of SSL/HTTPS
+    --chunked           Use HTTP chunked transfer encoded (POST) requests
     --hpp               Use HTTP parameter pollution method
     --eval=EVALCODE     Evaluate provided Python code before the request (e.g.
                         "import hashlib;id2=hashlib.md5(id).hexdigest()")
@@ -499,6 +509,7 @@ Options:
     --skip=SKIP         Skip testing for given parameter(s)
     --skip-static       Skip testing parameters that not appear to be dynamic
     --param-exclude=..  Regexp to exclude parameters from testing (e.g. "ses")
+    --param-filter=P..  Select testable parameter(s) by place (e.g. "POST")
     --dbms=DBMS         Force back-end DBMS to provided value
     --dbms-cred=DBMS..  DBMS authentication credentials (user:password)
     --os=OS             Force back-end DBMS operating system to provided value
@@ -520,6 +531,7 @@ Options:
     --not-string=NOT..  String to match when query is evaluated to False
     --regexp=REGEXP     Regexp to match when query is evaluated to True
     --code=CODE         HTTP code to match when query is evaluated to True
+    --smart             Perform thorough tests only if positive heuristic(s)
     --text-only         Compare pages based only on the textual content
     --titles            Compare pages based only on their titles
 
@@ -527,7 +539,7 @@ Options:
     These options can be used to tweak testing of specific SQL injection
     techniques
 
-    --technique=TECH    SQL injection techniques to use (default "BEUSTQ")
+    --technique=TECH..  SQL injection techniques to use (default "BEUSTQ")
     --time-sec=TIMESEC  Seconds to delay the DBMS response (default 5)
     --union-cols=UCOLS  Range of columns to test for UNION query SQL injection
     --union-char=UCHAR  Character to use for bruteforcing number of columns
@@ -542,7 +554,7 @@ Options:
   Enumeration:
     These options can be used to enumerate the back-end database
     management system information, structure and data contained in the
-    tables. Moreover you can run your own SQL statements
+    tables
 
     -a, --all           Retrieve everything
     -b, --banner        Retrieve DBMS banner
@@ -563,6 +575,7 @@ Options:
     --dump-all          Dump all DBMS databases tables entries
     --search            Search column(s), table(s) and/or database name(s)
     --comments          Check for DBMS comments during enumeration
+    --statements        Retrieve SQL statements being run on DBMS
     -D DB               DBMS database to enumerate
     -T TBL              DBMS database table(s) to enumerate
     -C COL              DBMS database table column(s) to enumerate
@@ -575,7 +588,7 @@ Options:
     --stop=LIMITSTOP    Last dump table entry to retrieve
     --first=FIRSTCHAR   First query output word character to retrieve
     --last=LASTCHAR     Last query output word character to retrieve
-    --sql-query=QUERY   SQL statement to be executed
+    --sql-query=SQLQ..  SQL statement to be executed
     --sql-shell         Prompt for an interactive SQL shell
     --sql-file=SQLFILE  Execute SQL statements from given file(s)
 
@@ -584,6 +597,7 @@ Options:
 
     --common-tables     Check existence of common tables
     --common-columns    Check existence of common columns
+    --common-files      Check existence of common files
 
   User-defined function injection:
     These options can be used to create custom user-defined functions
@@ -629,9 +643,12 @@ Options:
 
     -s SESSIONFILE      Load session from a stored (.sqlite) file
     -t TRAFFICFILE      Log all HTTP traffic into a textual file
+    --answers=ANSWERS   Set predefined answers (e.g. "quit=N,follow=N")
+    --base64=BASE64P..  Parameter(s) containing Base64 encoded data
     --batch             Never ask for user input, use the default behavior
     --binary-fields=..  Result fields having binary values (e.g. "digest")
     --check-internet    Check Internet connection before assessing the target
+    --cleanup           Clean up the DBMS from sqlmap specific UDF and tables
     --crawl=CRAWLDEPTH  Crawl the website starting from the target URL
     --crawl-exclude=..  Regexp to exclude pages from crawling (e.g. "logout")
     --csv-del=CSVDEL    Delimiting character used in CSV output (default ",")
@@ -642,6 +659,7 @@ Options:
     --flush-session     Flush session files for current target
     --forms             Parse and test forms on target URL
     --fresh-queries     Ignore query results stored in session file
+    --gpage=GOOGLEPAGE  Use Google dork results from specified page number
     --har=HARFILE       Log all HTTP traffic into a HAR file
     --hex               Use hex conversion during data retrieval
     --output-dir=OUT..  Custom output directory path
@@ -649,29 +667,28 @@ Options:
     --preprocess=PRE..  Use given script(s) for preprocessing of response data
     --repair            Redump entries having unknown character marker (?)
     --save=SAVECONFIG   Save options to a configuration INI file
-    --scope=SCOPE       Regexp to filter targets from provided proxy log
+    --scope=SCOPE       Regexp for filtering targets
+    --skip-waf          Skip heuristic detection of WAF/IPS protection
+    --table-prefix=T..  Prefix used for temporary tables (default: "sqlmap")
     --test-filter=TE..  Select tests by payloads and/or titles (e.g. ROW)
     --test-skip=TEST..  Skip tests by payloads and/or titles (e.g. BENCHMARK)
-    --update            Update sqlmap
+    --web-root=WEBROOT  Web server document root directory (e.g. "/var/www")
 
   Miscellaneous:
+    These options do not fit into any other category
+
     -z MNEMONICS        Use short mnemonics (e.g. "flu,bat,ban,tec=EU")
     --alert=ALERT       Run host OS command(s) when SQL injection is found
-    --answers=ANSWERS   Set predefined answers (e.g. "quit=N,follow=N")
     --beep              Beep on question and/or when SQL injection is found
-    --cleanup           Clean up the DBMS from sqlmap specific UDF and tables
     --dependencies      Check for missing (optional) sqlmap dependencies
     --disable-coloring  Disable console output coloring
-    --gpage=GOOGLEPAGE  Use Google dork results from specified page number
-    --identify-waf      Make a thorough testing for a WAF/IPS protection
     --list-tampers      Display list of available tamper scripts
-    --mobile            Imitate smartphone through HTTP User-Agent header
     --offline           Work in offline mode (only use session data)
     --purge             Safely remove all content from sqlmap data directory
-    --skip-waf          Skip heuristic detection of WAF/IPS protection
-    --smart             Conduct thorough tests only if positive heuristic(s)
+    --results-file=R..  Location of CSV results file in multiple targets mode
     --sqlmap-shell      Prompt for an interactive sqlmap shell
     --tmp-dir=TMPDIR    Local directory for storing temporary files
-    --web-root=WEBROOT  Web server document root directory (e.g. "/var/www")
+    --unstable          Adjust options for unstable connections
+    --update            Update sqlmap
     --wizard            Simple wizard interface for beginner users
 ```
