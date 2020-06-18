@@ -200,11 +200,21 @@ mysql> EXECUTE prod USING @p,@name;
 mysql> DEALLOCATE PREPARE prod;
 ```
 
-#### 数据获取 - 二分法
+#### 加快数据获取的算法
 
-数据获取:自写脚本 利用SQL注入漏洞获取数据(用二分法"加速判断" 缩短判断次数 即缩短数据获取总时长)
+  * 具体参考 [BlackHat-US-13-Salgado SQLi Optimization and Obfuscation Techniques](https://media.blackhat.com/us-13/US-13-Salgado-SQLi-Optimization-and-Obfuscation-Techniques-Slides.pdf)
+
+* 减少判断次数 加速数据获取的算法:
+  * Bisection Method 即 Binary search algorithm("二分查找算法")
+  * Regex method 即 Divide-and-conquer algorithm("分治算法")
+  * Bitwise methods 即 Bisec4on method on REGEX
+  * Binary to posi4on (Bin2Pos)
+
+最终减少了数据获取总时长.
 
 ```
+# 自写脚本实现
+
 test.get_version() #获取版本号
 test.get_user_first() #获取数据库用户权限
 test.get_user_count() #获取数据库用户数量
