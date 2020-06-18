@@ -45,6 +45,16 @@ tampers是sqlmap自带的绕过WAF的脚本，可查看所有tampers:
 --dbms "Microsoft Access"
 ```
 
+#### 常用参数 - 降低测试速度
+
+设置每两次HTTP(S)request之间的时间间隔. 以秒为单位. float类型.
+
+```
+--delay 0.5
+```
+
+默认为0
+
 #### 常用参数 - 设置proxy代理流量
 
 格式为：`(http|https|socks4|socks5)://address:port`
@@ -58,7 +68,7 @@ tampers是sqlmap自带的绕过WAF的脚本，可查看所有tampers:
 
 随机user-agent
 ```
- --random-agent
+--random-agent
 ```
 
 安卓手机user-agent
