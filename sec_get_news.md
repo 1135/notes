@@ -28,7 +28,6 @@
 | 360 Technology Blog(360核心安全) | http://blogs.360.cn/rss.html|
 | 360 netlab |https://blog.netlab.360.com/rss/|
 | 安全客 | https://api.anquanke.com/data/v1/rss|
-| Akamai Security Intelligence and Threat Research Blog | https://blogs.akamai.com/sitr/atom.xml |
 | Malwarebytes Labs | https://blog.malwarebytes.com/feed/|
 | [crowdstrike](https://www.crowdstrike.com/blog/) | 无rss |
 | 知道创宇|https://www.seebug.org/ |
@@ -40,10 +39,12 @@
 | 先知安全技术社区 | https://xz.aliyun.com/feed |
 | 绿盟科技博客 | http://blog.nsfocus.net/feed/ |
 | Research – Check Point Blog | https://blog.checkpoint.com/category/research/feed/ |
+| [Research - ZecOps Blog](https://blog.zecops.com/) | https://blog.zecops.com/feed/ |
 | PortSwigger(burpsuite公司) - Web Security Blog | https://portswigger.net/blog/rss |
 | PortSwigger(burpsuite公司) - The Daily Swig | https://portswigger.net/daily-swig/rss |
 | acunetix blog | https://www.acunetix.com/blog/feed/ |
 | KitPloit - PenTest Tools! | https://feeds.feedburner.com/PentestTools |
+| Akamai Security Intelligence and Threat Research Blog | https://blogs.akamai.com/sitr/atom.xml |
 | Trend Micro Simply Security | http://feeds.trendmicro.com/TrendMicroSimplySecurity |
 | www.nccgroup.trust - US Blog RSS Feed |https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/us-blog-rss-feed/|
 | Malware-Traffic-Analysis.net(流量分析) | https://www.malware-traffic-analysis.net/blog-entries.rss |
