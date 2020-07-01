@@ -179,6 +179,8 @@ The exact bounds of the stack is recorded by two registers, `rbp` and `rsp`.
 
 https://guyinatuxedo.github.io/01-intro_assembly/assembly/index.html#flags
 
+在包含flags的寄存器中,一个flag是这个寄存器的特定bit.设置或未设置它,都会表示某些意义.下面是flags列表.
+
 There is one register that contains flags. A flag is a particular bit of this register. If it is set or not, will typically mean something. Here is the list of flags.
 
 ```
