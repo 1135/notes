@@ -1,23 +1,30 @@
 ### 基础 - Java 序列化与反序列化
 
-* 序列化
-  * 概念：把 Java对象 转换为 二进制字节序列 的过程
+* Serialization
+  * 概念：序列化 是把"Java Object"转换为 二进制字节序列 的过程
   * 实现：ObjectOutputStream类的 writeObject() 方法
-* 反序列化
-  * 概念：把 二进制字节序列 恢复为 Java对象 的过程
+* Deserialization
+  * 概念：反序列化 是把 二进制字节序列 恢复为 "Java Object" 的过程
   * 实现：ObjectInputStream 类的 readObject() 方法
 
-### 防御
-
-* 原生反序列化防御
-  * 避免用户输入可控 - 不要反序列化不可信的数据
-  * 认证 - 给反序列数据加密签名且解密需在反序列之前
-  * 认证 - 经过认证授权 才能使用反序列化接口
-  * 限制访问源 - 反序列化服务只允许监听在本地
-
-[CheatSheetSeries/Deserialization_Cheat_Sheet.md](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Deserialization_Cheat_Sheet.md)
+* 同义词
+  * Serialization / Deserialization
+  * Marshaling / Unmarshaling
+  * Pickling / Unpickling
 
 
+### 检测
+
+* 黑盒
+  * `AC ED 00 05` in Hex  (`aced0005`是序列化对象二进制流数据的开头 常见于TCP流量)
+  * `rO0` in Base64 常见于HTTP流量
+  * `Content-type: application/x-java-serialized-object`常见于HTTP流量
+  * `H4sIAAAAAAAAAJ` in gzip(base64) 常见于HTTP流量
+
+* 白盒
+  * 关注 实现了`Serializable`接口的类
+  * 关注 override(重写/覆盖)了`readObject`的函数
+  
 ### Exploit
 
 * 生成payloads(exploit unsafe Java object deserialization.)
@@ -81,3 +88,17 @@ Usage: java -jar ysoserial-[version]-all.jar [payload] '[command]'
      Vaadin1             @kai_ullrich                           vaadin-server:7.7.14, vaadin-shared:7.7.14
      Wicket1             @jacob-baines                          wicket-util:6.23.0, slf4j-api:1.6.4
 ```
+
+
+
+### 防御
+
+* 原生反序列化防御
+  * 避免用户输入可控 - 不要反序列化不可信的数据
+  * 认证 - 给反序列数据加密签名且解密需在反序列之前
+  * 认证 - 经过认证授权 才能使用反序列化接口
+  * 限制访问源 - 反序列化服务只允许监听在本地
+
+* 参考
+  * [CheatSheetSeries/Deserialization_Cheat_Sheet.md](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Deserialization_Cheat_Sheet.md)
+  * https://foxglovesecurity.com/2015/11/06/what-do-weblogic-websphere-jboss-jenkins-opennms-and-your-application-have-in-common-this-vulnerability/
