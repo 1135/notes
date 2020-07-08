@@ -493,8 +493,8 @@ XSS proxy - 与XSS受害者的浏览器实时交互.  工具 [JShell](https://gi
 * 虚拟币挖矿 - 利用javascript实现Crypto Mining
 * 获取表单输入 - 窃取表单输入框的内容(如口令输入框)
 * 重定向 - Redirecting
-* DOS攻击 - 利用javascript发起注销请求 使用户cookie失效从而无法登录 严重影响业务
-* DDoS攻击 - 对其他站点进行应用层DDoS攻击 如持续发送HTTP请求
+* DOS - 构造HTTP请求实现(用户登录后)自动注销,使cookie失效.用户无法登录web应用,影响业务.
+* DDoS - 应用层DDoS(Application-Level DDoS). 如持续发送HTTP请求到其他域名.
 * 获取浏览器信息
   * 浏览器名称、版本 (根据User-agent获取)
   * 屏幕分辨率 (高度`window.screen.height;` 宽度`window.screen.width;`)
