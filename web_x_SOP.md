@@ -213,7 +213,7 @@ alert(1)//</script>
   * `window.name`与iframe 跨域数据传输 - window对象的name参数可以在多标签内共享
   * flash
 
-### 实例1 - CORS
+### 例1 - CORS
 
 * Request `A.com ---req--> B.com`
   * 发起请求的域 - `Origin`字段中的`http://A.com` 表示该Request是一个从`http://A.com`发起的跨域HTTP请求
@@ -311,7 +311,7 @@ function cors() {
     * `Access-Control-Allow-Origin: white.com`
     * `Access-Control-Allow-Credentials: true`
 
-### 实例2 - JSON with Padding
+### 例2 - JSON with Padding
 
 * 根本原因 - JSONP可以"跨域"的根本原因是`<script>`标签能够("绕过"同源策略)请求其他域名的资源 如`<script src="http://www.3.com/jquery.js"></script>`
 * 理解 - json是目的 JSONP是手段 Padding指的是callback(回调函数)
@@ -360,7 +360,7 @@ function foo(data){ // The function is named `foo`. It is a callback function.
 <script src="http://database.B.com/info?callback_name=foo"></script>
 ```
 
-### 实例3 - JSON with Padding(jQuery实现)
+### 例3 - JSON with Padding(jQuery实现)
 
 jQuery可以使用匿名函数
 
@@ -375,7 +375,7 @@ $.ajax({
 });
 ```
 
-### 实例4 - 利用window.name与iframe实现跨域
+### 例4 - 利用window.name与iframe实现跨域
 
 跨域传输数据原理：window对象的name参数可以在多标签内共享
 
@@ -423,7 +423,7 @@ b.com的b.html的内容:
 </script>
 ```
 
-### 实例5 - window.postMessage
+### 例5 - window.postMessage
 
 `window.postMessage(message，targetOrigin)` - 该HTML5方法可从当前window对象向其他的window对象发送消息 不论这两个窗口是否同源
 
@@ -432,14 +432,18 @@ message 为将要发送的消息，消息类型只能为字符串
 targetOrigin 用来指定即将接收到消息的window对象所在的那个域 (可以使用通配符`*`不限定域)
 ```
 
-* 在线演示 - 使用window.postMessage跨域
+* 在线演示 - 使用`window.postMessage`跨域
   * 页面 https://1135.github.io/sites/demo_postMessage/index.html
   * 源码 https://github.com/1135/1135.github.io/tree/master/sites/demo_postMessage/index.html
 
-* 使用window.postMessage实现跨域 常见**安全风险**
-  * XSS
+* 使用`window.postMessage`跨域传输数据 常见**安全风险**
+  * XSS漏洞 - 产生原因:没有验证数据来源的域(即`MessageEvent.origin`的值),就直接接受数据并进行业务逻辑处理. 如https://github.com/github/securitylab/issues/118
 
-### 实例6 - location.hash与iframe
+* 使用`window.postMessage`跨域传输数据 **安全的方案(修复方案)**
+  * 步骤1.确定白名单 - 根据业务逻辑确定"数据来源的域"白名单,在前端JavaScript(浏览器端)中使用这个白名单.
+  * 步骤2.验证来源域 - 在业务前端对"数据来源的域"进行验证,如使用`indexOf`或`startsWith`来验证`MessageEvent.origin`的值,确认它是白名单内可信域名之一,才进行业务逻辑处理.
+
+### 例6 - location.hash与iframe
 
 html中的锚链接
 ```
