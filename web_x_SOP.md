@@ -59,6 +59,7 @@
 
 * CSP指令
   * 获取指令(Fetch directives)
+    * script-src 这个指令指定了"被允许的JavaScript来源"(allowed sources for JavaScript). 能够限制的范围:`<script>`标签、event handlers(onclick等)、CSS(能执行JavaScript的地方)
     * child-src
     * connect-src
     * default-src
