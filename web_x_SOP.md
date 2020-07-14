@@ -43,34 +43,53 @@
 | 执行 | 由浏览器实现 | 由浏览器实现 |
 
 * CSP - 内容安全策略(Content Security Policy)
-    * 定义 - CSP是浏览器执行的一种策略,它定义了指定页面的不同位置下,具体哪些Web应用的客户端资源(JavaScript, CSS, images, iframes...)可以被调用或执行.
-    * 执行 - 浏览器会遵循(开发者设置的)CSP策略,主动阻止违规行为(block violations).
-    * 白名单 - CSP其实是白名单. 即"默认都禁止 除非在策略中明确允许".
-    * CSP安全评估工具 - [CSP Evaluator](https://csp-evaluator.withgoogle.com/)由Google开发
-    * W3C标准[Content Security Policy Level 3](https://w3c.github.io/webappsec-csp/) 
-    * [CSP Reference & Examples](https://content-security-policy.com/)
+  * 定义 - CSP是浏览器执行的一种策略,它定义了指定页面的不同位置下,具体哪些Web应用的客户端资源(JavaScript, CSS, images, iframes...)可以被调用或执行.
+  * 执行 - 浏览器会遵循(开发者设置的)CSP策略,主动阻止违规行为(block violations).
+  * 白名单 - CSP其实是白名单. 即"默认都禁止 除非在策略中明确允许".
+
+* 参考资料
+  * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
+  * CSP安全评估工具 - [CSP Evaluator](https://csp-evaluator.withgoogle.com/)由Google开发
+  * W3C标准 [Content Security Policy Level 3](https://w3c.github.io/webappsec-csp/) 
+  * [CSP Reference & Examples](https://content-security-policy.com/)
 
 #### 配置CSP
 
 * 启用CSP - 开发者通过`HTTP Response`来启用CSP 同时指明具体策略
   * 方法1 通过设置Response Header 格式为`Content-Security-Policy: <policy-directive>; <policy-directive>`
+    * 每条策略`<policy-directive>`都包括了 "指令" 和一个或多个值 "来源". 格式为`<directive> <value>` 中间是个空格.
   * 方法2 通过设置Response Body `meta`标签 (不建议 浏览器对它的兼容性不如方法1) `<meta http-equiv="Content-Security-Policy" content="xxx">`
 
 
-* CSP指令
+* [CSP全部指令](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy)
   * 获取指令(Fetch directives)
-    * script-src 这个指令指定了"被允许的JavaScript来源"(allowed sources for JavaScript). 能够限制的范围:`<script>`标签、event handlers(onclick等)、CSS(能执行JavaScript的地方)
-    * child-src
-    * connect-src
-    * default-src
-    * font-src
-    * frame-src
-    * img-src
-    * manifest-src
-    * media-src  `<audio>` `<video>` `<track>`
-    * object-src `<object>` `<embed>` `<applet>`
+    * `script-src` 这个指令限制了"被允许的JavaScript来源"(allowed sources for JavaScript). 能够限制的范围:`<script>`标签、event handlers(onclick等)、CSS(能执行JavaScript的地方)
+    * `style-src` 这个指令限制了"CSS的源"(sources for stylesheets).
+    * `child-src` 能够限制的范围: 标签`<frame>` `<iframe>`.  想要控制"嵌套内容"(nested browsing contexts)和`workers`则应该使用`frame-src`指令 和 `worker-src`指令.
+    * `connect-src` 这个指令限制了可以使用"脚本接口"(script interfaces)加载的URL.
+    * `default-src` 这个指令作为其他所有"获取指令"(Fetch directives) 的一个fallback. 即如果CSP header中没有一个fetch指令,那么浏览器将以`default-src`指令为准.
+    * `font-src` 这个指令限制了"字体的来源"(sources of web fonts).
+    * `frame-src` 这个指令限制了"嵌套内容加载的来源"(sources for nested browsing contexts). 能够限制的范围:标签`<frame>` `<iframe>`
+    * `img-src` 这个指令限制了images和favicons的来源.
+    * `manifest-src`这个指令限制了"应用manifest文件的来源"(sources of application manifest files).
+    * `media-src`  这个指令限制了"加载媒体资源的来源"(sources for loading media).  能够限制的范围:标签`<audio>` `<video>` `<track>`
+    * `object-src` 这个指令限制了标签`<object>` `<embed>` `<applet>` 中的来源.
     * ...
+  * Document directives
+    * `base-uri` 这个指令限制了document中`<base>`标签内使用的URL 如`<base href="http://www.w3schools.com/images/">`
+    * ...
+  * Navigation directives
+    * `form-action` 这个指令限制了form表单提交的目标URL `<form action="/some_path">`
+    * ...
+  * Reporting directives
+    * `report-uri`
+    * `report-to`
+  * Other directives
 
+
+* CSP每一条指令都有对应的值("来源") 这些"来源"的语法、格式如下
+  * `*` 任何来源
+  * ...
 
 #### 严格的CSP可以减轻XSS 例1
   * 攻击场景 - 攻击者利用已知XSS漏洞,构造出一个XSS攻击语句`<script src="evil.com/XSSattack1">`,注入到目标站`a.com`的html中.
