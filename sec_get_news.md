@@ -13,6 +13,7 @@
 |标题|rss地址|
 |:-------------:|-----|
 | ProjectZero | https://googleprojectzero.blogspot.com/feeds/posts/default |
+| MSRC - Microsoft Security Response Center | https://msrc-blog.microsoft.com/feed/ |
 | Threat Research(FireEye.com) | [Threat Research Blog](https://www.fireeye.com/blog/threat-research/_jcr_content.feed) |
 | Security Research & Defense(Microsoft.com) | https://blogs.technet.microsoft.com/srd/feed/|
 | Unit42 (Paloalto威胁分析团队) | http://feeds.feedburner.com/Unit42 |
