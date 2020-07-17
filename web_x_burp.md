@@ -76,3 +76,25 @@ alias traversal via NGINX misconfiguration
 使用参考：
 
 [Burpsuite抓取非HTTP流量 - FreeBuf](https://www.freebuf.com/articles/network/158589.html)
+
+
+### Burpsuite - Basic auth 暴力枚举
+
+[brute force - basic auth](https://securityonline.info/use-burp-suite-brute-force-http-basic-authentication/)
+
+* Payload Sets
+  * Payload Type: `Custom iterator`
+* Payload Options
+  * position 1: `admin`
+  * Separator for position 1: `:`
+  * position 2: `passlist`
+* Payload Processing
+  * encode - `Base64-encode`
+* Payload Encoding
+  * 取消打勾 (对`=`等符号不进行URL编码)
+
+### burpsuite扩展 - JOSEPH
+
+JSON Web Token Attacker (JOSEPH)
+ 
+BApp安装
