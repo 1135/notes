@@ -40,6 +40,17 @@ Brupsuite的Macros(宏)是一个预先定义好的HTTP请求序列，这个序�
 
 参考 [Burpsuite中宏的使用 - FreeBuf](https://www.freebuf.com/articles/web/156735.html)
 
+
+### burpsuite扩展 - Turbo Intruder
+
+快速发送构造的HTTP请求到单个目标IP.
+
+灵活性高: HTTP请求中payload的构造由python代码完成(使用字典等外部资源、各种编码等).
+
+* 版本
+  * 插件版 - BAPP store安装
+  * 独立版 - https://github.com/PortSwigger/turbo-intruder/releases
+
 ### burpsuite扩展 - bypassWAF
 
 BApp安装bypassWAF后，
