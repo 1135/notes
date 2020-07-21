@@ -176,6 +176,7 @@ python altdns/__main__.py -i /Users/xxx/Downloads/subdomains_known.txt -w words.
 |信息源|描述|
 |:-------------:|-----|
 |https://www.virustotal.com/#/domain/qq.com | 综合查询 Whois / subDomain / Passive DNS(IP History,曾经解析到哪些IP) . 可查子域名的Passive DNS |
+|https://rapiddns.io/subdomain/twitter.com#result | subDomain / sameIP(支持IPV6 CIDR格式)|
 |https://subdomainfinder.c99.nl/ | Domain -> subDomain |
 |https://crt.sh/?id=1656621355 |Subject Alternative Name (SAN) 是SSL标准`x509`中定义的一个扩展(一个使用了SAN(`subjectAltName`)字段的SSL证书 能支持多个不同域名的解析). 下载证书文件`.crt`或在线解析 可从证书文件中的`subjectAltName`下的`DNS:`看到该证书支持哪些域名|
 |https://spyse.com/search/subdomain?q=qq.com | Domain -> subDomain |
