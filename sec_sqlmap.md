@@ -34,6 +34,17 @@ tampers是sqlmap自带的绕过WAF的脚本，可查看所有tampers:
 >另一种不太通用的办法:手工修改请求
 >把Host头最后加上`:443`可被sqlmap识别为ssl协议,这种办法一般可行但有局限性. 实测中有8443端口的SSL端口，如果在Host头最后加上`:8443`，仍然会被sqlmap当作HTTP协议的端口
 
+
+#### 常用参数 - 加快速度 - 指定最大并发requests数量
+
+```
+--threads=THREADS   Max number of concurrent HTTP(s) requests (default 1)
+```
+
+设置最大并发请求数量. 默认为1
+
+使用并发请求适用于多数情况. 利用"基于时间的注入"获取数据时依然不会使用并发请求.
+
 #### 常用参数 - 加快速度 - 指定数据库类型
 
 指定数据库类型
