@@ -11,9 +11,9 @@
 
 PoC
 
-如果`https://pay.org/donate/`嵌入在`iframe`标签中时可以正常访问, 则存在点击劫持(ClickJacking).
+如果 "被嵌入站"`https://pay.org/donate/` 在 "嵌入站"`any-site.com` 的`iframe`标签中时, 可以正常访问, 则 "被嵌入站" 存在点击劫持(ClickJacking).
 
-```
+```html
 <!DOCTYPE HTML>
 <html lang="en-US">
 <head>
@@ -161,8 +161,8 @@ PoC
 ### SDL - 防御与修复方案
 
 * 1.在HTTP Response Header 中设置 `X-Frame-Options: DENY` 或 `X-Frame-Options: SAMEORIGIN`
-* 2.设置严格的内容安全策略(CSP,Content-Security-Policy) - 具体就是使用`frame-ancestors`指令 控制该网站能被嵌入到哪些地方（一个或多个源）
-  * `Content-Security-Policy: frame-ancestors 'none'` (The page cannot be displayed in a frame.)
-  * `Content-Security-Policy: frame-ancestors 'self'` (The page can only be displayed in a frame on the same origin as the page itself. 只有符合同源策略时,该iframe可展示.)
-  * `Content-Security-Policy: frame-ancestors uri` (The page can only be displayed in a frame on the specified origins. 如果嵌入站符合了被嵌入站指定的uri时,嵌入站dom中的该iframe可展示.)
+* 2.设置严格的内容安全策略(CSP,Content-Security-Policy) - 具体就是使用`frame-ancestors`指令 控制 "被嵌入站" 能被嵌入到哪些地方 (可指定一个或多个源)
+  * `Content-Security-Policy: frame-ancestors 'none'` ( "被嵌入站" 不可被展示在 "任何站" 的iframe.)
+  * `Content-Security-Policy: frame-ancestors 'self'` (The page can only be displayed in a frame on the same origin as the page itself. 只有 "嵌入站" 和 "被嵌入站" 是**同源**时, 该iframe可展示.)
+  * `Content-Security-Policy: frame-ancestors uri` (The page can only be displayed in a frame on the specified origins. 如果 "嵌入站" 符合 "被嵌入站" 指定的uri时, "被嵌入站" 可以展示在这个 "嵌入站" 中的iframe.)
   * 例如 指定这2种源, 嵌入站符合这2个条件之一时, 被嵌入站即可在iframe中展示. `Content-Security-Policy: frame-ancestors 'self' https://www.example.org;`
