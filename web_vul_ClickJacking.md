@@ -7,15 +7,37 @@
     * HTTP Response Header `Content-Security-Policy: xxx`
     * HTTP Response Body `<meta http-equiv="Content-Security-Policy" content="xxx">`
 
-### 漏洞危害
+### 漏洞检测
 
-* 引诱victim访问第三方web网站`3.com/vulnerable`并点击页面某处，其实用户点击的是目标网站`pay.com`的某处，从而实现恶意操作。如“创建用户”、“更改密码”、“删除帐户”等。
+PoC
 
-`ClickJacking_PoC.html`代码如下:
+如果`https://pay.org/donate/`嵌入在`iframe`标签中时可以正常访问, 则存在点击劫持(ClickJacking).
 
 ```
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="refresh" content="5">
+<title>i Frame</title>
+</head>
+<body>
+<center><h1>THIS PAGE IS VULNERABLE TO CLICKJACKING</h1>
+<iframe src="https://pay.org/donate/" frameborder="0 px" height="1200px" width="1920px"></iframe>
+</center>
+</body>
+</html>
+```
+
+### 漏洞危害
+
+诱导victim访问存在EXP的第三方web网站`3.com/vulnerable`, 并点击看到的页面某处(看起来是按钮), 其实用户点击的是`pay.com`的某处, 从而实现恶意操作: 创建用户、更改密码、删除帐户 ...
+
+`ClickJacking_EXP.html`代码如下:
+
+```html
 <!--
-将该html文件放在第三方网站`3.com/PoC.html`
+将该html文件放在第三方网站`3.com/EXP.html`
 如果victim访问该页面，并被诱导点击了一下"红框"，就完成了点击劫持:实际victim点击的是目标网站jianshu.com的"登录"按钮
 -->
 
@@ -139,6 +161,8 @@
 ### SDL - 防御与修复方案
 
 * 1.在HTTP Response Header 中设置 `X-Frame-Options: DENY` 或 `X-Frame-Options: SAMEORIGIN`
-* 2.设置严格的内容安全策略(CSP,Content-Security-Policy)
-    * HTTP Response Header `Content-Security-Policy: xxx`
-    * HTTP Response Body `<meta http-equiv="Content-Security-Policy" content="xxx">`
+* 2.设置严格的内容安全策略(CSP,Content-Security-Policy) - 具体就是使用`frame-ancestors`指令 控制该网站能被嵌入到哪些地方（一个或多个源）
+  * `Content-Security-Policy: frame-ancestors 'none'` (The page cannot be displayed in a frame.)
+  * `Content-Security-Policy: frame-ancestors 'self'` (The page can only be displayed in a frame on the same origin as the page itself. 只有符合同源策略时,该iframe可展示.)
+  * `Content-Security-Policy: frame-ancestors uri` (The page can only be displayed in a frame on the specified origins. 如果嵌入站符合了被嵌入站指定的uri时,嵌入站dom中的该iframe可展示.)
+  * 例如 指定这2种源, 嵌入站符合这2个条件之一时, 被嵌入站即可在iframe中展示. `Content-Security-Policy: frame-ancestors 'self' https://www.example.org;`
