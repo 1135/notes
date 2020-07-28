@@ -2,9 +2,8 @@
 
  * [SDL - 安全开发生命周期 实践与意义](sdl.md)
  * [SDL - API设计规范 CheckList](sdl_API.md)
- * [NTA - 网络流量分析 基础 抓包实践(wireshark/Tshark)](NTA_analysis.md)
+ * [NTA - 网络流量分析 抓包实践(wireshark/Tshark)](NTA_analysis.md)
  * [NTA - 网络流量分析 IDS/IPS 原理 引擎 规则(suricata)](NTA_suricata.md)
- * [sec - Elasticsearch及Elastic Stack](sec_Elasticsearch.md)
  * [web - vul - SQLi 原理 利用方式 修复方案](web_vul_SQLi.md)
  * [web - vul - SSRF 原理 利用方式 修复方案](web_vul_SSRF.md)
  * [web - vul - XSS  原理 利用方式 修复方案](web_vul_XSS.md)
