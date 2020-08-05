@@ -139,7 +139,21 @@ System.out.println("1135");
 \u0053\u0079\u0073\u0074\u0065\u006d\u002e\u006f\u0075\u0074\u002e\u0070\u0072\u0069\u006e\u0074\u006c\u006e("\u0031\u0031\u0033\u0035");
 ```
 
-#### 案例2 **Unicode Compatibility**
+#### 案例2 - XSS payload bypass WAF - 使用不常用标签
+
+```
+# blocked by WAF
+<script
+onXXX
+<a href
+
+# 点击触发
+<form action=javascript:alert(1)>
+<input type=submit />
+</form>
+```
+
+#### 案例3 - XSS payload bypass WAF - **Unicode Compatibility**
 
 参考[WAF Bypassing with Unicode Compatibility](https://jlajara.gitlab.io/posts/2020/02/19/Bypass_WAF_Unicode.html)
 * BypassWAF的前提: web后端使用了Unicode的兼容性.使用"规范化格式"`NFKC`或`NFKD`,将"不规范字符组成的payload字符串" 转换为 "规范字符组成的payload字符串".
