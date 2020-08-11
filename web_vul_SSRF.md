@@ -107,7 +107,7 @@ TESTUDPPACKEToctettsize0blksize512timeout6
     * 不可回显的SSRF漏洞 根据Response间接判断:（常用判断依据：HTTP响应码、HTTP响应时长）
       * IP - 探测内网网络架构 存活主机
       * service/port - 端口开放情况 如数据库类的服务
-    * **"可回显的"**SSRF漏洞 根据Response Body**"直接"**判断:
+    * **"可回显的"** SSRF漏洞 根据Response Body **"直接"** 判断:
       * 【危害1】内网资产搜集
         * "指纹识别" - 根据SSRF回显的Response可得到web前端代码进行"指纹识别" 以搜集内网资产(web应用等) 可能有助于横向移动
           * 比如 tomcat的一个指纹是 [tomcat.png](https://github.com/apache/tomcat/tree/master/webapps/ROOT)
