@@ -277,10 +277,10 @@ Content-Type: application/xml
 * 使用CORS实现跨域 常见的**安全风险**
   * B.com的`Access-Control-Allow-Origin: *`可以接收并响应来自任何域的request 存在**巨大风险**. 应该设置"源域名白名单"
 * CORS attack
-  * 步骤(1) 攻击者在evil.com(或被目标站CORS信任的任意域)上编写"实现CORS跨域的代码"(参考PoC1 PoC2)
+  * 步骤(1) 攻击者在evil.com(被目标站CORS信任的域都行) 用脚本(JavaScript)实现 "发起跨域request的代码" 参考PoC1 PoC2 PoC3
   * 步骤(2) 正常用户 登录B.com
   * 步骤(3) 正常用户 访问evil.com (因为B.com后端的CORS未正确配置)所以从evil.com向B.com发出跨域请求, 得到了B.com的响应, evil获取到了B.com的数据.
-* 用脚本(JavaScript)发送request的方法
+* 用脚本(JavaScript)发送request的方法: 它们遵循SOP CORS 即符合CORS策略时能够发送跨域request
   * [XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest)
   * [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) more powerful!
 
@@ -327,6 +327,30 @@ function cors() {
 </script>
 ```
 
+PoC3: poc3_cors_FetchAPI.html
+```html
+<html>
+<script>
+var url1 = "https://A.com/x.json";  
+
+obj1 = {    
+    method: 'GET',    
+    cache: 'force-cache' //强制读取硬盘中的缓存 (from disk cache). 实测不会真正发出request.
+    }
+
+
+fetch(url1,obj1)
+  .then(function(response) { //Response
+  	// return response.text(); // Promise
+    return response.json(); // Promise
+  })
+  .then(function(myJson) {
+    console.log(myJson);
+  });
+
+</script>
+</html>
+```
 
 * 使用CORS实现跨域 **安全的方案(修复方案)**
   * 业务"后端"实现`Origin`白名单,把信任的域加入`Origin`白名单. 如果HTTP request中的`Origin`不在白名单内,则对应的HTTP Response不带这2个Header.
