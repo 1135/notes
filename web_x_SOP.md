@@ -277,11 +277,14 @@ Content-Type: application/xml
 * 使用CORS实现跨域 常见的**安全风险**
   * B.com的`Access-Control-Allow-Origin: *`可以接收并响应来自任何域的request 存在**巨大风险**. 应该设置"源域名白名单"
 * CORS attack
-  * 步骤(1)如攻击者在evil.com(或被目标站CORS信任的任意域)上编写"实现CORS跨域的代码"(可参考PoC1 PoC2)
-  * 步骤(2)正常用户 登录B.com
-  * 步骤(3)正常用户 访问evil.com (因为B.com后端的CORS未正确配置)所以evil.com向B.com发出跨域请求得到了B.com的响应,evil获取到了B.com的数据.
+  * 步骤(1) 攻击者在evil.com(或被目标站CORS信任的任意域)上编写"实现CORS跨域的代码"(参考PoC1 PoC2)
+  * 步骤(2) 正常用户 登录B.com
+  * 步骤(3) 正常用户 访问evil.com (因为B.com后端的CORS未正确配置)所以从evil.com向B.com发出跨域请求, 得到了B.com的响应, evil获取到了B.com的数据.
+* 用脚本(JavaScript)发送request的方法
+  * [XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest)
+  * [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) more powerful!
 
-PoC1:
+PoC1: poc1_cors_XMLHttpRequest.js
 ```javascript
 var invocation = new XMLHttpRequest();
 
@@ -302,7 +305,7 @@ function cors(){
 cors();
 ```
 
-PoC2:
+PoC2: poc2_cors_XMLHttpRequest.html
 ```html
 <h2>CORS To Read the response body of a vulnerable site</h2>
 <div id="demo">
