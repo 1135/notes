@@ -36,7 +36,6 @@
 | Seebug 最新漏洞 | https://www.seebug.org/rss/new/|
 | Seebug 近期最热漏洞 | https://www.seebug.org/rss/hot/|
 | 腾讯安全响应中心 | https://security.tencent.com/index.php/feed/blog/0|
-| FreeBuf | https://www.freebuf.com/feed|
 | 先知安全技术社区 | https://xz.aliyun.com/feed |
 | 绿盟科技博客 | http://blog.nsfocus.net/feed/ |
 | Research – Check Point Blog | https://blog.checkpoint.com/category/research/feed/ |
