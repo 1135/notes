@@ -112,10 +112,12 @@ ps -p <pid>
   103 ??         4:08.03 /System/Library/CoreServices/loginwindow.app/Contents/MacOS/loginwindow console
 ```
 
-#### 进程信息
+#### 进程信息 - Investigate Running Processes
+
+调查正在运行的进程
 
 ```
-# root权限下 获取所有进程的完整列表
+# root权限下 可获取所有进程的信息 pid ppid cpu mem start time command
 ps -axo user,pid,ppid,%cpu,%mem,start,time,command
 
 # 如
@@ -123,4 +125,6 @@ USER               PID  PPID  %CPU %MEM STARTED      TIME COMMAND
 root                 1     0   0.0  0.1 19Jun19 161:37.36 /sbin/launchd
 ```
 
-> 参考 https://www.sentinelone.com/blog/malware-hunting-macos-practical-guide/
+* 参考
+  * https://www.sentinelone.com/blog/malware-hunting-macos-practical-guide/
+  * [A Guide to macOS Threat Hunting and Incident Response](https://assets.sentinelone.com/c/sentinal-one-mac-os-?x=FvGtLJ&lb-mode=overlay)
