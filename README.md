@@ -89,10 +89,9 @@
 |[PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings)|8k★ 持续更新的好资源 useful payloads and bypass for Web and Pentest|
 |[Awesome-Hacking](https://github.com/Hack-with-Github/Awesome-Hacking)|Awesome-Hacking|
 [Awesome-Fuzzing](https://github.com/secfigo/Awesome-Fuzzing)|3k★ fuzzing resources ( Books, courses, videos, tools, tutorials, vulnerable applications).|
-|[Awesome-CheatSheet](https://github.com/wxyyxc1992/Awesome-CheatSheet)|全栈 多语言基本语法 CheatSheet|
 |[Awesome-Go](https://github.com/avelino/awesome-go)|37k★ Awesome-Go|
-|[Awesome-cryptography](https://github.com/sobolevn/awesome-cryptography)|2k★ 密码学资源|
+|[Awesome-cryptography](https://github.com/sobolevn/awesome-cryptography)|2k★ 密码学 |
 |[Awesome-crawler](https://github.com/BruceDone/awesome-crawler)|3k★ 各语言爬虫 web crawler|
-|[Awesome-static-analysis](https://github.com/mre/awesome-static-analysis)|4k★ 各语言静态分析工具Static analysis tools for all programming languages|
+|[Awesome-static-analysis](https://github.com/mre/awesome-static-analysis)|4k★ 各语言静态分析工具. Static analysis tools for all programming languages|
 |[Awesome-pentest-cheat-sheets](https://github.com/coreb1t/awesome-pentest-cheat-sheets)|1k★ #pentesting |
 |[Awesome-malware-analysis](https://github.com/rshipp/awesome-malware-analysis)|4k★ #流量分析 A curated list of awesome malware analysis tools and resources.|
