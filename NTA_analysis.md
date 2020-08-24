@@ -67,7 +67,7 @@ Wireshark/tshark都有2个filter.
     * 源MAC地址 `eth.src==20:dc:e6:f3:78:cc`
     * 目的MAC地址 `eth.dst==20:dc:e6:f3:78:cc`
   * 筛选条件 - 协议
-    * 选中某协议 `tcp` `udp` `dns` `http` `icmp` `ssl` `ssh` `ftp` `smtp` `msnms` `arp` ...
+    * 选中某协议 `tcp` `udp` `dns` `http` `icmp` `ssl` `ssh` `ftp` `smtp` `msnms` `arp` `dhcp` `nbns` `Kerberos` ...
     * 排除某协议 `!ssl` `not ssl`
   * ...
 
@@ -162,7 +162,7 @@ wlan.da == MAC-Address
 ### 确定设备的信息
 
 * 确定设备的信息(系统信息、IP地址、MAC地址、计算机名、系统帐户名)
-  * 方式1 通过HTTP请求中的User-Agent判断设备类型、系统版本. 参考案例: [对恶意软件Dridex的流量分析](https://www.freebuf.com/articles/es/195832.html)
+  * 方式1 根据`HTTP`流量. 找到其中的User-Agent判断设备型号、系统版本. 参考案例: [对恶意软件Dridex的流量分析](https://www.freebuf.com/articles/es/195832.html)
     * Windows NT 5.1：Windows XP
     * Windows NT 6.0：Windows Vista
     * Windows NT 6.1：Windows 7
@@ -171,7 +171,18 @@ wlan.da == MAC-Address
     * Windows NT 10.0：Windows 10
     * Android设备 - User-Agent中通常有系统版本(如Android 7.1.2), 和设备型号(如LM-X210APM)
     * Apple设备 - User-Agent中只能看到系统版本(如iOS 12.1.3)和设备类型(如iPhone/iPad/iPod), 而无法判断设备型号(如iPhone型号)
+  * 方式2 根据`DHCP`流量. 找到其中的"主机信息"(Host information).
+    * IP address
+    * MAC address
+    * hostname
+  * 方式3 根据`NBNS`(NetBIOS Name Service)流量. 找到其中的"主机信息"(Host information). 能识别MacOS和Windows
+    * IP address
+    * MAC address
+    * hostname
+  * 方式4 根据`Kerberos`流量. 找到其中的Windows user account. 仅能识别在Active Directory (AD) environment中的Windows主机.
 
+>参考 https://unit42.paloaltonetworks.com/using-wireshark-identifying-hosts-and-users/
+  
 ### Wireshark - 插件
 
 [pentesteracademy/patoolkit: PA Toolkit is a collection of traffic analysis plugins focused on security](https://github.com/pentesteracademy/patoolkit)
