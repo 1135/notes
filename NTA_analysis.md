@@ -14,6 +14,8 @@ NTA is the process of intercepting, recording and analyzing network traffic comm
 [security-onion](https://github.com/Security-Onion-Solutions/security-onion)|一个liunx系统镜像 内含 Elasticsearch, Logstash, Kibana, Snort, Suricata, Bro, Wazuh, Sguil, Squert, CyberChef, NetworkMiner, and many other security tools. |
 |Zeek(Bro)| Network Security Monitor https://www.zeek.org/|
 
+wireshark更多用法 [Wireshark Tutorial and Tactical Cheat Sheet](https://hackertarget.com/wireshark-tutorial-and-cheat-sheet/)
+
 恶意软件分析工具与资源 [awesome-malware-analysis](https://github.com/rshipp/awesome-malware-analysis)
 
 ### filter
@@ -26,7 +28,6 @@ Wireshark/tshark都有2个filter.
 * Display filter - 设置显示条件 实现只显示出想要显示的流量
   * Wireshark 抓包之后 直接在GUI上的`display filter`框输入筛选表达式
   * tshark 使用`-Y`指定display filter的筛选表达式 如`tshark -r 1.pcap -Y 'http.request.method==GET'`
-
 
 ### filter syntax
 
@@ -158,22 +159,18 @@ Lists packages that have a target mac address.
 wlan.da == MAC-Address
 ```
 
+### 确定设备的信息
 
-
-
-### 确定受影响主机的信息
-
-* 确定被感染主机的信息(系统信息、IP地址、MAC地址、计算机名、系统帐户名)
-  * [对恶意软件Dridex的流量分析 - FreeBuf](https://www.freebuf.com/articles/es/195832.html)
-  * 通过HTTP请求中的User-Agent判断设备类型、系统版本
+* 确定设备的信息(系统信息、IP地址、MAC地址、计算机名、系统帐户名)
+  * 方式1 通过HTTP请求中的User-Agent判断设备类型、系统版本. 参考案例: [对恶意软件Dridex的流量分析](https://www.freebuf.com/articles/es/195832.html)
     * Windows NT 5.1：Windows XP
     * Windows NT 6.0：Windows Vista
     * Windows NT 6.1：Windows 7
     * Windows NT 6.2：Windows 8
     * Windows NT 6.3：Windows 8.1
     * Windows NT 10.0：Windows 10
-    * Android设备 - User-Agent中通常有系统版本(如Android 7.1.2)和设备型号(如LM-X210APM)
-    * Apple设备 - User-Agent中只能看到系统版本(如iOS 12.1.3)和设备类型(如iPhone/iPad/iPod) 而无法判断设备型号(如iPhone型号)
+    * Android设备 - User-Agent中通常有系统版本(如Android 7.1.2), 和设备型号(如LM-X210APM)
+    * Apple设备 - User-Agent中只能看到系统版本(如iOS 12.1.3)和设备类型(如iPhone/iPad/iPod), 而无法判断设备型号(如iPhone型号)
 
 ### Wireshark - 插件
 
