@@ -132,7 +132,9 @@ TESTUDPPACKEToctettsize0blksize512timeout6
     * web - Jenkins本身 🔥pre-auth RCE  (CVE-2018-1000861 CVE-2019-1003005 CVE-2019-1003029 ) [orangetw/awesome-jenkins-rce-2019](https://github.com/orangetw/awesome-jenkins-rce-2019)
     * web - Jenkins插件 RCE CVE-2019-1003000  CVE-2019-1003001  CVE-2019-1003002)
     * web - Jenkins弱口令 [需回显Response body]
-      * 登录后 使用"脚本命令行执行"即`http://jenkins.some-inc.com:8080/script`执行Groovy script 如`println "whoami".execute().text`
+      * 测试过程 已登录状态下 使用"脚本命令行执行"即`http://jenkins.some-inc.com:8080/script`执行Groovy script 如`println "whoami".execute().text`
+      * 执行结果 在`<h2>Result</h2>`之后紧接着的`<pre></pre>`标签中为命令执行结果.
+      * CSRF攻击 当jenkins未开启CSRF防护时 可构造POST请求 已登录状态下的人员访问 即可实现命令执行.
     * web - Github Enterprise RCE < 2.8.7
     * web - SQLi等 [需回显Response body]
     * web - Struts2 RCE
