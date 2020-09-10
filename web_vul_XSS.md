@@ -251,9 +251,13 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 </html>
 ```
 
-发现 弹出`alert(3)` `alert(1)`(无顺序) 而没有`alert(2)`
+发现 弹出`alert(3)` `alert(1)`(无顺序) 而没有`alert(2)` 原因如下:
 
-因为使用`.innerHTML`写进以下这些HTML标签中时，不会解析`Html实体(Html Entity)`  如不会将 `&lt;` 解析为`<` :
+**以下这些HTML标签** 比较特殊, 浏览器会把这些标签中的内容作为 **文本** 解析(而不会当作html代码进行解析).
+
+具体实现就是对内容做了`Html实体(Html Entity)`编码).
+
+所以当使用`.innerHTML`把内容写进以下这些HTML标签中时, 浏览器不会把其中内容作为 **html** 解析.
 
 ```html
 <textarea>
