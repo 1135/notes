@@ -199,18 +199,20 @@ crypto.generateCRMFRequest
 <div id="test">
    <span style="color:red">test1</span> test2
 </div>
+```
 
-//使用 .innerHTML .outerHTML 能够读取/写入元素中的html代码
-//在console下测试：
+```
+//使用 .innerHTML .outerHTML 能够读取/写入元素中的html代码.  在console下测试：
 
-//test.innerHTML
-//输出为<span style="color:red">test1</span> test2
 
-//test.innerText
-//输出为test1 test2
+//执行  test.innerHTML
+//输出  <span style="color:red">test1</span> test2
 
-//test.outerHTML
-//输出为<div id="test"><span style="color:red">test1</span> test2</div>
+//执行  test.innerText
+//输出  test1 test2
+
+//执行  test.outerHTML
+//输出  <div id="test"><span style="color:red">test1</span> test2</div>
 ```
 
 可知 `anyElement.innerHTML`可以将html代码写入该元素
