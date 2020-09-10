@@ -661,7 +661,7 @@ window.URL.revokeObjectURL(url);
   * 回显方式2 带外请求 使用JavaScript构造跨域请求 发送携带敏感信息("文件内容")的http请求 到接受信息的`evil.com`域
 
 
-```
+```html
 <!-- 1.html -->
 
 <html>
