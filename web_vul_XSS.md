@@ -555,7 +555,7 @@ findIP.then(ip => alert('your ip: '+ip)).catch(e => console.error(e))
 #### XSS利用方式 - 对浏览器的存储(Storage)增删改查
 
 cookie
-```
+```JavaScript
 // 拿到cookie后
 // 1.访问目标域名 浏览器设置该站点的cookie项 为拿到的cookie项 登录web系统
 // web系统的"登录日志"功能会记录登录者的信息 "最后登录IP-时间" 而用cookie直接登录(比账号密码登录)web系统的大好处是 不会留下web登录日志!
@@ -593,7 +593,7 @@ setCookie('name','value',70);
 
 
 sessionStorage
-```
+```JavaScript
 // sessionStorage.setItem方法  写入key-value对
 sessionStorage.setItem("key1","value1");
 
@@ -608,7 +608,7 @@ sessionStorage.clear();
 ```
 
 localStorage
-```
+```JavaScript
 //查看数据 - localStorage中的所有的数据
 alert(JSON.stringify(localStorage))
 
@@ -631,7 +631,7 @@ localStorage.key(3);
     * 跨域方案1 - 设置`https://file.io/`的CORS策略,允许来自域`a.com`的跨域请求.
 
 在`a.com`下 自动下载文件
-```
+```JavaScript
 // 使用`fetch API`和`Blob(Binary large object)`对象
 fetch('https://file.io/test')
 .then(resp => resp.blob())
