@@ -2,7 +2,9 @@
 
 #### Authentication
 
-身份认证 设计原则:使用成熟且安全的组件 不要造轮子
+身份认证
+
+设计原则:使用成熟且安全的标准授权协议.不要造轮子.
 
 * 使用标准的认证协议(如 [JWT](https://jwt.io/), [OAuth](https://oauth.net/)). 不要使用Basic Auth
 * 使用标准的 Authentication, token generating, password storing
@@ -13,28 +15,28 @@
 
 介绍[JSON Web Token](https://jwt.io/introduction/)
 
-* JWT由3部分组成 这3部分用2个`.`连接成一个JWT:
+* JWT由3部分组成
   * Header
   * Payload
   * Signature
 
 ```
-JWT的格式:
+JWT由3部分组成 它们经过编码后 用`.`作为连接符号 拼接成一个JWT. 一个JWT的格式如下:
 Base64Urlencode(Header).Base64Urlencode(Payload).Signature
 
 比如这个JWT:
 eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1ODY1MjUyNzcsImFkbWluIjoiZmFsc2UiLCJ1c2VyIjoiSmVycnkifQ.BWbSmWbTfsJBc5YMaKCXY4SlvxPZXuobf4vfAFJEXu00qC5nXeyA7csmC7PErf5YoxmbDzFVPobnzhndFe10xQ
 
 分解为3部分:
-Header:    eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9 --Base64Urldecode-> {"alg":"HS512","typ":"JWT"}
-Payload:   eyJpYXQiOjE1ODY1MjUyNzcsImFkbWluIjoiZmFsc2UiLCJ1c2VyIjoiSmVycnkifQ --Base64Urldecode-> {"iat":1586525277,"admin":"false","user":"Jerry"}
+Header:    eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9  --Base64Urldecode->  {"alg":"HS512","typ":"JWT"}
+Payload:   eyJpYXQiOjE1ODY1MjUyNzcsImFkbWluIjoiZmFsc2UiLCJ1c2VyIjoiSmVycnkifQ  --Base64Urldecode->  {"iat":1586525277,"admin":"false","user":"Jerry"}
 Signature: BWbSmWbTfsJBc5YMaKCXY4SlvxPZXuobf4vfAFJEXu00qC5nXeyA7csmC7PErf5YoxmbDzFVPobnzhndFe10xQ
 
 --------
 Header
 Header通常包含2个内容:
-1.ALGORITHM - 用到的签名算法(signing algorithm)
-2.TOKEN TYPE - token的类型
+  1. ALGORITHM - 用到的签名算法(signing algorithm)
+  2. TOKEN TYPE - token的类型
 
 如:
 {
@@ -45,9 +47,9 @@ Header通常包含2个内容:
 --------
 Payload
 Payload包含了"声明"(claims):有3种claims
-Registered claims - 一组非强制性但建议的预定义声明 如 iss (issuer), exp (expiration time), sub (subject), aud (audience) ...
-Public claims
-Private claims
+  Registered claims - 一组非强制性但建议的预定义声明 如 iss (issuer), exp (expiration time), sub (subject), aud (audience) ...
+  Public claims
+  Private claims
 
 如:
 {
@@ -60,15 +62,15 @@ Private claims
 
 Signature
 Signature的创建需要获取3个参数:
-1.encoded header
-2.encoded payload
-3.a secret - 我设置它为`secret_secret_2020_0331`
+  1.encoded header
+  2.encoded payload
+  3.a secret - 我设置它为`secret_secret_2020_0331`
 
 算法已经在header中指定.
 
 
 如:
-使用HMACSHA512算法创建JWT的Signature的计算过程
+使用HMACSHA512算法,创建出JWT的Signature,计算过程如下
 
 HMACSHA512(
   base64UrlEncode(header) + "." +
@@ -76,14 +78,16 @@ HMACSHA512(
   secret
 ) 
 
-签名的作用:用于验证消息未被更改. 并且如果使用"私钥"(private key)进行签名,则该签名可用于验证JWT的发送者(是否为它所说的发送者).
+签名的作用:
+  1.用于验证消息未被更改.
+  2.如果使用"私钥"(private key)进行签名,则该签名可用于验证JWT的发送者(是否为它所说的发送者).
 ```
 
-JWT安全设计原则
-* 使用随机的复杂的密钥`JWT Secret` 这样暴力枚举的难度极大
-* 服务端不要从header中提取算法(algorithm) 在服务端强制使用指定的高强度算法 如`HS256`,`RS256`...
-* token过期时间 设置尽量短.  token expiration (`TTL`, `RTTL`)
-* 不要在JWT的"payload部分"中存储敏感数据 因为对"payload部分"进行base64Urldecode就能看到明文. [在线decode](https://jwt.io/#debugger-io)
+* JWT安全设计原则
+  * 使用随机的复杂的密钥`JWT Secret` 这样暴力枚举的难度极大
+  * 服务端不要从header中提取算法(algorithm) 在服务端强制使用指定的高强度算法 如`HS256`,`RS256`...
+  * token过期时间 设置尽量短.  token expiration (`TTL`, `RTTL`)
+  * 不要在JWT的"payload部分"中存储敏感数据 因为对"payload部分"进行base64Urldecode就能看到明文. [在线decode](https://jwt.io/#debugger-io)
 
 #### OAuth
 
