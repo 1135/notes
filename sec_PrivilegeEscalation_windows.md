@@ -8,6 +8,34 @@
 
 参考 [Windows-Notes-and-Cheatsheet.md](https://github.com/m0chan/m0chan.github.io/blob/master/_posts/2019-07-30-Windows-Notes-and-Cheatsheet.md)
 
+注册表
+```
+# 导出注册表(全部)
+regedit /e c:\all.reg
+
+# 导出注册表(某项)
+# 如 rdp服务的监听端口 (默认3389)
+regedit /E c:\reg_rdp.reg "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\Wds\rdpwd\Tds\tcp"
+```
+
+系统日志
+```
+# 安全日志 - RDP日志
+wevtutil qe Security "/q:*[System [(EventID=4648)]]" /rd:true /f:text
+```
+
+计划任务
+```
+# 查看
+schtasks /query
+
+# 查看 - 详细信息  # a list of all the scheduled tasks（Task Name / Next Run Time / Status)
+schtasks /query /v /fo LIST
+
+# 查看 - 所有任务的详细信息 CSV格式 # This includes additional information such as the task being run, schedule information etc
+schtasks /query /v /fo CSV
+```
+
 ### Checklist - Windows提权之前必要信息搜集
 
 #### Windows 版本和配置
@@ -672,21 +700,22 @@ EoP - 内核利用
 如下
 
  #Security Bulletin&nbsp;&nbsp;&nbsp;#KB &nbsp;&nbsp;&nbsp;&nbsp;#Description&nbsp;&nbsp;&nbsp;&nbsp;#Operating System  
-- [MS17-017](https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS17-017) 　[KB4013081]　　[GDI Palette Objects Local Privilege Escalation]　　(windows 7/8)
-- [CVE-2017-8464](https://github.com/SecWiki/windows-kernel-exploits/tree/master/CVE-2017-8464) 　[LNK Remote Code Execution Vulnerability]　　(windows 10/8.1/7/2016/2010/2008)
-- [CVE-2017-0213](https://github.com/SecWiki/windows-kernel-exploits/tree/master/CVE-2017-0213) 　[Windows COM Elevation of Privilege Vulnerability]　　(windows 10/8.1/7/2016/2010/2008)
-- [CVE-2018-0833](https://github.com/SecWiki/windows-kernel-exploits/tree/master/CVE-2018-0833)   [SMBv3 Null Pointer Dereference Denial of Service]    (Windows 8.1/Server 2012 R2)
-- [CVE-2018-8120](https://github.com/SecWiki/windows-kernel-exploits/tree/master/CVE-2018-8120)   [Win32k Elevation of Privilege Vulnerability]    (Windows 7 SP1/2008 SP2,2008 R2 SP1)
-- [MS17-010](https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS17-010) 　[KB4013389]　　[Windows Kernel Mode Drivers]　　(windows 7/2008/2003/XP)
-- [MS16-135](https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-135) 　[KB3199135]　　[Windows Kernel Mode Drivers]　　(2016)
-- [MS16-111](https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-111) 　[KB3186973]　　[kernel api]　　(Windows 10 10586 (32/64)/8.1)
-- [MS16-098](https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-098) 　[KB3178466]　　[Kernel Driver]　　(Win 8.1)
-- [MS16-075](https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-075) 　[KB3164038]　　[Hot Potato]　　(2003/2008/7/8/2012)
-- [MS16-034](https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-034) 　[KB3143145]　　[Kernel Driver]　　(2008/7/8/10/2012)
-- [MS16-032](https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-032) 　[KB3143141]　　[Secondary Logon Handle]　　(2008/7/8/10/2012)
-- [MS16-016](https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-016) 　[KB3136041]　　[WebDAV]　　(2008/Vista/7)
-- [MS16-014](https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-014) 　[K3134228]　　[remote code execution]　　(2008/Vista/7)    
-
+- [CVE-2020-0787](https://github.com/cbwang505/CVE-2020-0787-EXP-ALL-WINDOWS-VERSION) [Windows Background Intelligent Transfer Service Elevation of Privilege Vulnerability] (Windows 7/8/10, 2008/2012/2016/2019)
+- [CVE-2020-0796](https://github.com/danigargu/CVE-2020-0796) [A remote code execution vulnerability exists in the way that the Microsoft Server Message Block 3.1.1 (SMBv3) protocol handles certain requests, aka 'Windows SMBv3 Client/Server Remote Code Execution Vulnerability'] (Windows 1903/1909)
+- [CVE-2019-1458](https://github.com/unamer/CVE-2019-1458) [An elevation of privilege vulnerability exists in Windows when the Win32k component fails to properly handle objects in memory] (Windows 7/8/10/2008/2012/2016)
+- [CVE-2019-0803](https://github.com/ExpLife0011/CVE-2019-0803) [An elevation of privilege vulnerability exists in Windows when the Win32k component fails to properly handle objects in memory] (Windows 7/8/10/2008/2012/2016/2019)
+- [CVE-2018-8639](https://github.com/ze0r/CVE-2018-8639-exp) [An elevation of privilege vulnerability exists in Windows when the Win32k component fails to properly handle objects in memory] (Windows 7/8/10/2008/2012/2016)
+- [CVE-2018-1038](https://gist.github.com/xpn/3792ec34d712425a5c47caf5677de5fe) [Windows Kernel Elevation of Privilege Vulnerability]  (Windows 7 SP1/Windows Server 2008 R2 SP1)
+- [CVE-2018-0743](https://github.com/saaramar/execve_exploit) [Windows Subsystem for Linux Elevation of Privilege Vulnerability]  (Windows 10 version 1703/Windows 10 version 1709/Windows Server version 1709)
+- [CVE-2018-8453](https://github.com/ze0r/cve-2018-8453-exp) [An elevation of privilege vulnerability in Windows Win32k component]  (>= windows 8.1)
+- [CVE-2018-8440](https://github.com/sourceincite/CVE-2018-8440) [Windows ALPC Elevation of Privilege Vulnerability]  (windows 7/8.1/10/2008/2012/2016)
+- [MS17-017](./MS17-017) 　[KB4013081]　　[GDI Palette Objects Local Privilege Escalation]　　(windows 7/8)
+- [CVE-2017-8464](./CVE-2017-8464) 　[LNK Remote Code Execution Vulnerability]　　(windows 10/8.1/7/2016/2010/2008)
+- [CVE-2017-0213](./CVE-2017-0213) 　[Windows COM Elevation of Privilege Vulnerability]　　(windows 10/8.1/7/2016/2010/2008)
+- [CVE-2018-0833](./CVE-2018-0833)   [SMBv3 Null Pointer Dereference Denial of Service]  (Windows 8.1/Server 2012 R2)
+- [CVE-2018-8120](./CVE-2018-8120)   [Win32k Elevation of Privilege Vulnerability]  (Windows 7 SP1/2008 SP2,2008 R2 SP1)
+- [MS17-010](./MS17-010) 　[KB4013389]　　[Windows Kernel Mode Drivers]　　(windows 7/2008/2003/XP)
+- ...
 
 
 #### EoP - AlwaysInstallElevated
