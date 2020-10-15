@@ -506,9 +506,9 @@ XSS proxy - 与XSS受害者的浏览器实时交互.  工具 [JShell](https://gi
   * `indexedDB`
   * `Web SQL Database`
 * 探测内网 - 利用实时通信标准WebRTC 获取存活主机ip列表 甚至端口 进而识别服务、web应用与版本（如发现内网中的confluence、Jenkins等）
-* 攻击内网 - 根据探测结果(或对所有内网ip)发起漏洞利用攻击流量（利用web系统漏洞：confluence系统命令执行等；利用常见服务漏洞：redis未授权Getshell)
+* 攻击内网 - 根据探测结果(或对所有内网ip)发起漏洞利用攻击流量（利用web系统漏洞：confluence系统命令执行等)
 * XSStoRCE - 使用node.js作为web后端 或 基于node.js的桌面应用框架(如Electron) 都可能通过XSS实现RCE
-* XSS蠕虫 - 在社交网站上可创建蠕虫式的XSS攻击 传播速度极快 影响极大
+* XSS蠕虫 - 在社交网站上传播速度极快 影响极大
 * 键盘记录 - 记录按键
 * 漏洞联合 - 使用XSS绕过CSRF保护机制 无交互地利用CSRF漏洞
    * 1.利用自身域名的XSS漏洞绕过CSRF防御机制 - 有的anti-CSRF机制为后端判断CSRFtoken的值，使用JavaScript找到CSRFtoken参数值并构造出"合法的"GET/POST请求 全程不存在跨域问题
