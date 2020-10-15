@@ -4,7 +4,7 @@ SQL注入漏洞(SQL injection)
 
 漏洞原理:用户输入的字符串 被作为参数 直接拼接到SQL语句中.
 
-```
+```sql
 # Vulnerable Code
 "SELECT * FROM users WHERE name = '" + userName + "'";
 
@@ -232,7 +232,7 @@ test.get_content() #获取第一列第一个字段内容
 
 #### MySQL常用的查询语句
 
-```
+```sql
 # MySQL数据常用的查询语句 (实测支持MySQL 8.0.17)
 
 # 查询mysql二进制文件的位置(安装后的文件夹的路径)
@@ -293,7 +293,7 @@ mysql> select User,Host,plugin,authentication_string from mysql.user;
 
 #### MySQL常用的getshell方法
 
-```
+```sql
 # getshell方法1 : 写文件
 
 # 前提 通常仅适用于 MySQL < 5.7 的版本
@@ -308,7 +308,7 @@ select load_file("D:\web\config.php");
 select from_base64("base64的内容") into dumpfile "D:\mysql-5.6.41-winx64\lib\plugin\udf64.dll";
 ```
 
-```
+```sql
 # getshell方法2 : 修改 日志文件的具体路径 general_log_file 的值, 实现写文件到任意目录.
 
 # 优点: 【不用考虑】 文件读写权限 @@global.secure_file_priv (实测 MySQL 8.0.17 可写文件到多个目录)
@@ -552,7 +552,7 @@ SELECT 1 from mysql.user order by 1 limit 0,1 into outfile '/tmp/s.php' LINES TE
 PHP - Laravel框架的 Eloquent ORM
 
 PHP - 原生[使用PDO(PHP Data Objects)](https://php.net/manual/en/book.pdo.php) 支持任意数据库
-```
+```php
 // PDO常用函数
 // PDOStatement::bindColumn — Bind a column to a PHP variable
 // PDOStatement::bindParam — Binds a parameter to the specified variable name   bindParam()方法 可进行 强类型参数化查询(strongly typed parameterized queries)
@@ -575,7 +575,7 @@ var_dump($row);
 ```
 
 PHP - 使用MySQLi扩展 (仅支持MySQL数据库)
-```
+```php
 $stmt = $dbConnection->prepare('SELECT * FROM employees WHERE name = ?');
 $stmt->bind_param('s', $name);
 $stmt->execute();
@@ -587,7 +587,7 @@ while ($row = $result->fetch_assoc()) {
 
 
 .NET
-```
+```csharp
 // "参数化查询"
 // 如 使用带有"绑定变量"的SqlCommand()函数 OleDbCommand()函数
 
@@ -604,7 +604,7 @@ try {
 
 
 JAVA - 原生函数
-```
+```java
 // 预编译语句PreparedStatement()  需要和"参数绑定"一起使用
 
 // This should REALLY be validated too
@@ -617,7 +617,7 @@ ResultSet results = pstmt.executeQuery( );
 ```
 
 JAVA - Hibernate框架的`.createQuery()`函数与`.setParameter()`
-```
+```java
 // Hibernate Query Language (HQL) - Prepared Statement
 // 在Hibernate中，绑定变量(bind variables) 被称为 "Named Parameters"
 
@@ -637,14 +637,14 @@ sqlite3_prepare()
 ```
 
 Golang
-```
+```golang
 // 对Postgres数据库
 // This is for Postgres. Other SQL variants may use the ? character.
 db.Exec("INSERT INTO users(name, email) VALUES($1, $2)",
   "Jon Calhoun", "jon@calhoun.io")
 ```
 
-```
+```golang
 // 对mysql数据库
 // http://mindbowser.com/golang-go-database-sql/
 package main
@@ -688,7 +688,7 @@ package main
 
 如果使用了存储过程，开发者必须避免在存储过程中生成"不安全的动态SQL查询语句"
 
-```
+```java
 //JAVA中使用存储过程，该存储过程已经定义在数据库中:
 String custname = request.getParameter("customerName");
 try {
