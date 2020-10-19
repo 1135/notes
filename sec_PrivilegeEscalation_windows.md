@@ -26,7 +26,7 @@
 参考 [Windows-Notes-and-Cheatsheet.md](https://github.com/m0chan/m0chan.github.io/blob/master/_posts/2019-07-30-Windows-Notes-and-Cheatsheet.md)
 
 注册表
-```
+```powershell
 # 导出注册表(全部)
 regedit /e c:\all.reg
 
@@ -36,13 +36,13 @@ regedit /E c:\reg_rdp.reg "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\T
 ```
 
 系统日志
-```
+```powershell
 # 安全日志 - RDP日志
 wevtutil qe Security "/q:*[System [(EventID=4648)]]" /rd:true /f:text
 ```
 
 计划任务
-```
+```powershell
 # 查看
 schtasks /query
 
@@ -56,18 +56,19 @@ schtasks /query /v /fo CSV
 ### Checklist - Windows提权之前必要信息搜集
 
 #### Windows 版本和配置
-```
+
+```powershell
 Windows Version and Configuration
 # ---------------
 # 查看综合信息
 systeminfo
 
-根据特征分析 存在以下特征 可判断为虚拟机:
-特征1
-系统制造商:       QEMU
+# 根据特征分析 存在以下特征 可判断为虚拟机:
+# 特征1
+# 系统制造商:       QEMU
 
-特征2
-网卡:             安装了 2 个 NIC。[01]: Red Hat VirtIO Ethernet Adapter
+# 特征2
+# 网卡:             安装了 2 个 NIC。[01]: Red Hat VirtIO Ethernet Adapter
 
 # ---------------
 # 查看系统名称（windows系统 中文版）
@@ -81,9 +82,9 @@ systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
 # 查询架构(不同语言的操作系统通用)
 
 wmic os get osarchitecture || echo %PROCESSOR_ARCHITECTURE%
-如结果
-OSArchitecture
-64-bit
+# 如结果
+# OSArchitecture
+# 64-bit
 
 # ---------------
 # List all env variables
@@ -107,7 +108,7 @@ wmic logicaldisk get caption || fsutil fsinfo drives
 
 #### 用户枚举
 
-```
+```powershell
 User Enumeration
 # ---------------
 # Get current username
@@ -146,16 +147,16 @@ net user /domain
 
 net accounts
 
-如结果
-强制用户在时间到期之后多久必须注销?:     从不
-密码最短使用期限(天):                    0
-密码最长使用期限(天):                    42
-密码长度最小值:                          0
-保持的密码历史记录长度:                  None
-锁定阈值:                                从不
-锁定持续时间(分):                        30
-锁定观测窗口(分):                        30
-计算机角色:                              WORKSTATION
+# 如结果
+# 强制用户在时间到期之后多久必须注销?:     从不
+# 密码最短使用期限(天):                    0
+# 密码最长使用期限(天):                    42
+# 密码长度最小值:                          0
+# 保持的密码历史记录长度:                  None
+# 锁定阈值:                                从不
+# 锁定持续时间(分):                        30
+# 锁定观测窗口(分):                        30
+# 计算机角色:                              WORKSTATION
 
 
 # 查看当前AD域中的域内账户密码策略
@@ -192,7 +193,6 @@ net localgroup administrators
 # 第三方脚本
 Get-LocalGroupMember Administrators | ft Name, PrincipalSource
 Get-LocalGroupMember Administrateurs | ft Name, PrincipalSource
-
 ```
 
 #### 网络枚举
@@ -237,8 +237,9 @@ Ethernet adapter Local Area Connection:
    DHCPv6 Client DUID. . . . . . . . : 00-01-00-01-18-14-24-1D-00-0C-29-56-79-35
    DNS Servers . . . . . . . . . . . : 192.168.0.1
    NetBIOS over Tcpip. . . . . . . . : Enabled
+```
 
-
+```powershell
 # 第三方脚本
 Get-NetIPConfiguration | ft InterfaceAlias,InterfaceDescription,IPv4Address
 Get-DnsClientServerAddress -AddressFamily IPv4 | ft
@@ -333,7 +334,6 @@ reg query HKLM\SYSTEM\CurrentControlSet\Services\SNMP /s
 
 # 第三方脚本
 Get-ChildItem -path HKLM:\SYSTEM\CurrentControlSet\Services\SNMP -Recurse
-
 ```
 
 
@@ -777,6 +777,7 @@ EoP - 不安全的GUI应用程序
 #### EoP - Evaluating Vulnerable Drivers
 
 Look for vuln drivers loaded, we often don't spend enough time looking at this:
+寻找已经加载了的 存在漏洞的驱动器:
 
 ```powershell
 # https://github.com/matterpreter/OffensiveCSharp/tree/master/DriverQuery
