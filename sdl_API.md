@@ -28,8 +28,8 @@ Base64Urlencode(Header).Base64Urlencode(Payload).Signature
 eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1ODY1MjUyNzcsImFkbWluIjoiZmFsc2UiLCJ1c2VyIjoiSmVycnkifQ.BWbSmWbTfsJBc5YMaKCXY4SlvxPZXuobf4vfAFJEXu00qC5nXeyA7csmC7PErf5YoxmbDzFVPobnzhndFe10xQ
 
 分解为3部分:
-Header:    eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9  --Base64Urldecode->  {"alg":"HS512","typ":"JWT"}
-Payload:   eyJpYXQiOjE1ODY1MjUyNzcsImFkbWluIjoiZmFsc2UiLCJ1c2VyIjoiSmVycnkifQ  --Base64Urldecode->  {"iat":1586525277,"admin":"false","user":"Jerry"}
+Header:    eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9    --Base64Urldecode->    {"alg":"HS512","typ":"JWT"}
+Payload:   eyJpYXQiOjE1ODY1MjUyNzcsImFkbWluIjoiZmFsc2UiLCJ1c2VyIjoiSmVycnkifQ    --Base64Urldecode->    {"iat":1586525277,"admin":"false","user":"Jerry"}
 Signature: BWbSmWbTfsJBc5YMaKCXY4SlvxPZXuobf4vfAFJEXu00qC5nXeyA7csmC7PErf5YoxmbDzFVPobnzhndFe10xQ
 
 --------
