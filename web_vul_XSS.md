@@ -735,11 +735,11 @@ x.send();
     * 配置CSP - 参考W3C标准[Content Security Policy Level 3](https://w3c.github.io/webappsec-csp/) 与 [CSP Reference & Examples](https://content-security-policy.com/)
       * 例如`default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';`
     * CSP安全评估工具 - [CSP Evaluator](https://csp-evaluator.withgoogle.com/)由Google开发
-  * 建议使用 自动转义模版系统(Auto-Escaping Template System) - Web应用框架的自动上下文转义功能(automatic contextual escaping functionality)
+  * 建议使用 web应用的"自动转义模版系统"(Auto-Escaping Template System) - Web应用框架的自动上下文转义功能(automatic contextual escaping functionality)
     * 如 [AngularJS strict contextual escaping](https://docs.angularjs.org/api/ng/service/$sce)
     * 如 [Go Templates](https://golang.org/pkg/html/template/)
-  * 建议使用X-XSS-Protection响应头 - 现代浏览器默认开启 使用该Response Header使浏览器为当前页面强制重新开启XSS filter(如果用户禁用了XSS filter)
-  * API接口 - 显式规定response的MIME类型 即`Content-Type` header 的值. 如json格式 则设置为`Content-type: application/json`
+  * 建议使用`X-XSS-Protection`响应头 - 现代浏览器默认开启. 使用Response Header`X-XSS-Protection: 1` 使浏览器为当前页面强制重新开启XSS filter(如果用户禁用了XSS filter)
+  * API接口 - 显式规定MIME类型. 即Response Header `Content-Type`的值. 如json格式的Response 则设置为`Content-type: application/json`
   * Cookie安全设计参考 - [Security Cookies Whitepaper](https://www.netsparker.com/security-cookies-whitepaper//?utm_source=twitter.com&utm_medium=social&utm_content=security+cookies+whitepaper&utm_campaign=netsparker+social+media)
     * 如在`Set-Cookie: `中增加  `; secure` 仅允许HTTPS协议中传输cookie
     * 如在`Set-Cookie: `中增加  `; HttpOnly` 当客户端脚本代码读取cookie 则浏览器返回一个空字符串
