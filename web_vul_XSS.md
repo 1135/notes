@@ -751,12 +751,12 @@ x.send();
   * [DOM_based_XSS_Prevention_Cheat_Sheet.md](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.md)
 
 * HTML实体编码(HTML entity encoding) 只用来它来防御XSS是远远不够的!!
-  * 适用情况1. 将"不受信任的数据"放在 HTML文档body中时(the body of the HTML document)，如`<div>`标签内，需要做HTML实体编码
-  * 适用情况2. 将"不受信任的数据"放在 HTML属性中时，需要做HTML实体编码(开发人员最好给HTML标签的属性的值,前后都加上引号)
-  * 无效情况1. 将"不受信任的数据"放在 **`<script>`** 标签内的任何位置时，不用做HTML实体编码，因为对防御XSS无效!!
-  * 无效情况2. 将"不受信任的数据"放在 **"事件处理属性"(event handler attribute)** 中时，如`onmouseover`，不用做HTML实体编码，因为对防御XSS无效!!
-  * 无效情况3. 将"不受信任的数据"放在 **`CSS`** 中时，不用做HTML实体编码，因为对防御XSS无效!!
-  * 无效情况4. 将"不受信任的数据"放在 **`URL`** 中时，不用做HTML实体编码，因为对防御XSS无效!!
+  * 适用情况1. 将"不受信任的数据"放在 `HTML文档body`(the body of the HTML document)中时, 如`<div>`标签内, 需要做HTML实体编码
+  * 适用情况2. 将"不受信任的数据"放在 `HTML属性`中时, 需要做HTML实体编码(开发人员最好给HTML标签的属性的值,前后都加上引号)
+  * 无效情况1. 将"不受信任的数据"放在 **`<script>`** 标签内的任何位置时, 不用做HTML实体编码, 因为对防御XSS无效!!
+  * 无效情况2. 将"不受信任的数据"放在 **"事件处理属性"(event handler attribute)** 中时, 如`onmouseover`, 不用做HTML实体编码, 因为对防御XSS无效!!
+  * 无效情况3. 将"不受信任的数据"放在 **`CSS`** 中时, 不用做HTML实体编码, 因为对防御XSS无效!!
+  * 无效情况4. 将"不受信任的数据"放在 **`URL`** 中时, 不用做HTML实体编码, 因为对防御XSS无效!!
 
 * 防御XSS的安全编码库(Security Encoding Library)
   * [OWASP Java Encoder Project](https://www.owasp.org/index.php/OWASP_Java_Encoder_Project) - 内含了各种位置下的正确编码处理函数
@@ -768,7 +768,7 @@ x.send();
   * `<div ...HTML标签的属性的名称中_永不放入不受信任的数据...=test />`
   * `<HTML标签名称中_永不放入不受信任的数据... href="/test" />`
   * `<style>...CSS中_永不放入不受信任的数据...</style>`
-  * 注意 永远禁止接受来自不受信任来源的JavaScript代码并运行它 没有任何防御方法可以解决这种情况 (如 名为`callback`的参数包含JavaScript代码段)
+  * 注意 永远禁止接受来自不受信任来源的JavaScript代码并运行它 没有任何防御方法可以解决这种情况! (如 名为`callback`的参数包含JavaScript代码段)
 
 
 * XSS防御规则#1 - 将"不受信任的数据"放在 HTML元素的Content之前，需要做HTML实体编码
@@ -789,15 +789,15 @@ x.send();
 | / | `&#x2F;`|`/`有助于结束一个HTML实体|
 
 
-* XSS防御规则#2 - 将"不受信任的数据"放在 HTML元素的常见的属性的值(如`width`,`name`,`value`等)之前，需要做HTML实体编码
+* XSS防御规则#2 - 将"不受信任的数据"放在 HTML元素的常见的属性的值(如`width`,`name`,`value`等)之前, 需要做HTML实体编码
   * 反例 属性的值没有用引号包裹 很不安全 使用"能够跳出属性值的字符"跳出属性的值 `[space]` `%` `*` `+` `,` `-` `/` `;` `<` `=` `>` `^` `|` 
-  * 正例 所有属性的值都应该被单引号`'`或双引号`"`包裹 并对属性的值做HTML实体编码 `<div attr='...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE...'>content`
+  * 正例 所有属性的值都应该被 单引号**`'`** 或 双引号 **`"`** 包裹 并对属性的值做 HTML实体编码 `<div attr='...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE...'>content`
   * 防御方案 - 必须用引号包裹属性的值,并且属性的值需要做HTML实体编码(用`&#xHH;`转义"除了字母数字字符之外的"所有`ASCII < 256`的字符 即可转义"能够跳出属性值的字符")
   * 注意 本规则不应被用于 复杂的属性(如`href`,`src`,`style`等) 和 任何"事件处理属性"(如`onmouseover`等) 需参考 XSS防御规则#3
-* XSS防御规则#3 - 将 "不受信任的数据" 放在 "JavaScript Data Values" 之前,需要做 `JavaScript Escape`
+* XSS防御规则#3 - 将 "不受信任的数据" 放在 "JavaScript Data Values" 之前, 需要做 `JavaScript Escape`
   * 本规则针对"动态生成的JavaScript代码"的情况: 如`<script>`脚本块 "事件处理属性"(event handler attribute)
-  * 防御方案 - 将 "不受信任的数据" 放在 JavaScript代码中 只有放在被引号括起来的"数据值"部分并将数据进行HTML实体编码(用`&#xHH;`转义"除了字母数字字符之外的"所有`ASCII < 256`的字符 即可转义"能够跳出属性值的字符")
-    * 注意 不能使用其他转义 如`\"`这种可以被 **escape-the-escape attacks** 逃逸的转义.
+  * 防御方案 - 将 "不受信任的数据" 放在 JavaScript代码中 只有放在被引号括起来的"数据值"部分 并将数据进行HTML实体编码(用`&#xHH;`转义"除了字母数字字符之外的"所有`ASCII < 256`的字符 即可转义"能够跳出属性值的字符")
+    * 注意 不能使用其他转义的方法  如`\"`这种转义方法可以被逃脱 **escape-the-escape attacks**.
       * 原因1.引号字符`'`或`"` 可能被首先运行起来的"HTML属性解析器"(HTML attribute parser)匹配到.
       * 原因2.逃脱转义. 攻击者构造输入数据`\"` 可能被转义为 `\\"` 使双引号逃脱转义.
   * 注意 将"不受信任的数据"放在 **某些JavaScript函数**中 永远不安全!! 做任何转义都不行!! 包括`JavaScript Escape`也不行
@@ -805,17 +805,18 @@ x.send();
   * 正例 传入实参 `<script>alert('...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE...')</script>`
   * 正例 变量赋值 `<script>x='...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE...'</script>`
   * 正例 事件处理属性`<div onmouseover="x='...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE...'"</div>`
-* XSS防御规则#3.1 - HTML转义HTML内容中的JSON值 并使用`JSON.parse`读取数据
-  * API接口 - 显式规定response的MIME类型 即`Content-Type` header 的值. 如json格式 则设置为`Content-type: application/json`
+* XSS防御规则#3.1 - HTML转义HTML内容中的JSON值. 并使用`JSON.parse`读取数据.
+  * API接口 - 显式规定MIME类型. 即Response Header `Content-Type`的值. 如json格式 则设置为`Content-type: application/json`
   * anti-pattern - 不能直接这么写`<script>var initData = <%= data.to_json %>; </script>` 而必须用以下的编码方式:
-    * 编码方式1 JSON serialization
-      * 一个安全的JSON serializer能够使开发人员将 `JSON` 序列化为 **"绝对的JavaScript文本字符串"(string of literal JavaScript)** 然后嵌入`<script>`标签中是安全的.
-      * 注意 HTML characters 和 JavaScript line terminators 需要被转义. 参考 [Yahoo JavaScript Serializer](https://github.com/yahoo/serialize-javascript)
+    * 编码方式1 安全的JSON序列化程序(JSON serialization)
+      * 一个安全的JSON serializer能够使开发人员将 `JSON` 序列化为 **"绝对的JavaScript文本字符串"(string of literal JavaScript)** 然后把它嵌入`<script>`标签中是安全的.
+      * 注意 需要转义的有: HTML characters 和 JavaScript line terminators. 参考 [Yahoo JavaScript Serializer](https://github.com/yahoo/serialize-javascript)
     * 编码方式2 HTML实体编码
-      * 数据源(HTML某个元素) - 将`JSON block`作为普通元素放在页面上，标签中的数据内容 经过HTML实体编码
+      * 数据源(HTML某个元素) - 将`JSON block`作为普通元素放在页面上, 标签中的数据内容 经过HTML实体编码
       * 数据消费/使用(javascript) - javascript脚本通过该元素的`.innerHTML`获取标签中的数据内容
 
 ```html
+<!-- 安全的例子 -->
 <!-- 数据源(HTML某个元素) -->
 
 <div id="init_data" style="display: none">
@@ -827,23 +828,25 @@ x.send();
 ```javascript
 // 数据消费/使用(javascript)
 
-// external js file - 读取数据的javascript可以保存在外部文件中，从而更容易实现CSP
+// external js file - 读取数据的javascript可以保存在外部文件中, 从而更容易实现CSP加固(enforcement)
 // 读取id为'init_data' 的div标签的内容
 var dataElement = document.getElementById('init_data');
 
-// decode and parse the content of the div
-// javascript中使用`JSON.parse`方法 读取div中的数据
+// 使用javascript中的`JSON.parse`方法 读取div标签中的数据 // decode and parse the content of the div
 var initData = JSON.parse(dataElement.textContent);
-// 在JavaScript中直接转义/反转义JSON的另一种方法:JSON服务器端规范化输出(将Response中的JSON数据`<`转换为`\u003c`形式  再返回给浏览器)
+
+// 除了上面提到的 在client端(浏览器)JavaScript中直接 encode/decode JSON的方法,
+// 还可以在server端 normalize JSON数据(即服务器端直接将JSON数据做好encode), 然后再返回给浏览器:
+// 如 server端 将Response中的JSON数据 `<` 转换为 `\u003c` 形式
 ```
 
-* XSS防御规则#4 - 将"不受信任的数据"放在 HTML样式属性值(Style Property Values)之前，进行CSS转义并严格验证
-  * 防御方案 - 将"不受信任的数据"放在stylesheet或`<style>`标签中时,只能放在属性的值中 (其他位置都不能放 尤其是复杂的属性 如`url`, `behavior`, 和自定义的`-moz-binding`),并用`\HH`转义"除了字母数字字符之外的"所有`ASCII < 256`的字符
+* XSS防御规则#4 - 将"不受信任的数据"放在 HTML样式属性值(Style Property Values)之前, 进行CSS Encode 和"严格验证"(Strictly Validate)
+  * 防御方案 - 将"不受信任的数据"放在stylesheet或 **`<style>`** 标签中时, 只能放在属性的值中 (其他位置都不能放 尤其是复杂的属性 如`url`, `behavior`, 和自定义的`-moz-binding`), 并用`\HH`转义"除了字母数字字符之外的"所有`ASCII < 256`的字符
     * 注意 不能使用`\"`这种可被逃逸的简单的转义 (1.运行时引号字符可能被HTML属性解析器首先匹配 2.输入的`\"`可能被转义为`\\"`使双引号逃脱转义)
     * 注意 所有属性的值都需要被引号包裹 - 否则很不安全 使用"能够跳出属性值的字符"跳出属性的值 `[space]` `%` `*` `+` `,` `-` `/` `;` `<` `=` `>` `^` `|` 
     * 注意 建议使用严格的CSS编码(CSS encoding)和验证来防止"被引号包裹的属性"和"没被引号包裹的属性"的XSS攻击
     * 注意 在带引号的字符串中的`</style>`也能够闭合样式块(style block)，因为HTML解析器比JavaScript解析器先运行
-  * 注意 将"不受信任的数据"放在 某些CSS内容中永远不安全!!即使做CSS Escape 也对防御XSS无效.
+  * 注意 将"不受信任的数据"放在 某些CSS内容中永远不安全!! 即使做了CSS Escape也对防御XSS无效!
     * 1. `URLs`必须保证只能以`http`开头(不能以`javascript`开头)
       * 反例`{ background-url : "javascript:alert(1)"; }  // and all other URLs`
     * 2. 属性的值不能以`expression`开头  因为IE的表达式属性(expression property)允许在此执行JavaScript
@@ -870,8 +873,8 @@ selector { property : "...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE..."; }
 <h1 style="color:blue;margin-left:30px;">This is a heading</h1>
 ```
 
-* 防御规则#5 - 将"不受信任的数据"放在 HTML URL Parameter 之前进行URL转义(URL Escape)
-  * 防御方案 - 将"不受信任的数据"放在 HTML的GET参数的值之前，需要进行URL转义(URL Escape):使用`%HH`转义"除了字母数字字符之外的"所有`ASCII < 256`的字符
+* 防御规则#5 - 将"不受信任的数据"放在 HTML URL Parameter 之前进行"URL转义"(URL Escape)
+  * 防御方案 - 将"不受信任的数据"放在 HTML的GET参数的值之前，需要进行"URL转义"(URL Escape):使用`%HH`转义"除了字母数字字符之外的"所有`ASCII < 256`的字符
     * 注意 所有属性的值都需要被引号包裹 - 否则很不安全 使用"能够跳出属性值的字符"跳出属性的值 `[space]` `%` `*` `+` `,` `-` `/` `;` `<` `=` `>` `^` `|` 
     * 注意 URLs中禁止使用`data:` - 因为转义无法禁止攻击者使用`data:`使"数据"跳出URLs变为"代码"
     * 注意 不要使用URL编码对"完整URL"或"相对URL"进行编码
