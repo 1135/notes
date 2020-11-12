@@ -3,7 +3,8 @@
 * 解决问题：burpsuite无法拦截某些https的请求，浏览器报错信息为 `ERR_SSL_VERSION_OR_CIPHER_MISMATCH.协议不受支持。`
   * 0.关闭浏览器的HSTS保护
     * firefox 访问 `about:config` 找到选项`network.stricttransportsecurity.preloadlist` 改为`false`
-    * chrome 访问 `chrome://net-internals/#hsts`  `Delete domain security policies` 可以删除某个域名
+    * chrome 访问 `chrome://net-internals/#hsts`  最下面`Delete domain security policies` 删除某个域名的安全策略
+      * `Input a domain name to delete its dynamic domain security policies (HSTS and Expect-CT). (You cannot delete preloaded entries.)`
   * 1.burp设置 `project options`选项卡 - `SSL`选项卡
     * SSL协商设置(`SSL negotiation`) 将`Use the default protocols and ciphers of your Java Installation`改为`Use custom protocols and ciphers`
   * 2.操作系统导入burpsuite的证书
