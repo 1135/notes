@@ -795,7 +795,7 @@ x.send();
   * 防御方案 - 必须用引号包裹属性的值,并且属性的值需要做HTML实体编码(用`&#xHH;`转义"除了字母数字字符之外的"所有`ASCII < 256`的字符 即可转义"能够跳出属性值的字符")
   * 注意 本规则不应被用于 复杂的属性(如`href`,`src`,`style`等) 和 任何"事件处理属性"(如`onmouseover`等) 需参考 XSS防御规则#3
 * XSS防御规则#3 - 将 "不受信任的数据" 放在 "JavaScript Data Values" 之前, 需要做 `JavaScript Escape`
-  * 本规则针对"动态生成的JavaScript代码"的情况: 如`<script>`脚本块 "事件处理属性"(event handler attribute)
+  * 本规则针对"动态生成的JavaScript代码"的情况: 如`<script>`脚本块, 和 "事件处理属性"(event handler attribute)
   * 防御方案 - 将 "不受信任的数据" 放在 JavaScript代码中 只有放在被引号括起来的"数据值"部分 并将数据进行HTML实体编码(用`&#xHH;`转义"除了字母数字字符之外的"所有`ASCII < 256`的字符 即可转义"能够跳出属性值的字符")
     * 注意 不能使用其他转义的方法  如`\"`这种转义方法可以被逃脱 **escape-the-escape attacks**.
       * 原因1.引号字符`'`或`"` 可能被首先运行起来的"HTML属性解析器"(HTML attribute parser)匹配到.
