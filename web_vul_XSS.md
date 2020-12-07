@@ -791,12 +791,14 @@ x.send();
 
 * XSS防御规则#2 - 将"不受信任的数据"放在 HTML元素的常见的属性的值(如`width`,`name`,`value`等)之前, 需要做HTML实体编码
   * 反例 属性的值没有被引号(单引号或双引号)包裹, 很不安全. 使用"能够跳出属性值的字符"跳出属性的值 `[space]` `%` `*` `+` `,` `-` `/` `;` `<` `=` `>` `^` `|` 
-  * 正例 所有属性的值都应该被 单引号 **`'`** 或 双引号 **`"`** 包裹 并对属性的值做 HTML实体编码 `<div attr='...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE...'>content`
+  * 正例 所有属性的值都应该被 单引号 **`'`** 或 双引号 **`"`** 包裹, 并对属性的值做 HTML实体编码 `<div attr='...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE...'>content`
   * 防御方案 - 必须用引号包裹属性的值,并且属性的值需要做HTML实体编码(用`&#xHH;`转义"除了字母数字字符之外的"所有`ASCII < 256`的字符 即可转义"能够跳出属性值的字符")
   * 注意 本规则不应被用于 复杂的属性(如`href`,`src`,`style`等) 和 任何"事件处理属性"(如`onmouseover`等) 需参考 XSS防御规则#3
 * XSS防御规则#3 - 将 "不受信任的数据" 放在 "JavaScript Data Values" 之前, 需要做 `JavaScript Escape`
   * 本规则针对"动态生成的JavaScript代码"的情况: 如`<script>`脚本块, 和 "事件处理属性"(event handler attribute)
-  * 防御方案 - 将 "不受信任的数据" 放在 JavaScript代码中, 如果放在被引号括起来的"数据值"部分, 就需要将数据进行`JavaScript Escape`编码(即 用`\xHH`转义"除了字母数字字符之外的"所有`ASCII < 256`的字符 即可转义"能够跳出属性值的字符".)
+  * 防御方案 - 将 "不受信任的数据" 放在 JavaScript代码中, 如果放在被引号括起来的"数据值"部分, 就需要将数据进行`JavaScript Encoding`
+    * (1). ascii to **hex**.  格式为`\xHH` 转义"除了字母数字字符之外的"所有`ASCII < 256`的字符, 即可转义"能够跳出属性值的字符".  注: The extended ASCII table 用8bit表示了共256个字符 DEC 0号-255号 即HEX 00-FF 参考https://ascii-code.com
+    * (2). utf-8 to **unicode**. 格式为`\uXXXX`(X是整数). 用unicode转义格式(escaping format) 转义所有字符, 除了字母数字字符.  注: 推荐方案,适用范围广.
     * 注意 不能使用其他转义的方法.  如`\"`这种转义方法可以被逃脱 **escape-the-escape attacks**.
       * 原因1.引号字符`'`或`"` 可能被首先运行起来的"HTML属性解析器"(HTML attribute parser)匹配到.
       * 原因2.逃脱转义. 攻击者构造输入数据`\"` 可能被转义为 `\\"` 使双引号逃脱转义.
@@ -926,7 +928,7 @@ if (isValidURL) {
 | HTML Entity Encoding    | Convert `&` to `&amp;`, Convert `<` to `&lt;`, Convert `>` to `&gt;`, Convert `"` to `&quot;`, Convert `'` to `&#x27;`, Convert `/` to `&#x2F;`|
 | HTML Attribute Encoding | 必须用引号包裹属性的值,并且属性的值需要做HTML实体编码(用 十六进制Hex值的HTML实体编码`&#xHH;`转义"除了字母数字字符之外的"所有ASCII < 256的字符 即可转义"能够跳出属性值的字符").|
 | URL Encoding            | [Standard percent encoding](http://www.w3schools.com/tags/ref_urlencode.asp). URL编码应该只用来编码参数的值,不能对"整个URL"或"URL的path部分"进行编码. |
-| JavaScript Encoding     | 用unicode转义格式(escaping format) `\uXXXX` (X是整数) 转义"除了字母数字字符之外的"所有ASCII < 256的字符|
+| JavaScript Encoding     | utf-8 to **unicode**. 格式为`\uXXXX`(X是整数). 用unicode转义格式(escaping format) 转义所有字符, 除了字母数字字符. |
 | CSS Hex Encoding        | CSS转义(CSS escaping) 支持 `\XX` 和 `\XXXXXX`. Using a two character escape can  cause problems if the next character continues the escape sequence.  There are two solutions (a) Add a space after the CSS escape (will be  ignored by the CSS parser) (b) use the full amount of CSS escaping  possible by zero padding the value. |
 
 #### 应急响应
