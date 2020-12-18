@@ -106,11 +106,15 @@ https://famous-website.tld/signup?redirectUrl=https://evil.tld/account
 
 ### SDL - 防御与修复方案
 
-* 1.设置 "域名白名单" 和 "地址的预期格式".
-* 2.使用编程语言的API获取域名.
-* 3.严格验证用户输入
+* 1.设置"允许的标准"
+  * "域名白名单"
+  * "地址的预期格式"
+    * 地址 - 地址的开头必须是`https://`
+    * 域名 - 域名的最后面的字符串必须是`.white.com`
+* 2.正确处理用户输入. 使用编程语言的API获取域名.
+* 3.严格验证用户输入. 如果不符合"允许的标准" 则直接`return` 不向下执行.
   * 验证用户输入的参数值的"内容".  如果 不符合 "域名白名单", 则直接`return` 不向下执行.
-  * 验证用户输入的参数值的"格式".  如果 不符合 "地址的预期格式", 则直接`return` 不向下执行.
+  * 验证用户输入的参数值的"格式".  如果 不符合 "地址的预期格式" 则直接`return` 不向下执行.
   * 限制用户输入的参数值的"最大长度". 如果超过 "域名白名单"里 最长的域名, 则直接`return` 不向下执行.
 
 >参考[PayloadsAllTheThings/Open Redirect/README.md](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Open%20Redirect/README.md)
