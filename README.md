@@ -54,10 +54,6 @@
  * [笔记 - blockchain - 虚拟币挖矿的各种方式](blockchain_mining.md)
  * [笔记 - 实现各系统的模拟操作](z_auto_operation.md)
 
-#### 公开案例
-
- * [Path Traversal to RCE - Atlassian Bitbucket Data Center](web_case_PathTraversal_to_RCE.md) CVE-2019-3397
-
 #### 公开项目
 
 |项目名称|属性|描述|
