@@ -5,15 +5,15 @@
 
 ```
 * Request Headers
- * Update Content-Length header 
- * Set Connection: close
+  * Update Content-Length header 
+  * Set Connection: close
 
 * Request Engine
 
 * Attack Results
 
-* Grep - Match 匹配
-* Grep - Extract提取   批量提取信息
+* Grep - Match      从Response中批量匹配(Result中只提供是否匹配 无具体值)
+* Grep - Extract    从Response中批量提取具体的信息 支持regex (选中所需数据通常可以自动生成regex)
 * Grep - Payloads载荷
 * Redirections重定向
 ```
@@ -29,19 +29,23 @@ Attack type[攻击类型] - [攻击设置]
 
 #### 1.Attack type:Sniper(狙击兵)
 
-用§§标注多个position
+用`§§`标注多个position
 ```
 如username=§1§&password=§2§&x=28&y=19
 ```
 
-用载荷集合中的内容 按顺序替换 标注过的$position1$（用$$符号标注的第1个地方），发包...
-直到第1个位置已经用过了载荷集1（payload set:1）的所有元素，第二个位置$position2$开始用载荷集1的所有元素。
+用载荷集合中的内容 按顺序替换 标注过的`$position1$`(用$$符号标注的第1个地方)
+
+发包...
+
+直到第1个位置已经用过了载荷集1(payload set:1)的所有元素, 第2个位置`$position2$`开始用载荷集1的所有元素.
 
 攻击前配置的载荷如下
 
-payload set:1 **载荷集合 强制只能为1** 不能设置payload set:2
+payload set:1 **载荷集合 强制唯一 只能为1** 不能设置payload set:2
 
-Payload type:Simple list[可选其他模式]
+Payload type: Simple list  [可选其他模式]
+
 ```
 Payload
 a
@@ -66,14 +70,14 @@ Position  Payload
 
 #### 2.Attack type:Battering ram(攻城槌)
 
-用§§标注多个position如
+用`§§`标注多个position如
 ```
 username=§1§&password=§2§&x=28&y=19
 ```
 
-用载荷集合中的内容 按顺序替换 **所有**标注过的`$position$`（用$$符号标注的地方全都替换为同一内容），发包...
+用载荷集合中的内容 按顺序替换 **所有**标注过的`$position$`(用$$符号标注的地方全都替换为同一内容), 发包...
 
-（下面的例子，看发出的包的内容，第1次发包时，三个position的内容都为a）
+(下面的例子, 看发出的包的内容, 第1次发包时, 三个position的内容都为a)
 
 攻击前配置的载荷如下
 
@@ -109,11 +113,11 @@ Pitchfork(草叉)【一一对应模式】
 
 用载荷集合2中的内容 替换position2
 
-（最多支持5个集合，5个position）
+(最多支持5个集合, 5个position)
 
 发包
 
-（本例共3次发包,交换Payload1和Payload2里的内容也一样只发3次包）
+(本例共3次发包,交换Payload1和Payload2里的内容也一样只发3次包)
 
 攻击前配置的载荷如下
 
@@ -121,7 +125,7 @@ Pitchfork(草叉)【一一对应模式】
 
 payload set:1 **第1个 载荷集合**
 
-Payload type:Simple list[可选其他模式]
+Payload type: Simple list[可选其他模式]
 
 ```
 Payload
@@ -133,7 +137,7 @@ Z
 
 payload set:2**第2个 载荷集合**
 
-Payload type:Simple list[可选其他模式]
+Payload type: Simple list[可选其他模式]
 
 ```
 Payload
@@ -157,7 +161,7 @@ Cluster bomb(集束炸弹)【笛卡尔积模式】
 
 >笛卡尔积 
 ![{\displaystyle X\times Y=\left\{\left(x,y\right)\mid x\in X\land y\in Y\right\}}](https://wikimedia.org/api/rest_v1/media/math/render/svg/b511477a8bb079f00e37db2d8205df2787a648ad)
-举例：
+举例: 
 
 集合X是13个元素的点数集合{ A, K, Q, J, 10, 9, 8, 7, 6, 5, 4, 3, 2 }
 
@@ -166,43 +170,65 @@ Cluster bomb(集束炸弹)【笛卡尔积模式】
 则这两个集合的笛卡儿积是有13*4=52个元素的标准扑克牌的集合{ (A, ♠), (K, ♠), ..., (2, ♠), (A, ♥), ..., (3, ♣), (2, ♣) }
 
 
-第1次发包：
 
-用载荷集合1中的第1条内容 替换position1
+包(序号1)
 
-用载荷集合2中的第**1**条内容替换position2
+用载荷集合1 中的 第**1**条内容 替换position1
 
-第2次发包：
+用载荷集合2 中的 第1条内容 替换position2
 
-用载荷集合1中的第1条内容 替换position1（和上一个包中position2的内容一样）
 
-用载荷集合2中的第**2**条内容替换position2
+包(序号2)
 
-直到Payload1中的每条内容 与 Payload2中第1条内容都发过包了，positon2替换为下一条内容
+用载荷集合1 中的 第**2**条内容 替换 position1
 
-开始发包：
+用载荷集合2 中的 第1条内容 替换 position2(和上一个包中position2的内容一样)
 
-用载荷集合1中的第1条内容 替换position1
 
-用载荷集合2中的第**2**条内容替换position2
+包(序号3)
 
-开始发包：
+用载荷集合1 中的 第**3**条内容 替换 position1
 
-用载荷集合1中的第2条内容 替换position1
+用载荷集合2 中的 第1条内容 替换 position2(和上一个包中position2的内容一样)
 
-用载荷集合2中的第**2**条内容替换position2
+...
 
-开始发包：
-用载荷集合1中的第3条内容 替换position1
+(直到Payload1中的 每条内容 与 Payload2 中的 第1条内容 都发过包了)
 
-用载荷集合2中的第**2**条内容替换position2
+positon2替换为 载荷集合2 中的 下一条内容(在这里是第2条)
+
+
+包(序号x+1)
+
+用载荷集合1 中的 第**1**条内容 替换position1
+
+用载荷集合2 中的 第2条内容 替换position2
+
+
+包(序号x+2)
+
+用载荷集合1 中的 第**2**条内容 替换 position1
+
+用载荷集合2 中的 第2条内容 替换position2
+
 
 ....
 
-直到Payload1中的每条内容 与 Payload2中每条内容都组合发过包了，整体结束。
+....
 
 
-例，用§§标注多个position如username=§1§&password=§2§&x=28&y=19
+直到 载荷集合1 中的 每条内容 与 Payload2 中的 每条内容 都组合发过包了, 整体结束.
+
+
+
+
+
+
+
+例, 用`§§`标注多个position
+
+
+如`username=§1§&password=§2§&x=28&y=19`
 
 攻击发包过程(共12次) 
 
