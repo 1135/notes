@@ -222,9 +222,12 @@ SSRF自动化工具 用于发现漏洞、生成payload等
       * 严格限制参数值的内容 - 参数值内容 视业务而定(如果参数值为IP/域名 可使用编程语言的标准库验证是否为有效的IP/域名)
       * 严格限制参数值的长度 - 字符串的最大长度 视业务而定
       * 字符黑名单检测 - 根据应用程序的实际需求，如果按实际需求参数值中不会有特殊字符，则添加检测逻辑：如果有非预期的非法字符(如 `#` `@` `?` 等)  则`return false` 拒绝向下执行
-    * 禁止重定向(Redirect)
+    * 禁止HTTP重定向(Redirect)
+      * 参考 HTTP状态码 https://tools.ietf.org/html/rfc7231#section-6.4.1
       * 301 redirect 永久性转移(Permanently Moved)
       * 302 redirect 暂时性转移(Temporarily Moved)
+      * 307
+      * ...
     * ...
 
 参考 https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.md
