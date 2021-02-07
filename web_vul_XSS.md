@@ -567,7 +567,8 @@ findIP.then(ip => alert('your ip: '+ip)).catch(e => console.error(e))
 
 #### XSS利用方式 - 对浏览器的存储(Storage)增删改查
 
-cookie
+##### 增删改查 - cookie
+
 ```JavaScript
 // 拿到cookie后
 // 1.访问目标域名 浏览器设置该站点的cookie项 为拿到的cookie项 登录web系统
@@ -600,41 +601,68 @@ function eraseCookie(name) {
 setCookie('name','value',70);
 
 
-// 2.保活Cookie
-// 写脚本 携带拿到的cookie每60s左右访问一次目标站 通常能够维持cookie长期有效!
+// 2.保持使用Cookie 尽量使它不失效.
+// 写脚本 携带拿到的cookie每60s左右发送1个HTTPrequest到后端. 可能会维持cookie长期有效. 具体效果取决于后端的"session管理"实现!  SessionManager
+```
+
+参考 https://shiro.apache.org/session-management.html#SessionManagement-SessionTimeout
+
+默认情况下，Shiro的SessionManager实现默认为30分钟的会话超时。也就是说，如果任何Session创建的内容在 lastAccessedTime 30分钟或更长时间内保持空闲状态（未使用，即未更新），则该内容Session被视为已过期，将不再被允许使用。
+
+在shiro.ini中设置默认会话超时.
+```
+[main]
+...
+# 3,600,000 milliseconds = 1 hour
+securityManager.sessionManager.globalSessionTimeout = 3600000
 ```
 
 
-sessionStorage
+##### 增删改查 - sessionStorage
+
 ```JavaScript
-// sessionStorage.setItem方法  写入key-value对
+// 写入数据 - sessionStorage.setItem方法  写入key-value对
 sessionStorage.setItem("key1","value1");
 
-// sessionStorage.getItem方法  根据key读取对应value
+// 读取数据 - sessionStorage.getItem方法  根据key读取对应value
 var valueSession = sessionStorage.getItem("key1");
 
-//sessionStorage.removeItem方法  删除key-value对
+//删除数据 - sessionStorage.removeItem方法  删除一条Item (key-value对)
 sessionStorage.removeItem('key');
 
-//sessionStorage.clear方法  清除sessionStorage中的所有key-value对
+//清空数据 - sessionStorage.clear方法  清除sessionStorage中的所有 Item(key-value对)
 sessionStorage.clear();
 ```
 
-localStorage
-```JavaScript
-//查看数据 - localStorage中的所有的数据
-alert(JSON.stringify(localStorage))
+##### 增删改查 - localStorage
 
-// 查看数据 - 遍历localStorage中的所有的数据 使用了.key方法
+```JavaScript
+// 读取数据 - 读取localStorage中的所有的数据
+alert(JSON.stringify(localStorage))
+```
+
+```JavaScript
+// 读取数据 - 遍历localStorage中的所有的数据        使用了localStorage.key方法
 for(var i = 0; i < localStorage.length; i++)
 {
     console.log(localStorage.key(i));
 }
 
 
-// localStorage.key方法  查看第 3 条 key-value对
-localStorage.key(3);
+// 解释一下 localStorage.key方法
+// 根据 索引(从0开始) 返回对应的 key-value对.
+// If the index does not exist, null is returned.
+localStorage.key(0);
 ```
+
+```JavaScript
+// 写入数据 - 写入一条Item  Key为key_1  Value为value_1
+localStorage.setItem('key_1', 'value_1');
+```
+##### 增删改查 - IndexedDB
+
+https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
+
 
 #### XSS利用方式 - 自动下载文件
 
