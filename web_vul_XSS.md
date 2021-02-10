@@ -1,3 +1,33 @@
+### 目录
+
+* [简介](#简介)
+* [分类](#分类)
+* [详细分析DOM\-XSS的3个阶段](#详细分析dom-xss的3个阶段)
+  * [基础知识 \- DOM](#基础知识---dom)
+  * [阶段1\.数据输入](#阶段1数据输入)
+  * [阶段2\.处理数据](#阶段2处理数据)
+  * [阶段3\.数据输出点(Sinks)](#阶段3数据输出点sinks)
+  * [DOM based XSS 案例1 \- 从anyElement\.innerHTML触发](#dom-based-xss-案例1---从anyelementinnerhtml触发)
+* [XSS payload 变形](#xss-payload-变形)
+  * [Awesome Encoding](#awesome-encoding)
+  * [Awesome Tips &amp; Tricks](#awesome-tips--tricks)
+* [XSS漏洞影响](#xss漏洞影响)
+  * [XSS利用方式 \- 探测内网](#xss利用方式---探测内网)
+  * [XSS利用方式 \- 对浏览器的存储(Storage)增删改查](#xss利用方式---对浏览器的存储storage增删改查)
+    * [增删改查 \- cookie](#增删改查---cookie)
+    * [增删改查 \- sessionStorage](#增删改查---sessionstorage)
+    * [增删改查 \- localStorage](#增删改查---localstorage)
+    * [增删改查 \- IndexedDB](#增删改查---indexeddb)
+  * [XSS利用方式 \- 自动下载文件](#xss利用方式---自动下载文件)
+  * [XSS利用方式 \- 键盘记录 Keylogger](#xss利用方式---键盘记录-keylogger)
+  * [XSS利用方式 \- 读取本地文件](#xss利用方式---读取本地文件)
+* [SDL \- 防御与修复方案](#sdl---防御与修复方案)
+  * [XSS防御方法](#xss防御方法)
+  * [XSS防御规则总结](#xss防御规则总结)
+  * [输出编码 \- 规则总结](#输出编码---规则总结)
+  * [应急响应](#应急响应)
+  * [浏览器的XSS防御机制 XSS filter](#浏览器的xss防御机制-xss-filter)
+
 ### 简介
 
 跨站脚本攻击(Cross Site Scripting)
@@ -35,6 +65,9 @@
   * 检测方法1  - 浏览器&开发者工具 - 查看经过js解析过的html代码，输入构造的数据并查看其前端解析，构造的payload执行成功则存在DOM Based XSS
   * 检测方法2  - 使用浏览器(headless) - 根据该页面的前端代码设计缺陷，通常在浏览器(headless)的URL输入框构造XSSpayload并访问，使前端解析并执行该XSSpayload，根据headless调试进行判断，如果确认执行成功则存在DOM Based XSS
 
+
+### 详细分析DOM-XSS的3个阶段
+
 #### 基础知识 - DOM
 
 * DOM (Document Object Model)  html中每一个元素都是"节点":
@@ -44,11 +77,10 @@
   * 文本插入到HTML元素是文本节点
   * 注释是注释节点
 
-### 详细分析DOM-XSS的3个阶段
 
 ```
-数据输入源 --> (处理) --> 数据输出点 触发XSS
-Sources --> ... --> Sinks
+数据输入 --> (处理) --> 数据输出点 触发XSS
+Sources -->  ...  --> Sinks
 ```
 
 举例说明:
@@ -61,92 +93,93 @@ Sources --> ... --> Sinks
      * 2.chrome测试通过 - 许多标签的"事件处理属性"  自动触发 `<img src onerror=javascript:alert(1) >` 而其`src`属性并不支持`javascipt:`
    * ...
 
-#### 阶段1.数据源
+#### 阶段1.数据输入
 
 参考Google Code [domxsswiki](https://github.com/wisec/domxsswiki)
 
-数据源(Sources) 即用户输入能够影响以下参数(如果处理不当可能会有"DOM型XSS")
-```
-# Sources 1: URL-based DOM Property Sources
+数据源(Sources): 即以下参数来自"用户输入". 用户可控. (如果处理不当可能会有"DOM型XSS")
 
-# 整个URL
+```javascript
+// Sources 1: URL-based DOM Property Sources
+
+// 整个URL
 document.URL
 document.documentURI
 document.baseURI
 
-# 部分URL
+// 部分URL
 location
 location.href
 location.search
 location.hash
 location.pathname
 
-----
+// --------
 
-## Sources 2: Communication based Sources
+// Sources 2: Communication based Sources
 
-# Ajax (XMLHTTPRequest/Fetch)
+// Ajax (XMLHTTPRequest/Fetch)
 
-# WebSocket
+// WebSocket
 
 # Window Messaging
 window.postMessage
 
-----
+// --------
 
-## Sources 3: Storage-based Sources
+// Sources 3: Storage-based Sources
 
 document.cookie
 localStorage
 sessionStorage
 
-----
+// --------
 
-## Sources 4: Navigation-based DOM Property Sources
+// Sources 4: Navigation-based DOM Property Sources
 
 window.name
 document.referrer
 
-----
+// --------
 
-## 其他Sources
+// 其他Sources
 
 history.pushState()
 history.replaceState()
 ```
 
-```
-例子：浏览器开启开发者模式 访问 https://cn.bing.com/search?q=location#abc
+```javascript
+// 例子：浏览器开启开发者模式 访问 https://cn.bing.com/search?q=location#abc
 
-得到完整URL
+// 得到完整URL
 location.href
 "https://cn.bing.com/search?q=location#abc"
 
-返回一个URL的锚部分 即 #号及之后的内容(如果URL中没有#号则返回空)
+// 返回一个URL的锚部分 即 #号及之后的内容(如果URL中没有#号则返回空)
 location.hash
 "#abc"
 
-返回URL路径名 即第一个/号到?号之间的内容(如果URL中没有?号则是/号到#号之间的内容 如果URL中没有#号则是到URL结束之间的内容)
+// 返回URL路径名 即第一个/号到?号之间的内容(如果URL中没有?号则是/号到#号之间的内容 如果URL中没有#号则是到URL结束之间的内容)
 location.pathname
 "/search"
 
-返回一个URL的查询部分 得到`?`之后到`#`之前的内容(如果URL中没有#号则是到URL结束之间的内容)
+// 返回一个URL的查询部分 得到`?`之后到`#`之前的内容(如果URL中没有#号则是到URL结束之间的内容)
 location.search
 "?q=location"
 ```
 
 #### 阶段2.处理数据
 
-```
-web应用处理用户输入数据
-如果没做处理 或没做好正确的处理 则容易被攻击者构造出payload 触发XSS
-```
+web应用处理用户输入数据. 如果没处理(或没正确地处理) "用户输入的数据", 则可能被攻击者构造出payload,实现XSS.
 
-#### 阶段3.数据输出点(Sinks) 触发XSS
+#### 阶段3.数据输出点(Sinks)
+
+数据输出点(Sinks) 触发XSS.
 
 可能导致DOM based XSS漏洞的函数: (具体能否成功 取决于 阶段1 阶段2)
-```
-## Sinks 1: Sinks that execute payload as JavaScript
+
+```javascript
+// Sinks 1: Sinks that execute payload as JavaScript
 
 eval
 Function
@@ -160,18 +193,18 @@ ScriptElement.textContent
 ScriptElement.innerText
 anyTag.onEventName   // <div onclick="alert(1)">
 
-----
+// --------
 
-## Sinks 2: Sinks that execute payload as HTML
+// Sinks 2: Sinks that execute payload as HTML
 
 anyElement.innerHTML
 anyElement.outerHTML
 document.write   // Will overwrite the page.
 document.writeln // Will overwrite the page.
 
-----
+// --------
 
-## Sinks 3: Sinks that evaluate JavaScript URIs
+// Sinks 3: Sinks that evaluate JavaScript URIs
 
 window.location
 document.location      // 例1 document.location='javascript:alert(2)';  //location is a structured object, with properties corresponding to the parts of the URL.
@@ -181,15 +214,15 @@ location.replace       // 例4 location.replace("javascript:alert(1)")
 
 <form action='javascript:alert(1)'> <input type=submit> </form>  // submit 提交表单时触发XSS
 
-----
+// --------
 
-## 其他Sinks
+// 其他Sinks
 
 Range.createContextualFragment
 crypto.generateCRMFRequest
 ```
 
-#### DOM based XSS 实例1 - 从anyElement.innerHTML触发
+#### DOM based XSS 案例1 - 从anyElement.innerHTML触发
 
 * 对某html元素内的
   * "HTML代码" 进行读`outerHTML`   写`innerHTML`【可导致XSS】
@@ -201,20 +234,30 @@ crypto.generateCRMFRequest
 </div>
 ```
 
-```
+```javascript
 // 使用 .innerHTML .outerHTML 能够读取/写入元素中的html代码.  在console下测试：
 
 
-// 执行  test.innerHTML
-// 输出  <span style="color:red">test1</span> test2
+// 执行
+test.innerHTML
+// 输出
+<span style="color:red">test1</span> test2
 
-// 执行  test.innerText
-// 输出  test1 test2
 
-// 执行  test.outerHTML
-// 输出  <div id="test"><span style="color:red">test1</span> test2</div>
+// 执行
+test.innerText
+// 输出
+test1 test2
 
-// 执行 document.documentElement.innerHTML
+
+// 执行
+test.outerHTML
+// 输出
+<div id="test"><span style="color:red">test1</span> test2</div>
+
+
+// 执行
+document.documentElement.innerHTML
 // 输出 整个html document的内容
 ```
 
@@ -272,7 +315,6 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 <plaintext>
 ...
 ```
-
 
 ### XSS payload 变形
 
@@ -348,6 +390,7 @@ onhashchange=setTimeout;Object.prototype.toString=RegExp.prototype.toString;Obje
 # 使用//可以结束svg标签 需//之后有任意标签<x> 则svg标签中的JavaScript就能成功执行
 <svg onload=confirm()//
 ```
+
 
 - 不出现字符串 `alert` `confirm` `prompt`
 
@@ -689,6 +732,22 @@ window.URL.revokeObjectURL(url);
 .catch(() => console.log('download fail!'));
 ```
 
+#### XSS利用方式 - 键盘记录 Keylogger
+
+成熟的Keylogger
+```JavaScript
+// 暂不公开
+```
+
+keylogger demo
+```JavaScript
+var key_presses = []; // Record all key presses into an array
+window.addEventListener("keydown", function(evt){
+key_presses.push(evt.key); // push into array 
+console.log(evt.key); //log key press
+});
+```
+
 #### XSS利用方式 - 读取本地文件
 
 * 利用XSS读取本地文件 - 利用条件(漏洞根源)
@@ -780,7 +839,9 @@ x.send();
     * 如 [AngularJS strict contextual escaping](https://docs.angularjs.org/api/ng/service/$sce)
     * 如 [Go Templates](https://golang.org/pkg/html/template/)
   * 建议使用`X-XSS-Protection`响应头 - 现代浏览器默认开启. 使用Response Header`X-XSS-Protection: 1` 使浏览器为当前页面强制重新开启XSS filter(如果用户禁用了XSS filter)
-  * API接口 - 显式规定MIME类型. 即Response Header `Content-Type`的值. 如json格式的Response 则设置为`Content-type: application/json`
+  * API接口 - 显式规定MIME类型. 即Response Header `Content-Type`的值.
+    * 如json格式的Response Body 则设置为`Content-type: application/json`
+    * 如下载 则设置为`Content-Type: application/octet-stream`
   * Cookie安全设计参考 - [Security Cookies Whitepaper](https://www.netsparker.com/security-cookies-whitepaper//?utm_source=twitter.com&utm_medium=social&utm_content=security+cookies+whitepaper&utm_campaign=netsparker+social+media)
     * 如在`Set-Cookie: `中增加  `; secure` 仅允许HTTPS协议中传输cookie
     * 如在`Set-Cookie: `中增加  `; HttpOnly` 当客户端脚本代码读取cookie 则浏览器返回一个空字符串
@@ -849,7 +910,7 @@ x.send();
   * 正例 变量赋值 `<script>x='...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE...'</script>`
   * 正例 事件处理属性`<div onmouseover="x='...ESCAPE UNTRUSTED DATA BEFORE PUTTING HERE...'"</div>`
 * XSS防御规则#3.1 - HTML转义HTML内容中的JSON值. 并使用`JSON.parse`读取数据.
-  * API接口 - 显式规定MIME类型. 即Response Header `Content-Type`的值. 如json格式 则设置为`Content-type: application/json`
+  * API接口 - 显式规定MIME类型. 即Response Header `Content-Type`的值. 如json格式的Response Body 则设置为`Content-type: application/json`
   * anti-pattern - 不能直接这么写`<script>var initData = <%= data.to_json %>; </script>` 而必须用以下的编码方式:
     * 编码方式1 安全的JSON序列化程序(JSON serialization)
       * 一个安全的JSON serializer能够使开发人员将 `JSON` 序列化为 **"绝对的JavaScript文本字符串"(string of literal JavaScript)** 然后把它嵌入`<script>`标签中是安全的.
@@ -977,6 +1038,6 @@ if (isValidURL) {
 * 存储型XSS
   * 必须删除业务数据库中的XSSpayload - 如果在web系统A中发现了存储型XSS，web系统A修复了XSS漏洞（web系统A做了输出编码 XSSpayload无法执行），但如果没有删除业务数据库中的XSSpayload，则可能在"XSS防御能力较弱"的web系统B中，从同一个数据库中读取出的同一条数据（XSSpayload），那么在web系统B会触发XSS漏洞
 
-#### 浏览器自带的XSS防御机制 XSS filter
+#### 浏览器的XSS防御机制 XSS filter
 
 搜索绕过方法`chrome xss filter bypass`
